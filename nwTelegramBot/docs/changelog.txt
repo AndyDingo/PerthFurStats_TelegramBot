@@ -1,0 +1,32 @@
+﻿NW's TELEGRAM BOT -Changelog-
+============================================================================================
+
+VERSION: 1.0
+FOR: WINDOWS 8/10+
+LAST UPDATED ON: 
+LAST UPDATED BY: ANDYDINGOWOLF
+
+Please use "Word Wrap" if using notepad or wordpad to view this file.
+
++==================================+
+Note: All changes go in this log file under the version those
+changes were made for. Newest Changes generally go first.
++==================================+
+
+Version 0.30 ALPHA
+------------------------------------
+- Logs to file with timestamps. [AndyDingo]
+- Settings file added. [AndyDingo]
+- Update notifier added. [AndyDingo]
+- new setting 'botresponds' (Does the bot respond to certain commands?) [AndyDingo]
+- new setting 'dloadmedia' (NYI) [AndyDingo]
+- new setting 'debugmode' (NYI) [AndyDingo]
+- setting 'logformat' has been renamed 'dateformat'. [AndyDingo]
+- new setting 'timeformat'. [AndyDingo]
+- add weather api. [AndyDingo]
+- add slash commands. [AndyDingo]
+- fixed /roll command.
+- fixed /stats command.
+
+EOF
++==================================+

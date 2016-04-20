@@ -1,0 +1,21 @@
+﻿NW's TELEGRAM BOT -Things to do-
+============================================================================================
+
+VERSION: 1.0
+FOR: WINDOWS 8/10+
+LAST UPDATED ON: 
+LAST UPDATED BY: ANDYDINGOWOLF
+
+Please use "Word Wrap" if using notepad or wordpad to view this file.
+
++==================================+
+
+- Implement sticker captions.
+- Better implement photos.
+- Better implement join/leave code
+
+Roadmap:
+
+
+EOF
++==============================+
