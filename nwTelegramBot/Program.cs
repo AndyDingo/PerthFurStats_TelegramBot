@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.33
+ * Version   : 1.0.0.35
  */
 
 using System;
@@ -281,6 +281,7 @@ namespace nwTelegramBot
                         //If we have set the bot to be able to respond to our basic commands
                         if (nwGrabString("botresponds") == "true" || nwGrabString("debugmode") == "true")
                         {
+                            // TODO: MOVE ALL COMMANDS TO pfsCommandBot
                             nwProcessSlashCommands(Bot, update, me, m);
                         }
                         else
@@ -780,7 +781,7 @@ namespace nwTelegramBot
                                 replyText = "Hi " + update.Message.From.FirstName + ", Here's a list of commands I can respond to: http://www.perthfurstats.net/node/11 Note that it hasn't been properly updated for Telegram yet.";
                             break;
                         case "/event":
-                        case "/events":
+                        case "/events": // TODO: Finish this command
                             XmlDocument dook = new XmlDocument();
                             dook.Load("http://www.perthfurs.net/events.xml");
                             DateTime dta = new DateTime(2016, 4, 1);
@@ -843,24 +844,24 @@ namespace nwTelegramBot
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = body;
                             break;
-                        case "/jelly":
+                        case "/jelly": // TODO: Finish this command
                             // usage /jelly [yes|no] leave blank and bot will repeat query.
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "This command is not yet implemented.";
                             break;
-                        case "/slap":
+                        case "/slap": // TODO: Finish this command
                             // usage /slap [nickname] bot will slap the person matching the nickname.
                             // will return "yournickname slaps targetnickname around with [randomobject]
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "This command is not yet implemented.";
                             break;
-                        case "/image":
+                        case "/image": // TODO: Finish this command
                             // 
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "This command is not yet implemented.";
                             break;
                         case "/humour":
-                        case "/joke":
+                        case "/joke": // TODO: Fix this command
                             int jokeuse = nwGrabInt("cusage/joke");
                             int jokemax = nwGrabInt("climits/joke");
 
@@ -1041,14 +1042,14 @@ namespace nwTelegramBot
                                 break;
                             }
                             break;
-                        case "/em":// todo
+                        case "/em": // TODO: Finish this command
                         case "/target":
                             // usage /em -[action (see list of actions)] -[@username of target]
                             // performs an action on a target
                             replyText = nwRandomGreeting() + ". Coming soon";
 
                             break;
-                        case "/me": // todo
+                        case "/me": // TODO: Finish this command
                             // performs an action on the caller
                             // usage /em -[action (see list of actions)]
                             //usage
@@ -1109,22 +1110,23 @@ namespace nwTelegramBot
 
                             nwSetString("cusage/about", Convert.ToString(1));
                             break;
-                        case "/wiki":
-                            if (body == string.Empty)
-                            {
-                                replyText = "Usage: /wiki <Query>";
-                                break;
-                            }
-                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
-                            dynamic dwiki = JObject.Parse(httpClient.DownloadString("https://en.wikipedia.org/w/api.php?action=parse&prop=text&uselang=en&format=json&page=" + HttpUtility.UrlEncode(body)).Result);
-                            string wikiBody = Regex.Replace(dwiki.parse.text.ToString(), "<.*?>", string.Empty).ToString();
-                            wikiBody = HttpUtility.HtmlDecode(wikiBody.Substring(16, wikiBody.Length - 16).Replace("\\n", " ").Replace("\\r", "").Replace("\\", "").Replace("\\\"", "\"").Replace("   ", " ").Replace("  ", " ").Replace("  ", " "));
-                            if (wikiBody.Length > 800)
-                            {
-                                wikiBody = wikiBody.Substring(0, 800) + "...";
-                            }
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = dwiki.parse.title + " | " + wikiBody;
+                        case "/wiki": // TODO: Fix this command
+                            
+                            //if (body == string.Empty)
+                            //{
+                            //    replyText = "Usage: /wiki <Query>";
+                            //    break;
+                            //}
+                            //bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                            //dynamic dwiki = JObject.Parse(httpClient.DownloadString("https://en.wikipedia.org/w/api.php?action=parse&prop=text&uselang=en&format=json&page=" + HttpUtility.UrlEncode(body)).Result);
+                            //string wikiBody = Regex.Replace(dwiki.parse.text.ToString(), "<.*?>", string.Empty).ToString();
+                            //wikiBody = HttpUtility.HtmlDecode(wikiBody.Substring(16, wikiBody.Length - 16).Replace("\\n", " ").Replace("\\r", "").Replace("\\", "").Replace("\\\"", "\"").Replace("   ", " ").Replace("  ", " ").Replace("  ", " "));
+                            //if (wikiBody.Length > 800)
+                            //{
+                            //    wikiBody = wikiBody.Substring(0, 800) + "...";
+                            //}
+                            //if (nwCheckInReplyTimer(dt) != false)
+                            //    replyText = dwiki.parse.title + " | " + wikiBody;
                             break;
                         case "/wrist":
                         case "/wrists":
@@ -1139,15 +1141,12 @@ namespace nwTelegramBot
                             }
                             break;
                     }
-
-
+                    
                     // Add to total command use
                     int totaluse = nwGrabInt("cusage/total");
                     totaluse++;
                     nwSetString("cusage/total", Convert.ToString(totaluse));
-
-
-
+                    
                     // Output
                     replyText += stringBuilder.ToString();
 
