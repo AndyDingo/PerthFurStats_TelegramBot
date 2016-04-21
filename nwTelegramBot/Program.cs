@@ -299,6 +299,22 @@ namespace nwTelegramBot
                         }
                     }
 
+                    // UNKNOWN MESSAGES.
+                    // TODO: Work out what to actually flocking do with them.
+                    if (update.Message.Type == MessageType.UnknownMessage)
+                    {
+                        await Task.Delay(2000);
+
+                        DateTime m = update.Message.Date.ToLocalTime();
+
+                        using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                        {
+                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: Unknown, please report");
+
+                            //sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: Unknown, please report");
+                        }
+                    }
+
                     // SERVICE MESSAGES
                     if (update.Message.Type == MessageType.ServiceMessage)
                     {
@@ -342,9 +358,9 @@ namespace nwTelegramBot
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
                             if (nwGrabString("debugmode") == "true")
-                                nwPrintSystemMessage("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " posted an unknown sticker.");
+                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted an unknown sticker.");
                             else
-                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " posted an unknown sticker.");
+                                Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted an unknown sticker.");
 
                             sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_cleanname + " has posted an unknown sticker.");
                         }
@@ -1078,24 +1094,26 @@ namespace nwTelegramBot
                                 replyText = "1 USD = " + exo;
                             break;
                         case "/forecast":
-                        case "/weather":
+                        case "/weather": // TODO - change to BOM api
                             if (body.Length < 2)
                             {
                                 body = "Perth, Australia";
                             }
 
                             bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
-                            dynamic dfor = JObject.Parse(httpClient.DownloadString("http://api.wunderground.com/api/" + wundergroundKey + "/forecast/q/" + body + ".json").Result);
+
+                            //dynamic dfor = JObject.Parse(httpClient.DownloadString("http://api.wunderground.com/api/" + wundergroundKey + "/forecast/q/" + body + ".json").Result);
+                            dynamic dfor = JObject.Parse(httpClient.DownloadString("http://www.bom.gov.au/fwo/IDW60801/IDW60801.94608.json").Result);
                             if (dfor.forecast == null || dfor.forecast.txt_forecast == null)
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", you have disappointed me.  \"" + body + "\" is sadly, not going to work.  Please try \"City, ST\" or \"City, Country\" next time.";
                                 break;
                             }
-                            for (var ifor = 0; ifor < Enumerable.Count(dfor.forecast.txt_forecast.forecastday) - 1; ifor++)
+                            for (var ifor = 0; ifor < Enumerable.Count(dfor.observations.data.sort_order) - 1; ifor++)
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    stringBuilder.AppendLine(dfor.forecast.txt_forecast.forecastday[ifor].title.ToString() + ": " + dfor.forecast.txt_forecast.forecastday[ifor].fcttext_metric.ToString());
+                                    stringBuilder.AppendLine(dfor.observations.data.sort_order[ifor].title.ToString() + ": " + dfor.observations.data.sort_order[ifor].fcttext_metric.ToString());
                             }
 
                             break;
@@ -1253,6 +1271,10 @@ namespace nwTelegramBot
             }
         }
 
+        /// <summary>
+        /// Spit out a randomly selected greeting.
+        /// </summary>
+        /// <returns>A greeting, as a string.</returns>
         private static string nwRandomGreeting()
         {
            int i =cDiceBag.Instance.d8(1);
@@ -1317,6 +1339,10 @@ namespace nwTelegramBot
             Console.ForegroundColor = ConsoleColor.Green;
         }
 
+        /// <summary>
+        /// Catch an error, do a few things to it.
+        /// </summary>
+        /// <param name="ex"></param>
         private static void nwErrorCatcher(Exception ex)
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -1330,7 +1356,7 @@ namespace nwTelegramBot
         }
 
         // Permission system below this line.
-
+        // TODO : Finish this
         private static PermissionType nwGetUserPermissions(string firstName)
         {
             XmlDocument xdoc = new XmlDocument();
