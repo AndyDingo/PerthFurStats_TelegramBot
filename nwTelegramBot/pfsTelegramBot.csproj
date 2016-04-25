@@ -90,7 +90,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="data\events.json" />
-    <None Include="nwTelegramBot.log">
+    <None Include="pfsTelegramBot.log">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="nwTelegramBot.User.cfg">
@@ -127,7 +127,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
-    <None Include="nwTelegramBot.cfg">
+    <None Include="pfsTelegramBot.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </None>

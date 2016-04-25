@@ -47,9 +47,9 @@ namespace nwTelegramBot
             Console.ForegroundColor = originalColor;
         }
 
-        public static string logfile = Environment.CurrentDirectory + @"\nwTelegramBot.log";
+        public static string logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log";
         public static string updfile = Environment.CurrentDirectory + @"\updchk.xml";
-        public static string cfgfile = Environment.CurrentDirectory + @"\nwTelegramBot.cfg";
+        public static string cfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.cfg";
 
 
         /// <summary>
@@ -79,7 +79,6 @@ namespace nwTelegramBot
 
                 Console.WriteLine(); // blank line
 
-
                 if (isAvailable == true)
                     Run().Wait();
                 else
@@ -107,6 +106,10 @@ namespace nwTelegramBot
 
                 Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: Loading configuration...");
 
+                // Work item 01. Create our XML document if it doesn't exist
+                if (File.Exists(cfgfile)!=true)
+                    nwCreateSettings(dt);
+
                 // Populate the strings
                 s = nwGrabString("filename"); //file name [NYI]
                 str_ups = nwGrabString("updatesite"); //update site
@@ -129,6 +132,68 @@ namespace nwTelegramBot
             catch (Exception ex)
             {
                 nwErrorCatcher(ex);
+            }
+        }
+
+        /// <summary>
+        /// Create the settings file, if it doesn't exist. It should, but just to be on the safe side.
+        /// </summary>
+        /// <param name="dt">A DateTime object.</param>
+        private static void nwCreateSettings(DateTime dt)
+        {
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Indent = true;
+            settings.IndentChars = ("  ");
+            using (XmlWriter writer = XmlWriter.Create(cfgfile, settings))
+            {
+                // Write XML data.
+                writer.WriteStartElement("config");
+                writer.WriteAttributeString("version", "0.7"); // See NW Framework docs for features each version has
+
+                writer.WriteComment("PerthFurStats Bot configuration File");
+                writer.WriteComment("This file is generated (mostly)automatically, please don't edit manually");
+             
+                writer.WriteElementString("logformat", "mircstats");
+                writer.WriteElementString("dateformat", "yyyyMMdd");
+                writer.WriteElementString("timeformat", "HH:mm");
+                writer.WriteElementString("filename", "#perthfurs");
+                writer.WriteElementString("basename", "perthfurs.log");
+                writer.WriteElementString("dloadImages", "false");
+                writer.WriteElementString("dloadMedia", "false");
+                writer.WriteElementString("botresponds", "true");
+                writer.WriteElementString("debugmode", "true");
+                // Start command usage element
+                writer.WriteStartElement("cusage");
+                writer.WriteElementString("about", "0");
+                writer.WriteElementString("admin", "0");
+                writer.WriteElementString("cat", "0");
+                writer.WriteElementString("echo", "0");
+                writer.WriteElementString("emote", "0");
+                writer.WriteElementString("joke", "0");
+                writer.WriteElementString("roll", "0");
+                writer.WriteElementString("say", "0");
+                writer.WriteElementString("stats", "0");
+                writer.WriteElementString("user", "0");
+                writer.WriteElementString("total", "0");
+                // End command usage element
+                writer.WriteEndElement();
+                // Start command usage limit element
+                writer.WriteStartElement("climits");
+                writer.WriteElementString("about", "10");
+                writer.WriteElementString("admin", "10");
+                writer.WriteElementString("cat", "10");
+                writer.WriteElementString("echo", "10");
+                writer.WriteElementString("emote", "20");
+                writer.WriteElementString("joke", "5");
+                writer.WriteElementString("roll", "5");
+                writer.WriteElementString("say", "10");
+                writer.WriteElementString("stats", "10");
+                writer.WriteElementString("user", "10");
+                // End command usage limit element
+                writer.WriteEndElement();
+                // End CONFIG element
+                writer.WriteEndElement();
+                writer.Flush();
             }
         }
 
