@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.35
+ * Version   : 1.0.0.36
  */
 
 using System;
@@ -750,6 +750,7 @@ namespace nwTelegramBot
                                 replyText = "This command is not yet implemented.";
                             break;
                         case "/die":
+                        case "/kill":
                             if (update.Message.From.FirstName != "Andy" || update.Message.From.Username != "AndyDingoFolf")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
@@ -868,8 +869,30 @@ namespace nwTelegramBot
                         case "/slap": // TODO: Finish this command
                             // usage /slap [nickname] bot will slap the person matching the nickname.
                             // will return "yournickname slaps targetnickname around with [randomobject]
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "This command is not yet implemented.";
+                            int emuse = nwGrabInt("cusage/emote");
+                            int emmax = nwGrabInt("climits/emote");
+
+                            if (body == string.Empty || body == " ")
+                            {
+                                bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "*slaps " + update.Message.From.Username + " around with a large trout*";
+
+                                nwSetString("cusage/stats", Convert.ToString(emuse++));
+                                break;
+                            }
+                            
+                                string basestr1 = body;
+                                string[] mysplit1 = new string[] { "", "" };
+                                mysplit1 = basestr1.Split('-');
+
+                                string ms11 = mysplit1[1];
+
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "*" + update.Message.From.Username + " slaps " + ms11 + " around with a large trout*";
+
+                            nwSetString("cusage/stats", Convert.ToString(emuse++));
                             break;
                         case "/image": // TODO: Finish this command
                             // 
@@ -974,7 +997,7 @@ namespace nwTelegramBot
                             }
                             if (body.Length < 2)
                             {
-                                body = "test message";
+                                break;
                             }
 
                             if (nwCheckInReplyTimer(dt) != false)
