@@ -879,7 +879,7 @@ namespace nwTelegramBot
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "*slaps " + update.Message.From.Username + " around with a large trout*";
 
-                                nwSetString("cusage/stats", Convert.ToString(emuse++));
+                                nwSetString("cusage/emote", Convert.ToString(emuse++));
                                 break;
                             }
                             
@@ -1085,14 +1085,33 @@ namespace nwTelegramBot
                         case "/target":
                             // usage /em -[action (see list of actions)] -[@username of target]
                             // performs an action on a target
+                            emuse = nwGrabInt("cusage/emote");
+                            emmax = nwGrabInt("climits/emote");
+
+                            if (body == string.Empty || body == " ")
+                            {
+                                break;
+                            }
+
                             replyText = nwRandomGreeting() + ". Coming soon";
 
+                            nwSetString("cusage/emote", Convert.ToString(emuse++));
                             break;
                         case "/me": // TODO: Finish this command
-                            // performs an action on the caller
-                            // usage /em -[action (see list of actions)]
-                            //usage
+                                    // performs an action on the caller
+                                    // usage /em -[action (see list of actions)]
+                                    //usage
+                            emuse = nwGrabInt("cusage/emote");
+                            emmax = nwGrabInt("climits/emote");
+
+                            if (body == string.Empty || body == " ")
+                            {
+                                break;
+                            }
+
                             replyText = nwRandomGreeting() + ". Coming soon";
+
+                            nwSetString("cusage/emote", Convert.ToString(emuse++));
                             break;
                         case "/user":
 
