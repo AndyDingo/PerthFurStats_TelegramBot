@@ -93,7 +93,7 @@
     <None Include="pfsTelegramBot.log">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="nwTelegramBot.User.cfg">
+    <None Include="pfsTelegramBot.User.cfg">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

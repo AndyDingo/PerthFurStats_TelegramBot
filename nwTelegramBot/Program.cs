@@ -1238,24 +1238,6 @@ namespace nwTelegramBot
 
                             nwSetString("cusage/about", Convert.ToString(1));
                             break;
-                        case "/wiki": // TODO: Fix this command
-                            
-                            //if (body == string.Empty)
-                            //{
-                            //    replyText = "Usage: /wiki <Query>";
-                            //    break;
-                            //}
-                            //bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
-                            //dynamic dwiki = JObject.Parse(httpClient.DownloadString("https://en.wikipedia.org/w/api.php?action=parse&prop=text&uselang=en&format=json&page=" + HttpUtility.UrlEncode(body)).Result);
-                            //string wikiBody = Regex.Replace(dwiki.parse.text.ToString(), "<.*?>", string.Empty).ToString();
-                            //wikiBody = HttpUtility.HtmlDecode(wikiBody.Substring(16, wikiBody.Length - 16).Replace("\\n", " ").Replace("\\r", "").Replace("\\", "").Replace("\\\"", "\"").Replace("   ", " ").Replace("  ", " ").Replace("  ", " "));
-                            //if (wikiBody.Length > 800)
-                            //{
-                            //    wikiBody = wikiBody.Substring(0, 800) + "...";
-                            //}
-                            //if (nwCheckInReplyTimer(dt) != false)
-                            //    replyText = dwiki.parse.title + " | " + wikiBody;
-                            break;
                         case "/wrist":
                         case "/wrists":
                             if (nwCheckInReplyTimer(dt) != false)

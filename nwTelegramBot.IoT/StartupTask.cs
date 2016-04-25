@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.19
+ * Version   : 1.0.0.36
  */
 
 using Windows.ApplicationModel.Background;
@@ -63,11 +63,6 @@ namespace nwTelegramBot.IoT
             }
         }
         
-
-
-
-    
-
         /// <summary>
         /// Returns a string to be used as part of a date time format.
         /// </summary>
