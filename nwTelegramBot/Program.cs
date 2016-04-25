@@ -31,8 +31,11 @@ namespace nwTelegramBot
     // ReSharper disable CatchAllClause
     class Program
     {
-
-        //public static event EventHandler<InlineQueryEventArgs> _show;
+        // Declare Variables
+        public static string logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log";
+        public static string updfile = Environment.CurrentDirectory + @"\updchk.xml";
+        public static string cfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.cfg"; // Main config
+        public static string ucfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.User.cfg"; // User config
 
         /// <summary>
         /// Multi-color line method.
@@ -46,11 +49,6 @@ namespace nwTelegramBot
             Console.Write(text);
             Console.ForegroundColor = originalColor;
         }
-
-        public static string logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log";
-        public static string updfile = Environment.CurrentDirectory + @"\updchk.xml";
-        public static string cfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.cfg";
-
 
         /// <summary>
         /// This is the main method, if you will.
@@ -108,7 +106,7 @@ namespace nwTelegramBot
 
                 // Work item 01. Create our XML document if it doesn't exist
                 if (File.Exists(cfgfile)!=true)
-                    nwCreateSettings(dt);
+                    nwCreateSettings();
 
                 // Populate the strings
                 s = nwGrabString("filename"); //file name [NYI]
@@ -138,8 +136,7 @@ namespace nwTelegramBot
         /// <summary>
         /// Create the settings file, if it doesn't exist. It should, but just to be on the safe side.
         /// </summary>
-        /// <param name="dt">A DateTime object.</param>
-        private static void nwCreateSettings(DateTime dt)
+        private static void nwCreateSettings()
         {
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
@@ -825,6 +822,10 @@ namespace nwTelegramBot
                             replyText = "Goodbye.";
                             Environment.Exit(0);
                             break;
+                        case "/e621":
+                            if (nwCheckInReplyTimer(dt) != false)
+                                replyText = "Not happening!";
+                            break;
                         case "/killcmds":
                             if (update.Message.From.FirstName != "Andy" ||
                                 update.Message.From.Username != "AndyDingoFolf" ||
@@ -942,20 +943,22 @@ namespace nwTelegramBot
                                 bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
 
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "*slaps " + update.Message.From.Username + " around with a large trout*";
+                                    replyText = "*@PFStats_bot slaps @" + update.Message.From.Username + " around with a large trout!*";
 
                                 nwSetString("cusage/emote", Convert.ToString(emuse++));
                                 break;
                             }
-                            
-                                string basestr1 = body;
-                                string[] mysplit1 = new string[] { "", "" };
-                                mysplit1 = basestr1.Split('-');
 
-                                string ms11 = mysplit1[1];
+                            string basestr1 = body;
+                            string[] mysplit1 = new string[] { "", "" };
+                            mysplit1 = basestr1.Split('@');
 
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "*" + update.Message.From.Username + " slaps " + ms11 + " around with a large trout*";
+                            string ms11 = mysplit1[1];
+
+                            if (nwCheckInReplyTimer(dt) != false && ms11 != string.Empty)
+                                replyText = "*@" + update.Message.From.Username + " slaps " + ms11 + " around with a large trout!*";
+                            else
+                                replyText = "*@PFStats_bot slaps @" + update.Message.From.Username + " around with a large trout!*";
 
                             nwSetString("cusage/stats", Convert.ToString(emuse++));
                             break;
