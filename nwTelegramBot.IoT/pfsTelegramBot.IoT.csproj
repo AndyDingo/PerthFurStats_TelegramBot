@@ -8,7 +8,7 @@
     <OutputType>winmdobj</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>nwTelegramBot.IoT</RootNamespace>
-    <AssemblyName>nwTelegramBot.IoT</AssemblyName>
+    <AssemblyName>pfsTelegramBot.IoT</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.10586.0</TargetPlatformVersion>

@@ -9,6 +9,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pfsTelegramBot.IoT", "nwTel
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pfsCommandBot", "pfsCommandBot\pfsCommandBot.csproj", "{C9C0E52A-5029-42B5-BBCB-5062B8EF0998}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other Stuff", "Other Stuff", "{812C17C6-A6AB-4691-897B-523C536F05FF}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

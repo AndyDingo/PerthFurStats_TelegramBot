@@ -1,4 +1,16 @@
-﻿using System.Resources;
+﻿/* 
+ * All contents copyright 2016, Andy Dingo and Contributors
+ * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
+ * Please read docs/gpl.txt for licensing information.
+ * ---------------------------------------------------------------
+ * -- CREATOR INFORMATION --
+ * Created by: Microsoft Visual Studio 2015.
+ * User      : AndyDingoWolf
+ * -- VERSION --
+ * Version   : 1.0.0.36
+ */
+
+using System.Resources;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -25,9 +37,9 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.26")]
-[assembly: AssemblyFileVersion("1.0.0.26")]
-[assembly: AssemblyInformationalVersion("1.0.0.26")]
+[assembly: AssemblyVersion("1.0.0.36")]
+[assembly: AssemblyFileVersion("1.0.0.36")]
+[assembly: AssemblyInformationalVersion("1.0.0.36")]
 [assembly: ComVisible(false)]
 [assembly: NeutralResourcesLanguage("en-AU")]
 
