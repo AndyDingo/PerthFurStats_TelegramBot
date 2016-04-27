@@ -18,11 +18,11 @@ using System.Resources;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NW's Telegram Bot")]
+[assembly: AssemblyTitle("PerthFurStats Chat Command Bot")]
 [assembly: AssemblyDescription("A Bot for Telegram")]
 [assembly: AssemblyConfiguration("Debug")]
 [assembly: AssemblyCompany("Nytewolf Creations")]
-[assembly: AssemblyProduct("NW's Telegram Bot")]
+[assembly: AssemblyProduct("PerthFurStats Chat Command Bot")]
 [assembly: AssemblyCopyright("Copyright © 2016 Nytewolf Creations")]
 [assembly: AssemblyTrademark("Telegram is a cloud-based mobile and desktop messaging app with a focus on security and speed.")]
 [assembly: AssemblyCulture("")]

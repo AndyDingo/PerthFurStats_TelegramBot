@@ -11,29 +11,21 @@
  */
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System;
-using System.Resources;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NW's Telegram Bot")]
+[assembly: AssemblyTitle("PerthFurStats Chat Logger Bot")]
 [assembly: AssemblyDescription("A Bot for Telegram")]
 [assembly: AssemblyConfiguration("Debug")]
 [assembly: AssemblyCompany("Nytewolf Creations")]
-[assembly: AssemblyProduct("NW's Telegram Bot")]
+[assembly: AssemblyProduct("PerthFurStats Chat Logger Bot")]
 [assembly: AssemblyCopyright("Copyright © 2016 Nytewolf Creations")]
 [assembly: AssemblyTrademark("Telegram is a cloud-based mobile and desktop messaging app with a focus on security and speed.")]
 [assembly: AssemblyCulture("")]
 
-// Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
-// COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("4da459dc-df9d-455b-8f25-08e03b71b554")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -48,12 +40,4 @@ using System.Resources;
 [assembly: AssemblyVersion("1.0.0.36")]
 [assembly: AssemblyFileVersion("1.0.0.36")]
 [assembly: AssemblyInformationalVersion("1.0.0.36")]
-[assembly: NeutralResourcesLanguageAttribute("en-AU")]
-
-//[assembly: PermissionSetAttribute(SecurityAction.RequestMinimum, Name = "FullTrust")]
-
-#if (OFFICIAL_RELEASE)
-[assembly: AssemblyDelaySign(false)]
-[assembly: AssemblyKeyFile("nwtelegrambot.snk")]
-[assembly: AssemblyKeyName("")]
-#endif
+[assembly: ComVisible(false)]
