@@ -1,7 +1,7 @@
 ﻿NW's TELEGRAM BOT -Readme-
 ============================================================================================
 
-VERSION: 1.0
+VERSION: 1.0.0.36
 FOR: WINDOWS 8/10+
 LAST UPDATED ON: 
 LAST UPDATED BY: ANDYDINGOWOLF
@@ -15,20 +15,14 @@ TABLE OF CONTENTS
 1. INTRODUCTION
 2. REQUIREMENTS
 3. DISTRIBUTION
-4. HOW TO USE
-5. KNOWN ISSUES
-6. SHORTCUT KEYS
-7. WHAT'S NEW
-8. VERSION HISTORY
-9. FREQUENTLY ASKED QUESTIONS
-10. LEGAL INFORMATION
-11. CREDITS
+4. LEGAL INFORMATION
+5. CREDITS
 
 +==================================+
 1. INTRODUCTION
 +==================================+
 
-INSERT INTRO HERE
+This Telegram bot is a bot for the Perthfurs Safe for work Telegram group chat, which is divided into 2 bots, one for command functions, the other for chat logging.
 
 +==============================+
 3. DISTRIBUTION
@@ -37,7 +31,7 @@ INSERT INTRO HERE
 This program and it's associated source files may be distributed freely in accordance with the GPL. Please view gpl.txt for more information.
 
 +==============================+
-10. LEGAL INFORMATION
+4. LEGAL INFORMATION
 +==============================+
 
 © COPYRIGHT 2016 NYTEWOLF CREATIONS, ALL RIGHTS RESERVED.
@@ -46,17 +40,19 @@ All original content is © 2016 AndyDingo and contributors.
 
 This program is licensed in accordance with the GPL. a copy of the GPL is included with this distribution and may be viewed in the 'docs' directory. Please view gpl.txt for more information.
 
+Uses the Telegram.Bot C# Library by MrRoundRobin.
+
 +==================================+
-11. CREDITS
+5. CREDITS
 +==================================+
 
 Project Manager: AndyDingo
 Lead Programmer: AndyDingo
 
 Thanks to:
-Telegram Bot API -
-TelegramBot C# Library - 
-TelegramBot C# Example Bot - 
+Telegram Bot API - Telegram
+Telegram.Bot C# Library - MrRoundRobin
+Telegram.Bot C# Example Bot - MrRoundRobin
 
 
 EOF

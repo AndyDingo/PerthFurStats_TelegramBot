@@ -1,7 +1,7 @@
 ﻿NW's TELEGRAM BOT -Changelog-
 ============================================================================================
 
-VERSION: 1.0
+VERSION: 1.0.0.36
 FOR: WINDOWS 8/10+
 LAST UPDATED ON: 
 LAST UPDATED BY: ANDYDINGOWOLF
@@ -13,7 +13,7 @@ Note: All changes go in this log file under the version those
 changes were made for. Newest Changes generally go first.
 +==================================+
 
-Version 0.30 ALPHA
+Version 0.36 ALPHA
 ------------------------------------
 - Logs to file with timestamps. [AndyDingo]
 - Settings file added. [AndyDingo]

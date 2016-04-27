@@ -56,8 +56,8 @@ namespace nwTelegramBot
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            Console.Title = "NW's Telegram Bot";
-
+            Console.Title = "PerthFurs SFW Telegram Group Command Bot";
+            
             try
             {
                 DateTime dt = new DateTime(2016, 2, 2);
@@ -68,7 +68,7 @@ namespace nwTelegramBot
                 // Do the title
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("-----------------------------------------------------------------");
-                Console.WriteLine("------------------ Perth Furs SFW Telegram Bot ------------------");
+                Console.WriteLine("----------- PerthFurs SFW Telegram Group Command Bot ------------");
                 Console.WriteLine("-----------------------------------------------------------------");
                 Console.ForegroundColor = ConsoleColor.White;
 
@@ -89,6 +89,10 @@ namespace nwTelegramBot
             catch (Exception ex)
             {
                 nwErrorCatcher(ex);
+            }
+            finally
+            {
+                Main(args);
             }
         }
 
@@ -159,35 +163,6 @@ namespace nwTelegramBot
                 writer.WriteElementString("dloadMedia", "false");
                 writer.WriteElementString("botresponds", "true");
                 writer.WriteElementString("debugmode", "true");
-                // Start command usage element
-                writer.WriteStartElement("cusage");
-                writer.WriteElementString("about", "0");
-                writer.WriteElementString("admin", "0");
-                writer.WriteElementString("cat", "0");
-                writer.WriteElementString("echo", "0");
-                writer.WriteElementString("emote", "0");
-                writer.WriteElementString("joke", "0");
-                writer.WriteElementString("roll", "0");
-                writer.WriteElementString("say", "0");
-                writer.WriteElementString("stats", "0");
-                writer.WriteElementString("user", "0");
-                writer.WriteElementString("total", "0");
-                // End command usage element
-                writer.WriteEndElement();
-                // Start command usage limit element
-                writer.WriteStartElement("climits");
-                writer.WriteElementString("about", "10");
-                writer.WriteElementString("admin", "10");
-                writer.WriteElementString("cat", "10");
-                writer.WriteElementString("echo", "10");
-                writer.WriteElementString("emote", "20");
-                writer.WriteElementString("joke", "5");
-                writer.WriteElementString("roll", "5");
-                writer.WriteElementString("say", "10");
-                writer.WriteElementString("stats", "10");
-                writer.WriteElementString("user", "10");
-                // End command usage limit element
-                writer.WriteEndElement();
                 // End CONFIG element
                 writer.WriteEndElement();
                 writer.Flush();
@@ -559,6 +534,7 @@ namespace nwTelegramBot
             // read configuration
             var wundergroundKey = nwGrabString("weatherapi");
             var exchangeKey = nwGrabString("exchangeapi");
+            string s_username = update.Message.From.Username.Trim(' ').Trim('\r').Trim('\n');
 
             // Process request
             try
@@ -614,7 +590,7 @@ namespace nwTelegramBot
                                 replyText = "Hi " + update.Message.From.FirstName + ", I am indeed alive.";
                             break;
                         case "/backup":
-                            if (update.Message.From.FirstName != "Andy" || update.Message.From.Username != "AndyDingoFolf")
+                            if (s_username != "AndyDingoFolf")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "You have insufficient permissions to access this command.";
@@ -625,7 +601,7 @@ namespace nwTelegramBot
                             cZipBackup.Instance.CreateSample(dt.ToString(nwGrabString("dateformat")) + "_backup.zip", null, Environment.CurrentDirectory + @"\logs_tg\");
                             break;
                         case "/bot":
-                            if (update.Message.From.FirstName != "Andy" || update.Message.From.Username != "AndyDingoFolf")
+                            if (s_username != "AndyDingoFolf")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "You have insufficient permissions to access this command.";
@@ -656,7 +632,7 @@ namespace nwTelegramBot
                             break;
                         case "/die":
                         case "/kill":
-                            if (update.Message.From.FirstName != "Andy" || update.Message.From.Username != "AndyDingoFolf")
+                            if (s_username != "AndyDingoFolf")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "You have insufficient permissions to access this command.";
@@ -670,10 +646,8 @@ namespace nwTelegramBot
                                 replyText = "Not happening!";
                             break;
                         case "/killcmds":
-                            if (update.Message.From.FirstName != "Andy" ||
-                                update.Message.From.Username != "AndyDingoFolf" ||
-                                update.Message.From.FirstName != "Cyrin" ||
-                                update.Message.From.Username != "Inflatophin")
+                            if (s_username != "AndyDingoFolf" ||
+                                s_username != "Inflatophin")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "You have insufficient permissions to access this command.";
@@ -688,10 +662,8 @@ namespace nwTelegramBot
                                 replyText = "Dook!";
                             break;
                         case "/count":
-                            if (update.Message.From.FirstName != "Andy" ||
-                                update.Message.From.Username != "AndyDingoFolf" ||
-                                update.Message.From.FirstName != "Cyrin" ||
-                                update.Message.From.Username != "Inflatophin")
+                            if (s_username != "AndyDingoFolf" ||
+                                s_username != "Inflatophin")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "You have insufficient permissions to access this command.";
@@ -712,8 +684,7 @@ namespace nwTelegramBot
                             dook.Load("http://www.perthfurs.net/events.xml");
                             DateTime dta = new DateTime(2016, 4, 1);
                             dta = DateTime.Now;
-
-
+                            
                             XmlNodeList nodes;
                             nodes = dook.GetElementsByTagName("event");
 
@@ -722,20 +693,10 @@ namespace nwTelegramBot
                                 dta = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("start").InnerText);
                                 stringBuilder.AppendLine(dta.ToString("ddd d/MM/yyy") + " (" + dta.ToString("h:mm tt") + "): " + nodes.Item(i1for).SelectSingleNode("title").InnerText + " [" + nodes.Item(i1for).SelectSingleNode("url").InnerText + "]"); // + " [" + pfn_events.url.ToString() + "]");
                             }
-
-                            //replyText = "These are the next few events, click the links for more information:" + Environment.NewLine +
-                            //    "3pm 3rd April: FURther Alchohol Required [http://www.perthfurs.net/events/view/84]" + Environment.NewLine +
-                            //    "9th April: Kate's Farewell! [http://www.perthfurs.net/events/view/87]" + Environment.NewLine +
-                            //    "12pm 23rd April: Perth Furs Interactive Picnic  [http://www.perthfurs.net/events/view/83]" + Environment.NewLine +
-                            //    "11:30am 30th April: CaFURnated XII: The Return of the Coffee [http://www.perthfurs.net/events/view/88]" + Environment.NewLine +
-                            //    "10am 7th May: South Perth Foreshore meet [https://www.facebook.com/events/1692983217645095/]" + Environment.NewLine +
-                            //    "7-8th May: GRR V7.0 (Games, Revelry & Relaxation) [https://www.facebook.com/events/107594932969233/]";
                             break;
                         case "/debug":
-                            if (update.Message.From.FirstName != "Andy" ||
-                                update.Message.From.Username != "AndyDingoFolf" ||
-                                update.Message.From.FirstName != "Cyrin" ||
-                                update.Message.From.Username != "Inflatophin")
+                            if (s_username != "AndyDingoFolf" ||
+                                s_username != "Inflatophin")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "You have insufficient permissions to access this command.";
@@ -755,7 +716,7 @@ namespace nwTelegramBot
 
                             break;
                         case "/echo":
-                            if (update.Message.From.Username != "AndyDingoFolf" || update.Message.From.Username != "Inflatophin")
+                            if (s_username != "AndyDingoFolf" || s_username != "Inflatophin")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "You have insufficient permissions to access this command.";
@@ -816,27 +777,11 @@ namespace nwTelegramBot
                             int jokemax = nwGrabInt("climits/joke");
 
                             bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
-                            //dynamic djoke = JObject.Parse(httpClient.DownloadString("https://api.reddit.com/r/jokes/top?t=day&limit=5").Result);
-                            //var rjoke = new Random();
-                            //var ijokemax = Enumerable.Count(djoke.data.children);
-                            //if (ijokemax > 4)
-                            //{
-                            //    ijokemax = 4;
-                            //}
-                            //var ijoke = rjoke.Next(0, ijokemax);
-
-                            //string sjresult;
-                            //sjresult = djoke.data.children[ijoke].data.title.ToString() + " " + djoke.data.children[ijoke].data.selftext.ToString();
-
-
-                            //replyText = cExtensions.nwStringCensor(sjresult);
-
 
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "I'm sorry " + update.Message.From.FirstName + ", My humor emitter array requires recharging. Please try again another time.";
 
                             nwSetString("cusage/joke", Convert.ToString(jokeuse++));
-
                             break;
                         case "/link":
                             bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
@@ -898,9 +843,8 @@ namespace nwTelegramBot
                         case "/say":
                             int sayuse = nwGrabInt("cusage/say");
                             int saymax = nwGrabInt("climits/say");
-
-
-                            if (update.Message.From.FirstName != "Andy" || update.Message.From.Username != "AndyDingoFolf")
+                            
+                            if (s_username != "AndyDingoFolf")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "You have insufficient privledges to access this command.";
@@ -1298,9 +1242,7 @@ namespace nwTelegramBot
             xdoc.Load("nwTelegramBot.User.cfg");
 
             XmlNodeList xnl = xdoc.GetElementsByTagName("user");
-
-
-
+            
             string s;
 
             for (var io = 0; io > xnl.Count; io++)

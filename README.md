@@ -10,3 +10,4 @@ A bot for the Perthfurs Safe for work Telegram group chat. Could in theory be us
 - Implement Inline commands added since Api v2.0
 - Better implement photos.
 - Better implement join/leave code.
+- Implement, or find a joke api that doesn't use reddit.

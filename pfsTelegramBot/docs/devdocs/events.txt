@@ -1,0 +1,7 @@
+﻿                            //replyText = "These are the next few events, click the links for more information:" + Environment.NewLine +
+                            //    "3pm 3rd April: FURther Alchohol Required [http://www.perthfurs.net/events/view/84]" + Environment.NewLine +
+                            //    "9th April: Kate's Farewell! [http://www.perthfurs.net/events/view/87]" + Environment.NewLine +
+                            //    "12pm 23rd April: Perth Furs Interactive Picnic  [http://www.perthfurs.net/events/view/83]" + Environment.NewLine +
+                            //    "11:30am 30th April: CaFURnated XII: The Return of the Coffee [http://www.perthfurs.net/events/view/88]" + Environment.NewLine +
+                            //    "10am 7th May: South Perth Foreshore meet [https://www.facebook.com/events/1692983217645095/]" + Environment.NewLine +
+                            //    "7-8th May: GRR V7.0 (Games, Revelry & Relaxation) [https://www.facebook.com/events/107594932969233/]";
