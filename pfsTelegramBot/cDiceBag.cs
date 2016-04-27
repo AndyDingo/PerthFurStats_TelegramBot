@@ -92,18 +92,6 @@ namespace nwTelegramBot
             return temp;
         }
 
-        public int[] d4a(int dice)
-        {
-            
-            int[] tempa = new int[dice];
-
-            for (int i = 0; i < dice; i++)
-            {
-                tempa[i] = d4(1);
-            }
-            return tempa;
-        }
-
         /// <summary>
         /// Rolls the specified number of die each with the specified number of
         /// sides and returns the result as a string, including the total.
@@ -162,9 +150,7 @@ namespace nwTelegramBot
             // Now that we've finished building the result, get the string
             // that we've been building and return it.
             return result.ToString();
-
         }
-
 
         internal int d2(int dice)
         {

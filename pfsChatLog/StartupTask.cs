@@ -143,11 +143,11 @@ namespace pfsChatLog
                                         // check to see if the caption string is empty or not
                                         if (s == string.Empty || s == null || s == "" || s == "/n")
                                         {
-                                            sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted a photo with no caption.");
+                                            sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted a photo message with no caption.");
                                         }
                                         else
                                         {
-                                            sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted a photo with the caption '" + s + "'.");
+                                            sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted a photo message with the caption '" + s + "'.");
                                         }
                                     }
                                     break;
@@ -166,7 +166,18 @@ namespace pfsChatLog
                                 case MessageType.VideoMessage:
                                     using (StreamWriter sw = new StreamWriter(fs))
                                     {
-                                        sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_cleanname + " has posted a video message!");
+                                        // download the caption for the image, if there is one.
+                                        string s = update.Message.Caption;
+
+                                        // check to see if the caption string is empty or not
+                                        if (s == string.Empty || s == null || s == "" || s == "/n")
+                                        {
+                                            sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted a video message with no caption.");
+                                        }
+                                        else
+                                        {
+                                            sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted a video message with the caption '" + s + "'.");
+                                        }
                                     }
                                     break;
                                 case MessageType.VoiceMessage:

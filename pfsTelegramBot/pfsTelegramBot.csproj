@@ -90,6 +90,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="data\events.json" />
+    <None Include="pfsCmdConfig.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="pfsTelegramBot.User.cfg">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

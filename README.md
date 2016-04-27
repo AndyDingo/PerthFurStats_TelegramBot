@@ -2,8 +2,8 @@
 A bot for the Perthfurs Safe for work Telegram group chat. Could in theory be used for other groups, if the dataset is changed.
 
 # Projects
-- pfsTelegramBot is the main windows UI version of the bot
-- pfsChatLog is the IoT version for Raspberry Pi
+- pfsTelegramBot is the main windows UI version of the bot, which has commands enabled.
+- pfsChatLog is the Windows 10 IoT version, for Raspberry Pi, which does not have commands enabled.
 
 # TODO (Copied from TODO.txt)
 - Work out a way to determine what emoji stickers represent.
