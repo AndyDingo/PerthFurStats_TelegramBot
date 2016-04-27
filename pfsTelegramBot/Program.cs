@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.36
+ * Version   : 1.0.0.38
  */
 
 using System;
@@ -531,10 +531,14 @@ namespace nwTelegramBot
         /// <remarks>Only designed to work if regular commands are enabled.</remarks>
         private static async void nwProcessSlashCommands(Api bot, Update update, User me, DateTime dt)
         {
-            // read configuration
+            // read configuration and extract api keys
             var wundergroundKey = nwGrabString("weatherapi");
             var exchangeKey = nwGrabString("exchangeapi");
-            string s_username = update.Message.From.Username.Trim(' ').Trim('\r').Trim('\n');
+            // Apparently Telegram sends usernames with extra characters on either side, that the bot hates
+            // This should remove them.
+            string s_username = update.Message.From.Username.Trim(' ', '\r', '\n');
+            // This one is to get the group type.
+            string s_chattype = update.Message.Chat.Type.ToString().Trim(' ', '\r', '\n');
 
             // Process request
             try
@@ -590,25 +594,24 @@ namespace nwTelegramBot
                                 replyText = "Hi " + update.Message.From.FirstName + ", I am indeed alive.";
                             break;
                         case "/backup":
-                            if (s_username != "AndyDingoFolf")
+                            if (s_chattype == "Private")
+                            {
+                                if (s_username != "AndyDingoFolf")
+                                {
+                                    if (nwCheckInReplyTimer(dt) != false)
+                                        replyText = "You have insufficient permissions to access this command.";
+                                    break;
+                                }
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "Starting backup...";
+                                cZipBackup.Instance.CreateSample(dt.ToString(nwGrabString("dateformat")) + "_backup.zip", null, Environment.CurrentDirectory + @"\logs_tg\");
+                            }
+                            else
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "You have insufficient permissions to access this command.";
+                                    replyText = "This command can only be used in private messages.";
                                 break;
                             }
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "Starting backup...";
-                            cZipBackup.Instance.CreateSample(dt.ToString(nwGrabString("dateformat")) + "_backup.zip", null, Environment.CurrentDirectory + @"\logs_tg\");
-                            break;
-                        case "/bot":
-                            if (s_username != "AndyDingoFolf")
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "You have insufficient permissions to access this command.";
-                                break;
-                            }
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "This command is not yet implemented.";
                             break;
                         case "/cat":
                             int catuse = nwGrabInt("cusage/cat");
@@ -632,30 +635,28 @@ namespace nwTelegramBot
                             break;
                         case "/die":
                         case "/kill":
-                            if (s_username != "AndyDingoFolf")
+                            if (s_chattype == "Private")
+                            {
+                                if (s_username != "AndyDingoFolf")
+                                {
+                                    if (nwCheckInReplyTimer(dt) != false)
+                                        replyText = "You have insufficient permissions to access this command.";
+                                    break;
+                                }
+
+                                replyText = "Goodbye.";
+                                Environment.Exit(0);
+                            }
+                            else
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "You have insufficient permissions to access this command.";
+                                    replyText = "This command can only be used in private messages.";
                                 break;
                             }
-                            replyText = "Goodbye.";
-                            Environment.Exit(0);
                             break;
                         case "/e621":
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "Not happening!";
-                            break;
-                        case "/killcmds":
-                            if (s_username != "AndyDingoFolf" ||
-                                s_username != "Inflatophin")
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "You have insufficient permissions to access this command.";
-                                break;
-                            }
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "This command is not yet implemented.";
                             break;
                         case "/dook":
                             if (nwCheckInReplyTimer(dt) != false)
@@ -695,41 +696,45 @@ namespace nwTelegramBot
                             }
                             break;
                         case "/debug":
-                            if (s_username != "AndyDingoFolf" ||
-                                s_username != "Inflatophin")
+                            if (s_chattype == "Private")
                             {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "You have insufficient permissions to access this command.";
-                                break;
-                            }
+                                if (s_username != "AndyDingoFolf" || s_username != "Inflatophin")
+                                {
+                                    if (nwCheckInReplyTimer(dt) != false)
+                                        replyText = "You have insufficient permissions to access this command.";
+                                    break;
+                                }
 
-                            if (nwGrabString("debugMode") == "false")
-                            {
-                                nwSetString("debugMode", "true");
-                                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: DEBUG MODE ENABLED!");
+                                if (nwGrabString("debugMode") == "false")
+                                {
+                                    nwSetString("debugMode", "true");
+                                    nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: DEBUG MODE ENABLED!");
+                                }
+                                else
+                                {
+                                    nwSetString("debugMode", "false");
+                                    nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: DEBUG MODE DISABLED!");
+                                }
                             }
                             else
                             {
-                                nwSetString("debugMode", "false");
-                                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: DEBUG MODE DISABLED!");
-                            }
-
-                            break;
-                        case "/echo":
-                            if (s_username != "AndyDingoFolf" || s_username != "Inflatophin")
-                            {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "You have insufficient permissions to access this command.";
+                                    replyText = "This command can only be used in private messages.";
                                 break;
                             }
-                            if (body.Length < 2)
+                            break;
+                        case "/echo":
+                            if (s_chattype == "Private")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    body = "Echo command needs more than 2 characters.";
+                                    replyText = body;
                             }
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = body;
+                            else
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "This command can only be used in private messages.";
+                                break;
+                            }
                             break;
                         case "/jelly": // TODO: Finish this command
                             // usage /jelly [yes|no] leave blank and bot will repeat query.
@@ -832,14 +837,31 @@ namespace nwTelegramBot
                                 replyText = "Group rules: " + Environment.NewLine + "- All content (chat, images, stickers) must be SFW at all hours of the day." + Environment.NewLine + "- No flooding or spamming of ANY kind." + Environment.NewLine + "- Be nice to each other.";
                             break;
                         case "/test":
-                            string stest0 = update.Message.Chat.Type.ToString();
-                            long ltest1 = update.Message.Chat.Id;
-                            nwPrintSystemMessage(stest0 + " " + ltest1.ToString());
-                            break;
-                        case "/settings":
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "....";
+                            if (s_chattype == "Private")
+                            {
+                                long ltest1 = update.Message.Chat.Id;
+                                nwPrintSystemMessage(ltest1.ToString());
+                            }
+                            else
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "This command can only be used in private messages.";
                                 break;
+                            }
+                            break;
+                        case "/set":
+                        case "/settings":
+                            // TODO: This would ideally need to be one of any of the config file settings
+                            // Example of usage: /set -[option to set] -[new value]
+                            if (s_username != "AndyDingoFolf")
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "You have insufficient permissions to access this command.";
+                                break;
+                            }
+                            if (nwCheckInReplyTimer(dt) != false)
+                                replyText = "This command is not yet implemented.";
+                            break;
                         case "/say":
                             int sayuse = nwGrabInt("cusage/say");
                             int saymax = nwGrabInt("climits/say");
@@ -847,7 +869,7 @@ namespace nwTelegramBot
                             if (s_username != "AndyDingoFolf")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "You have insufficient privledges to access this command.";
+                                    replyText = "You have insufficient permissions to access this command.";
                                 break;
                             }
                             if (body.Length < 2)
