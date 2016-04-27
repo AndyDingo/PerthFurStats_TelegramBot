@@ -10,9 +10,10 @@ Please use "Word Wrap" if using notepad or wordpad to view this file.
 
 +==================================+
 
-- Implement sticker captions.
+- Implement sticker captions, or work out a way to determine what emoji they represent.
+- Implement Inline commands added since Api v2.0
 - Better implement photos.
-- Better implement join/leave code
+- Better implement join/leave code.
 
 Roadmap:
 
