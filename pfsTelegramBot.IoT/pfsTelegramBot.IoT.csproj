@@ -149,7 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Telegram.Bot">
-      <HintPath>..\..\..\..\Visual Studio 2012\Projects\pfstelegram_bot\packages\Telegram.Bot.8.0.0\lib\net45\Telegram.Bot.dll</HintPath>
+      <HintPath>..\prereqs\Telegram.Bot.dll</HintPath>
     </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
