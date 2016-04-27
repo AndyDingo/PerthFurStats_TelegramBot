@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pfsTelegramBot", "nwTelegramBot\pfsTelegramBot.csproj", "{4DA459DC-DF9D-455B-8F25-08E03B71B554}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pfsTelegramBot", "pfsTelegramBot\pfsTelegramBot.csproj", "{4DA459DC-DF9D-455B-8F25-08E03B71B554}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pfsTelegramBot.IoT", "nwTelegramBot.IoT\pfsTelegramBot.IoT.csproj", "{A7B6629E-5305-4734-854B-C5D9984FE708}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pfsTelegramBot.IoT", "pfsTelegramBot.IoT\pfsTelegramBot.IoT.csproj", "{A7B6629E-5305-4734-854B-C5D9984FE708}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pfsCommandBot", "pfsCommandBot\pfsCommandBot.csproj", "{C9C0E52A-5029-42B5-BBCB-5062B8EF0998}"
 EndProject
