@@ -90,10 +90,6 @@ namespace nwTelegramBot
             {
                 nwErrorCatcher(ex);
             }
-            finally
-            {
-                Main(args);
-            }
         }
 
         /// <summary>
@@ -536,9 +532,17 @@ namespace nwTelegramBot
             var exchangeKey = nwGrabString("exchangeapi");
             // Apparently Telegram sends usernames with extra characters on either side, that the bot hates
             // This should remove them.
-            string s_username = update.Message.From.Username.Trim(' ', '\r', '\n');
+            string s_username;
+            if (update.Message.From.Username != null)
+            {
+                s_username = update.Message.From.Username.Trim(' ').Trim('\r').Trim('\n');
+            }
+            else
+            {
+                s_username = update.Message.From.FirstName; // Use firstname if username is null
+            }
             // This one is to get the group type.
-            string s_chattype = update.Message.Chat.Type.ToString().Trim(' ', '\r', '\n');
+            string s_chattype = update.Message.Chat.Type.ToString().Trim(' ').Trim('\r').Trim('\n');
 
             // Process request
             try
@@ -1146,6 +1150,10 @@ namespace nwTelegramBot
                             nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: Unable to download " + ex.HResult + " " + ex.Message);
                             await bot.SendTextMessage(update.Message.Chat.Id, replyImage);
                         }
+                        catch(NullReferenceException ex)
+                        {
+                            nwErrorCatcher(ex);
+                        }
                         catch (Exception ex)
                         {
                             nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: " + replyImage + " Threw: " + ex.Message);
@@ -1250,9 +1258,9 @@ namespace nwTelegramBot
             Console.WriteLine("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine + "* System: " + ex.StackTrace);
             Console.ForegroundColor = ConsoleColor.Green;
 
-            using (StreamWriter sw = new StreamWriter(@"\nwTelegramBot.log", true))
+            using (StreamWriter sw = new StreamWriter(Directory.GetCurrentDirectory()+@"\pfsTelegramBot.log", true))
             {
-                sw.WriteLine("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine + "* System: " + ex.StackTrace);
+                sw.WriteLine("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine + "* System: " + ex.StackTrace+ Environment.NewLine+ex.InnerException+Environment.NewLine + ex.Source + Environment.NewLine + ex.TargetSite);
             }
         }
 
