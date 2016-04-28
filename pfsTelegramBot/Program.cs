@@ -32,8 +32,7 @@ namespace nwTelegramBot
     class Program
     {
         // Declare Variables
-        public static string logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log";
-        public static string updfile = Environment.CurrentDirectory + @"\updchk.xml";
+        public static string logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log"; // error log
         public static string cfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.cfg"; // Main config
         public static string ucfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.User.cfg"; // User config
 
@@ -686,18 +685,25 @@ namespace nwTelegramBot
                         case "/event":
                         case "/events": // TODO: Finish this command
                             XmlDocument dook = new XmlDocument();
-                            dook.Load("http://www.perthfurs.net/events.xml");
+                            dook.Load(Directory.GetCurrentDirectory() + @"/data/events.xml");
                             DateTime dta = new DateTime(2016, 4, 1);
                             dta = DateTime.Now;
                             
+                            // Get our nodes
                             XmlNodeList nodes;
                             nodes = dook.GetElementsByTagName("event");
 
+                            // Create a new string builder
+                            StringBuilder eventString = new StringBuilder();
+
+                            // Iterate through available events
                             for (var i1for = 0; i1for < nodes.Count; i1for++)
                             {
                                 dta = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("start").InnerText);
-                                stringBuilder.AppendLine(dta.ToString("ddd d/MM/yyy") + " (" + dta.ToString("h:mm tt") + "): " + nodes.Item(i1for).SelectSingleNode("title").InnerText + " [" + nodes.Item(i1for).SelectSingleNode("url").InnerText + "]"); // + " [" + pfn_events.url.ToString() + "]");
+                                eventString.AppendLine(dta.ToString("ddd d/MM/yyy") + " (" + dta.ToString("h:mm tt") + "): " + nodes.Item(i1for).SelectSingleNode("title").InnerText + " [" + nodes.Item(i1for).SelectSingleNode("url").InnerText + "]"); // + " [" + pfn_events.url.ToString() + "]");
                             }
+
+                            replyText = eventString.ToString();
                             break;
                         case "/debug":
                             if (s_chattype == "Private")
@@ -869,20 +875,25 @@ namespace nwTelegramBot
                         case "/say":
                             int sayuse = nwGrabInt("cusage/say");
                             int saymax = nwGrabInt("climits/say");
-                            
-                            if (s_username != "AndyDingoFolf")
+
+                            if (s_chattype == "Private")
                             {
+                                if (s_username != "AndyDingoFolf")
+                                {
+                                    if (nwCheckInReplyTimer(dt) != false)
+                                        replyText = "You have insufficient permissions to access this command.";
+                                    break;
+                                }
+
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "You have insufficient permissions to access this command.";
-                                break;
+                                    replyText2 = body;
                             }
+                            
                             if (body.Length < 2)
                             {
                                 break;
                             }
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText2 = body;
+                            
                             nwSetString("cusage/say", Convert.ToString(sayuse++));
                             break;
                         case "/stats": // change to /stats [week|month|year|alltime]

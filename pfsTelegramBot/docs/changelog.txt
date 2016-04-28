@@ -13,8 +13,10 @@ Note: All changes go in this log file under the version those
 changes were made for. Newest Changes generally go first.
 +==================================+
 
-Version 0.36 ALPHA
+Version 0.38 ALPHA
 ------------------------------------
+- Debug mode adds message id and chat id to outputted data on occasion. [AndyDingo]
+- Event command fixed. Fix for issue #5. [AndyDingo]
 - Logs to file with timestamps. [AndyDingo]
 - Settings file added. [AndyDingo]
 - Update notifier added. [AndyDingo]
@@ -25,8 +27,9 @@ Version 0.36 ALPHA
 - new setting 'timeformat'. [AndyDingo]
 - add weather api. [AndyDingo]
 - add slash commands. [AndyDingo]
-- fixed /roll command.
-- fixed /stats command.
+- wiki command removed. [AndyDingo]
+- fixed /roll command. [AndyDingo]
+- fixed /stats command. [AndyDingo]
 
 EOF
 +==================================+

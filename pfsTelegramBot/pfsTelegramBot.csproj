@@ -108,7 +108,7 @@
     <Content Include="data\eventlist.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\Override.xml">
+    <Content Include="data\events.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="docs\changelog.txt">
