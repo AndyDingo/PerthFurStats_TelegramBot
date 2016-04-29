@@ -35,7 +35,6 @@ namespace nwTelegramBot
         public static string logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log"; // error log
         public static string cfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.cfg"; // Main config
         public static string ucfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.User.cfg"; // User config
-        private static string replyText3;
 
         /// <summary>
         /// Multi-color line method.
@@ -502,21 +501,6 @@ namespace nwTelegramBot
             }
         }
 
-        private static void nwHandleShit(object sender, InlineQueryEventArgs e)
-        {
-            try
-            {
-                Console.WriteLine(e.InlineQuery.From);
-                Console.WriteLine(e.InlineQuery.Id);
-                Console.WriteLine(e.InlineQuery.Offset);
-                Console.WriteLine(e.InlineQuery.Query);
-            }
-            catch(Exception ex)
-            {
-                nwErrorCatcher(ex);
-            }
-        }
-
         /// <summary>
         /// Process all of our slash commands
         /// </summary>
@@ -551,6 +535,7 @@ namespace nwTelegramBot
                 var text = update.Message.Text;
                 var replyText = string.Empty;
                 var replyText2 = string.Empty;
+                var replyTextEvent = string.Empty;
                 var replyTextMarkdown = string.Empty;
                 var replyImage = string.Empty;
                 var replyImageCaption = string.Empty;
@@ -681,7 +666,7 @@ namespace nwTelegramBot
                         case "/commands":
                             bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "Hi " + update.Message.From.FirstName + ", Here's a list of commands I can respond to: http://www.perthfurstats.net/node/11 Note that it hasn't been properly updated for Telegram yet.";
+                                replyTextEvent = "Hi " + update.Message.From.FirstName + ", Here's a list of commands I can respond to: http://www.perthfurstats.net/node/11 Note that it hasn't been properly updated for Telegram yet.";
                             break;
                         case "/event":
                         case "/events": // TODO: Finish this command
@@ -704,7 +689,7 @@ namespace nwTelegramBot
                                 eventString.AppendLine(dta.ToString("ddd d/MM/yyy") + " (" + dta.ToString("h:mm tt") + "): " + nodes.Item(i1for).SelectSingleNode("title").InnerText + " [" + nodes.Item(i1for).SelectSingleNode("url").InnerText + "]"); // + " [" + pfn_events.url.ToString() + "]");
                             }
 
-                            replyText = eventString.ToString();
+                            replyTextEvent = eventString.ToString();
                             break;
                         case "/debug":
                             if (s_chattype == "Private")
@@ -1107,9 +1092,14 @@ namespace nwTelegramBot
                         }
                     }
                     // replyText3 For text containing urls
-                    if (!string.IsNullOrEmpty(replyText3))
+                    if (!string.IsNullOrEmpty(replyTextEvent))
                     {
-                        await bot.SendTextMessage(update.Message.Chat.Id, replyText3, true);
+                        await bot.SendTextMessage(update.Message.Chat.Id, replyTextEvent, true);
+
+                        using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
+                        {
+                            sw.WriteLine("[" + dt.ToString(nwParseFormat(true)) + "] " + me.Username + " " + replyTextEvent);
+                        }
                     }
                     if (!string.IsNullOrEmpty(replyTextMarkdown))
                     {
