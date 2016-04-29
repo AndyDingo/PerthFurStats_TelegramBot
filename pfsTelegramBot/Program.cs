@@ -35,6 +35,7 @@ namespace nwTelegramBot
         public static string logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log"; // error log
         public static string cfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.cfg"; // Main config
         public static string ucfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.User.cfg"; // User config
+        private static string replyText3;
 
         /// <summary>
         /// Multi-color line method.
@@ -1104,6 +1105,11 @@ namespace nwTelegramBot
                         {
                             sw.WriteLine("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyText2);
                         }
+                    }
+                    // replyText3 For text containing urls
+                    if (!string.IsNullOrEmpty(replyText3))
+                    {
+                        await bot.SendTextMessage(update.Message.Chat.Id, replyText3, true);
                     }
                     if (!string.IsNullOrEmpty(replyTextMarkdown))
                     {
