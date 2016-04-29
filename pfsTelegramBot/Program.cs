@@ -77,7 +77,7 @@ namespace nwTelegramBot
                 Console.WriteLine(); // blank line
 
                 if (isAvailable == true)
-                    Run().Wait();
+                    Run().Wait(-1);
                 else
                     Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: No valid Internet Connection detected.");
             }
