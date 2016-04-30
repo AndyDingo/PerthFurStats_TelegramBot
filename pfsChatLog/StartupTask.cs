@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.38
+ * Version   : 1.0.0.39
  */
 
 using Windows.ApplicationModel.Background;

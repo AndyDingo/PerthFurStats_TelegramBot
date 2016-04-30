@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.38
+ * Version   : 1.0.0.39
  */
 
 using System;
@@ -76,10 +76,14 @@ namespace nwTelegramBot
 
                 Console.WriteLine(); // blank line
 
+                // Network available?
                 if (isAvailable == true)
                     Run().Wait(-1);
                 else
+                {
                     Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: No valid Internet Connection detected.");
+                    Environment.Exit(0);
+                }
             }
             catch (TaskCanceledException ex)
             {

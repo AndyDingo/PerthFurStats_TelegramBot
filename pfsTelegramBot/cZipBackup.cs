@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.38
+ * Version   : 1.0.0.39
  */
 
 using ICSharpCode.SharpZipLib.Core;
@@ -16,6 +16,9 @@ using System.IO;
 
 namespace nwTelegramBot
 {
+    /// <summary>
+    /// Zip Backup class. Designed to do what the name might suggest.
+    /// </summary>
     public class cZipBackup
     {
         public static cZipBackup Instance = new cZipBackup();
@@ -43,8 +46,12 @@ namespace nwTelegramBot
             zipStream.Close();
         }
 
-        // Recurses down the folder structure
-        //
+        /// <summary>
+        /// Recurses down the folder structure
+        /// </summary>
+        /// <param name="path">The file path.</param>
+        /// <param name="zipStream"></param>
+        /// <param name="folderOffset"></param>
         private void CompressFolder(string path, ZipOutputStream zipStream, int folderOffset)
         {
 

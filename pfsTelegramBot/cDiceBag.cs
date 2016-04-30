@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.38
+ * Version   : 1.0.0.39
  */
 
 using System;
@@ -15,6 +15,9 @@ using System.Text;
 
 namespace nwTelegramBot
 {
+    /// <summary>
+    /// My not quite so famous dice bag class.
+    /// </summary>
     public class cDiceBag
     {
         /// <summary>
@@ -29,36 +32,15 @@ namespace nwTelegramBot
             return temp;
         }
 
-        public int d5(int dice)
-        {
-            //if(dice==0)temp
-            int temp = new Random(DateTime.Now.Millisecond).Next(dice - 1, dice * 5);
-            return temp;
-        }
-
         public int d6(int dice)
         {
             int temp = new Random(DateTime.Now.Millisecond).Next(dice - 1, dice * 6);
             return temp;
         }
 
-        public int d7(int dice)
-        {
-            //if(dice==0)temp
-            int temp = new Random(DateTime.Now.Millisecond).Next(dice - 1, dice * 7);
-            return temp;
-        }
-
         public int d8(int dice)
         {
             int temp = new Random(DateTime.Now.Millisecond).Next(dice - 1, dice * 8);
-            return temp;
-        }
-
-        public int d9(int dice)
-        {
-            //if(dice==0)temp
-            int temp = new Random(DateTime.Now.Millisecond).Next(dice - 1, dice * 9);
             return temp;
         }
 
@@ -71,12 +53,6 @@ namespace nwTelegramBot
         public int d12(int dice)
         {
             int temp = new Random(DateTime.Now.Millisecond).Next(dice - 1, dice * 12);
-            return temp;
-        }
-
-        public int d14(int dice)
-        {
-            int temp = new Random(DateTime.Now.Millisecond).Next(dice - 1, dice * 14);
             return temp;
         }
 
@@ -150,18 +126,6 @@ namespace nwTelegramBot
             // Now that we've finished building the result, get the string
             // that we've been building and return it.
             return result.ToString();
-        }
-
-        internal int d2(int dice)
-        {
-            int temp = new Random(DateTime.Now.Millisecond).Next(dice - 1, dice * 2);
-            return temp;
-        }
-
-        internal int d3(int dice)
-        {
-            int temp = new Random(DateTime.Now.Millisecond).Next(dice - 1, dice * 3);
-            return temp;
         }
     }
 }

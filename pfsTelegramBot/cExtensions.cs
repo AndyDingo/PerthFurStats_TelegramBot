@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.38
+ * Version   : 1.0.0.39
  */
 
 using System;
@@ -17,6 +17,9 @@ using System.Linq;
 
 namespace nwTelegramBot
 {
+    /// <summary>
+    /// Extensions class, for a few things.
+    /// </summary>
     public static class cExtensions
     {
         public static bool IsPositive(this int number)
@@ -39,7 +42,6 @@ namespace nwTelegramBot
             return IsNegative(number) && IsPositive(number) && IsZero(number);
         }
 
-
         public static FileVersionInfo nwGetFileVersionInfo
         {
             get
@@ -48,7 +50,6 @@ namespace nwTelegramBot
                 var directory = Path.GetDirectoryName(location);
                 var file = Path.Combine(directory,
                   Process.GetCurrentProcess().ProcessName + ".exe");
-
 
                 return FileVersionInfo.GetVersionInfo(file);
             }

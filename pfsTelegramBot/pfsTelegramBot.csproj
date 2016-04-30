@@ -89,7 +89,6 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="data\events.json" />
     <None Include="pfsCmdConfig.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -103,9 +102,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="data\censorlist.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\eventlist.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="data\events.xml">
