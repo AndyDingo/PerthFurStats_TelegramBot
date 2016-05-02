@@ -765,7 +765,7 @@ namespace nwTelegramBot
                             string ms11 = mysplit1[1];
 
                             if (nwCheckInReplyTimer(dt) != false && ms11 != string.Empty)
-                                replyText = "*@" + update.Message.From.Username + " slaps " + ms11 + " around with a large trout!*";
+                                replyText = "*@" + update.Message.From.Username + " slaps @" + ms11 + " around with a large trout!*";
                             else
                                 replyText = "*@PFStats_bot slaps @" + update.Message.From.Username + " around with a large trout!*";
 
@@ -1271,7 +1271,13 @@ namespace nwTelegramBot
 
             using (StreamWriter sw = new StreamWriter(Directory.GetCurrentDirectory()+@"\pfsTelegramBot.log", true))
             {
-                sw.WriteLine("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine + "* System: " + ex.StackTrace+ Environment.NewLine+ex.InnerException+Environment.NewLine + ex.Source + Environment.NewLine + ex.TargetSite);
+                sw.WriteLine("-----------------------------------------------------------------------------");
+                sw.WriteLine("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine +
+                    "* System: Stack Trace: " + ex.StackTrace + Environment.NewLine +
+                    "* System: Inner Exception: " + ex.InnerException + Environment.NewLine +
+                    "* System: Source: " + ex.Source + Environment.NewLine +
+                   "* System: Target Site: " + ex.TargetSite + Environment.NewLine +
+                   "* System: Help Link: " + ex.HelpLink);
             }
         }
 

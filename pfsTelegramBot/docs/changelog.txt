@@ -13,8 +13,9 @@ Note: All changes go in this log file under the version those
 changes were made for. Newest Changes generally go first.
 +==================================+
 
-Version 0.38 ALPHA
+Version 0.39 ALPHA
 ------------------------------------
+- Minor changes to error handler. [AndyDingo]
 - Debug mode adds message id and chat id to outputted data on occasion. [AndyDingo]
 - Event command fixed. Fix for issue #5. [AndyDingo]
 - Logs to file with timestamps. [AndyDingo]

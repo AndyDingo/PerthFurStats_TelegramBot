@@ -24,6 +24,16 @@ TABLE OF CONTENTS
 
 This Telegram bot is a bot for the Perthfurs Safe for work Telegram group chat, which is divided into 2 bots, one for command functions, the other for chat logging.
 
++==================================+
+2. REQUIREMENTS
++==================================+
+
+Source Code requires Microsoft .NET Fraamework 4.5.2 to be installed and Visual Studio 2015, as well as several nuget packages.
+
+Binaries require Microsoft .NET Fraamework 4.5.2 to be installed, on Windows 8.1 or better.
+
+Bot has been tested on Mono and has been determined to be incompatible.
+
 +==============================+
 3. DISTRIBUTION
 +==============================+
