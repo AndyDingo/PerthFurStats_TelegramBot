@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.39
+ * Version   : 1.0.0.41
  */
 
 using System;
@@ -21,7 +21,7 @@ using File = System.IO.File;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
-using System.Web;
+using System.Xml.Linq;
 
 namespace nwTelegramBot
 {
@@ -31,23 +31,11 @@ namespace nwTelegramBot
     // ReSharper disable CatchAllClause
     class Program
     {
-        // Declare Variables
+        #region -= VARIABLES =-
         public static string logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log"; // error log
         public static string cfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.cfg"; // Main config
-        public static string ucfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.User.cfg"; // User config
-
-        /// <summary>
-        /// Multi-color line method.
-        /// </summary>
-        /// <param name="color">The ConsoleColor.</param>
-        /// <param name="text">The text to write.</param>
-        public static void ColoredConsoleWrite(ConsoleColor color, string text)
-        {
-            ConsoleColor originalColor = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-            Console.Write(text);
-            Console.ForegroundColor = originalColor;
-        }
+        public static string ucfgfile = Environment.CurrentDirectory + @"\pfsPermConfig.cfg"; // User config
+        #endregion
 
         /// <summary>
         /// This is the main method, if you will.
@@ -94,6 +82,8 @@ namespace nwTelegramBot
                 nwErrorCatcher(ex);
             }
         }
+
+        #region -= Initial routines =-
 
         /// <summary>
         /// Our initial configuration and update run.
@@ -208,6 +198,10 @@ namespace nwTelegramBot
             }
         }
 
+        #endregion
+
+        #region -= Settings file IO routines =-
+
         /// <summary>
         /// Settings file grabber
         /// </summary>
@@ -275,6 +269,7 @@ namespace nwTelegramBot
                 return t;
         }
 
+        #endregion
 
         /// <summary>
         /// This is what we use to grab the logs from the server and download them into a readable format.
@@ -308,6 +303,10 @@ namespace nwTelegramBot
                     string s_cleanname = update.Message.From.FirstName;
                     s_cleanname = Regex.Replace(s_cleanname, @"[^\u0000-\u007F]", string.Empty);
 
+                    // TEST FEATURE: STORE NAMES IN user config for testing
+                    nwScrapeNames(Bot, update);
+
+                    // Do stuff if we are a text message
                     if (update.Message.Type == MessageType.TextMessage)
                     {
                         await Task.Delay(2000);
@@ -385,6 +384,7 @@ namespace nwTelegramBot
                         }
                     }
 
+                    // Do stuff if we are a sticker message
                     if (update.Message.Type == MessageType.StickerMessage)
                     {
                         await Task.Delay(2000);
@@ -418,6 +418,7 @@ namespace nwTelegramBot
 
                     }
 
+                    // Do stuff if we are a voice message
                     if (update.Message.Type == MessageType.VoiceMessage)
                     {
                         await Task.Delay(2000);
@@ -431,6 +432,7 @@ namespace nwTelegramBot
                         }
                     }
 
+                    // Do stuff if we are a video message
                     if (update.Message.Type == MessageType.VideoMessage)
                     {
                         await Task.Delay(2000);
@@ -444,6 +446,7 @@ namespace nwTelegramBot
                         }
                     }
 
+                    // Do stuff if we are a photo message
                     if (update.Message.Type == MessageType.PhotoMessage)
                     {
                         await Task.Delay(2000);
@@ -485,6 +488,7 @@ namespace nwTelegramBot
                         else { nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: Setting 'dloadimages' has been set to 'false', ignoring download request."); }
                     }
 
+                    // Do stuff if we are an audio message
                     if (update.Message.Type == MessageType.AudioMessage)
                     {
                         await Task.Delay(2000);
@@ -503,6 +507,40 @@ namespace nwTelegramBot
 
                 await Task.Delay(1000);
             }
+        }
+
+        private static void nwScrapeNames(Api bot, Update update)
+        {
+            string fname = update.Message.From.FirstName;
+            string uname = update.Message.From.Username;
+
+            XElement srcTree = new XElement("user",
+    new XElement("name", fname),
+    new XElement("username", uname),
+    new XElement("group", "User")
+);
+
+            Console.WriteLine(srcTree);
+
+            
+
+
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(cfgfile);
+
+            XmlNode xUser = doc.CreateElement("user");
+            XmlNode xFirstname = doc.CreateElement("name");
+            XmlNode xUsername = doc.CreateElement("username");
+            XmlNode xGroup = doc.CreateElement("group");
+
+            xFirstname.InnerText = fname;
+            xUsername.InnerText = uname;
+            xGroup.InnerText = "User";
+
+            //doc.SelectSingleNode("config/" + key).InnerText = value;
+            doc.Save(cfgfile);
+
         }
 
         /// <summary>
@@ -772,7 +810,6 @@ namespace nwTelegramBot
                             nwSetString("cusage/stats", Convert.ToString(emuse++));
                             break;
                         case "/image": // TODO: Finish this command
-                            // 
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "This command is not yet implemented.";
                             break;
@@ -1108,7 +1145,7 @@ namespace nwTelegramBot
                     if (!string.IsNullOrEmpty(replyTextMarkdown))
                     {
                         nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyTextMarkdown);
-                        await bot.SendTextMessage(update.Message.Chat.Id, replyTextMarkdown, false, 0, null, ParseMode.Markdown);
+                        await bot.SendTextMessage(update.Message.Chat.Id, replyTextMarkdown, false,false, 0, null, ParseMode.Markdown);
 
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
@@ -1189,6 +1226,19 @@ namespace nwTelegramBot
             {
                 nwErrorCatcher(ex);
             }
+        }
+
+        /// <summary>
+        /// Multi-color line method.
+        /// </summary>
+        /// <param name="color">The ConsoleColor.</param>
+        /// <param name="text">The text to write.</param>
+        public static void ColoredConsoleWrite(ConsoleColor color, string text)
+        {
+            ConsoleColor originalColor = Console.ForegroundColor;
+            Console.ForegroundColor = color;
+            Console.Write(text);
+            Console.ForegroundColor = originalColor;
         }
 
         /// <summary>
@@ -1281,12 +1331,76 @@ namespace nwTelegramBot
             }
         }
 
+        private static InlineKeyboardMarkup GeneratePagination(int total, int current)
+        {
+            if (total < 2)
+                throw new ArgumentOutOfRangeException(nameof(total));
+
+            if (current > total)
+                throw new ArgumentOutOfRangeException(nameof(current));
+
+            var result = new InlineKeyboardMarkup(new[]
+                {
+            new InlineKeyboardButton[total > 4 ? 5 : total]
+        }
+            );
+
+            if (current == 1)
+                result.InlineKeyboard[0][0] = new InlineKeyboardButton("·1·", "1");
+            else if (current < 4 || total < 6)
+                result.InlineKeyboard[0][0] = new InlineKeyboardButton(" 1 ", "1");
+            else
+                result.InlineKeyboard[0][0] = new InlineKeyboardButton("«1 ", "1");
+
+            if (current == 2)
+                result.InlineKeyboard[0][1] = new InlineKeyboardButton("·2·", "2");
+            else if (current < 4 || total < 6)
+                result.InlineKeyboard[0][1] = new InlineKeyboardButton(" 2 ", "2");
+            else if (current > total - 2)
+                result.InlineKeyboard[0][1] = new InlineKeyboardButton($"‹{total - 3} ", $"{total - 3}");
+            else
+                result.InlineKeyboard[0][1] = new InlineKeyboardButton($"‹{current - 1} ", $"{current - 1}");
+
+            if (total > 2)
+                if (current < 3 || (total < 5 && current != 3))
+                    result.InlineKeyboard[0][2] = new InlineKeyboardButton(" 3 ", "3");
+                else if (current != 3 && current > total - 2)
+                    result.InlineKeyboard[0][2] = new InlineKeyboardButton($" {total - 2} ", $"{ total - 2 }");
+                else
+                    result.InlineKeyboard[0][2] = new InlineKeyboardButton($"·{current}·", $"{current}");
+
+            if (total == 4)
+                if (current == 4)
+                    result.InlineKeyboard[0][3] = new InlineKeyboardButton("·4·", "4");
+                else
+                    result.InlineKeyboard[0][3] = new InlineKeyboardButton(" 4 ", "4");
+            else if (total > 3)
+                if (current < 3 && total > 5)
+                    result.InlineKeyboard[0][3] = new InlineKeyboardButton(" 4›", "4");
+                else if (current < total - 2 && total > 5)
+                    result.InlineKeyboard[0][3] = new InlineKeyboardButton($" {current + 1}›", $"{current + 1}");
+                else if (current == total - 1)
+                    result.InlineKeyboard[0][3] = new InlineKeyboardButton($"·{current}·", $"{current}");
+                else
+                    result.InlineKeyboard[0][3] = new InlineKeyboardButton($" {total - 1} ", $"{total - 1}");
+
+            if (total > 4)
+                if (current == total)
+                    result.InlineKeyboard[0][4] = new InlineKeyboardButton($"·{current}·", $"{current}");
+                else if (current > total - 3 || total < 6)
+                    result.InlineKeyboard[0][4] = new InlineKeyboardButton($" {total} ", $"{total}");
+                else
+                    result.InlineKeyboard[0][4] = new InlineKeyboardButton($" {total}»", $"{total}");
+
+            return result;
+        }
+
         // Permission system below this line.
         // TODO : Finish this
         private static PermissionType nwGetUserPermissions(string firstName)
         {
             XmlDocument xdoc = new XmlDocument();
-            xdoc.Load("nwTelegramBot.User.cfg");
+            xdoc.Load(ucfgfile);
 
             XmlNodeList xnl = xdoc.GetElementsByTagName("user");
             

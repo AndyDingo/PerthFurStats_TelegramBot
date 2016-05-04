@@ -1,32 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?> 
 <events>
 	<event>
-		<id>88</id>
-		<url>http://www.perthfurs.net/events/view/88</url>
-		<title>CaFURnated XII: Return of The Coffee</title>
-		<location>Sassy's on the Swan</location>
-		<start>2016-04-30 11:30:00</start>
-		<end>2016-04-30 13:30:00</end>
-		<status>Host</status>
-		<author>SirAndyOfDingo</author>
-		<created>2016-03-29 21:40:51</created>
-		<lastcomment_date>2016-04-28 18:41:53</lastcomment_date>
-		<lastcomment_author>Jesse</lastcomment_author>
-	</event>
-	<event>
-		<id>89</id>
-		<url>http://www.perthfurs.net/events/view/89</url>
-		<title>FURther Alcohol Required II</title>
-		<location>Court Hotel</location>
-		<start>2016-05-01 14:00:00</start>
-		<end>2016-05-01 18:00:00</end>
-		<status>Host</status>
-		<author>SirAndyOfDingo</author>
-		<created>2016-04-03 20:10:33</created>
-		<lastcomment_date>2016-04-28 18:33:19</lastcomment_date>
-		<lastcomment_author>Anibus Jay Foxter</lastcomment_author>
-	</event>
-	<event>
 		<id>91</id>
 		<url>http://www.perthfurs.net/events/view/91</url>
 		<title>South Perth Foreshore Meet</title>
@@ -40,6 +14,58 @@
 		<lastcomment_author></lastcomment_author>
 	</event>
 	<event>
+		<id>94</id>
+		<url>http://www.perthfurs.net/events/view/94</url>
+		<title>FurDU 2016</title>
+		<location>22 View Ave</location>
+		<start>2016-05-27 00:00:00</start>
+		<end>2016-05-29 00:00:00</end>
+		<status>Host</status>
+		<author>SirAndyOfDingo</author>
+		<created>2016-04-29 07:57:13</created>
+		<lastcomment_date></lastcomment_date>
+		<lastcomment_author></lastcomment_author>
+	</event>
+	<event>
+		<id>92</id>
+		<url>http://www.perthfurs.net/events/view/92</url>
+		<title>CaFURnated XIII: For those not going to FurDU</title>
+		<location></location>
+		<start>2016-05-28 11:30:00</start>
+		<end>2016-05-28 13:30:00</end>
+		<status>Host</status>
+		<author>SirAndyOfDingo</author>
+		<created>2016-04-29 07:50:09</created>
+		<lastcomment_date></lastcomment_date>
+		<lastcomment_author></lastcomment_author>
+	</event>
+	<event>
+		<id>93</id>
+		<url>http://www.perthfurs.net/events/view/93</url>
+		<title>Further Alcohol Required III</title>
+		<location>Court Hotel</location>
+		<start>2016-06-04 14:00:00</start>
+		<end>2016-06-04 17:00:00</end>
+		<status>Host</status>
+		<author>SirAndyOfDingo</author>
+		<created>2016-04-29 07:53:39</created>
+		<lastcomment_date></lastcomment_date>
+		<lastcomment_author></lastcomment_author>
+	</event>
+	<event>
+		<id>95</id>
+		<url>http://www.perthfurs.net/events/view/95</url>
+		<title>FurWag BBQ!</title>
+		<location>McCallum Park. South Perth</location>
+		<start>2016-06-12 00:00:00</start>
+		<end>2016-06-12 12:00:00</end>
+		<status>Free to join</status>
+		<author>Furwag</author>
+		<created>2016-05-01 18:49:25</created>
+		<lastcomment_date></lastcomment_date>
+		<lastcomment_author></lastcomment_author>
+	</event>
+	<event>
 		<id>90</id>
 		<url>http://www.perthfurs.net/events/view/90</url>
 		<title>Furwag 2016!</title>
@@ -49,7 +75,7 @@
 		<status>Going</status>
 		<author>Furwag</author>
 		<created>2016-04-19 19:25:12</created>
-		<lastcomment_date>2016-04-23 09:42:29</lastcomment_date>
+		<lastcomment_date>2016-04-29 12:08:24</lastcomment_date>
 		<lastcomment_author>Furwag</lastcomment_author>
 	</event>
 </events>

@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.39
+ * Version   : 1.0.0.41
  */
 
 using ICSharpCode.SharpZipLib.Core;
