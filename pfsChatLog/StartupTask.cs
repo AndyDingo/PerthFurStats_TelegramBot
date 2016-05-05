@@ -27,9 +27,9 @@ namespace pfsChatLog
     public sealed class StartupTask : IBackgroundTask
     {
         // Declare Variables
-        public static string logfile = Directory.GetCurrentDirectory() + @"\pfsChatLogBot.log";
-        public static string updfile = Directory.GetCurrentDirectory() + @"\updchk.xml";
-        public static string cfgfile = Directory.GetCurrentDirectory() + @"\pfsChatLogBot.cfg"; // Main config
+        private static string logfile = Directory.GetCurrentDirectory() + @"\pfsChatLogBot.log";
+        private static string updfile = Directory.GetCurrentDirectory() + @"\updchk.xml";
+        private static string cfgfile = Directory.GetCurrentDirectory() + @"\pfsChatLogBot.cfg"; // Main config
         private BackgroundTaskDeferral _deferral;
 
         public void Run(IBackgroundTaskInstance taskInstance)
