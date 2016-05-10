@@ -19,6 +19,7 @@ using System;
 using System.IO;
 using System.Xml;
 using System.Text.RegularExpressions;
+using Windows.Storage;
 
 // The Background Application template is documented at http://go.microsoft.com/fwlink/?LinkID=533884&clcid=0x409
 
@@ -123,10 +124,9 @@ namespace pfsChatLog
                                         break;
                                     }
 
-                                    using (StreamWriter sw = new StreamWriter(fs))
-                                    {
-                                        sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_cleanname + "> " + update.Message.Text);
-                                    }
+                                    cStorageExtensions cse = new cStorageExtensions();
+                                    await cse.nwSaveMessageToLocalFile(filename, "[" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_cleanname + "> " + update.Message.Text);
+                                    
                                     break;
                                 case MessageType.StickerMessage:
                                     using (StreamWriter sw = new StreamWriter(fs))
