@@ -1012,7 +1012,7 @@ namespace nwTelegramBot
                                 break;
                             }
 
-                            replyText = nwRandomGreeting() + ". Coming soon";
+                            replyText = nwRandomGreeting() + ". This command is coming soon.";
 
                             nwSetString("cusage/emote", Convert.ToString(emuse++));
                             break;
@@ -1028,7 +1028,7 @@ namespace nwTelegramBot
                                 break;
                             }
 
-                            replyText = nwRandomGreeting() + ". Coming soon";
+                            replyText = nwRandomGreeting() + ". This command is coming soon. *pokes @TsarTheErmine *";
 
                             nwSetString("cusage/emote", Convert.ToString(emuse++));
                             break;

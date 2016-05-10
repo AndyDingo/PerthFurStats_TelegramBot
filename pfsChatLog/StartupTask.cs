@@ -36,7 +36,7 @@ namespace pfsChatLog
         {
             _deferral = taskInstance.GetDeferral();
 
-            RunBot().Wait();
+            RunBot().Wait(-1);
 
             _deferral.Complete();
 
