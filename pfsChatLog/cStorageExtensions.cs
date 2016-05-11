@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.41
+ * Version   : 1.0.0.42
  */
 
 using System;
@@ -20,12 +20,12 @@ namespace pfsChatLog
     /// <summary>
     /// Extensions to windows storage classes.
     /// </summary>
-    public class cStorageExtensions
+    public static class cStorageExtensions
     {
-        /// <summary>
-        /// The big phat instance. It doesn't have a boss, and it doesn't give phat lewtz.
-        /// </summary>
-        public static cStorageExtensions Instance = new cStorageExtensions();
+        ///// <summary>
+        ///// The big phat instance. It doesn't have a boss, and it doesn't give phat lewtz.
+        ///// </summary>
+        //public static cStorageExtensions Instance = new cStorageExtensions();
 
         /// <summary>
         /// Save to windows storage
@@ -33,7 +33,7 @@ namespace pfsChatLog
         /// <param name="filename">The name of the file to write to.</param>
         /// <param name="content">The content to write.</param>
         /// <returns></returns>
-        public async Task nwSaveMessageToLocalFile(string filename, string content)
+        public static async Task nwSaveMessageToLocalFile(string filename, string content)
         {
             // saves the string 'content' to a file 'filename' in the app's local storage folder
             byte[] fileBytes = System.Text.Encoding.UTF8.GetBytes(content.ToCharArray());

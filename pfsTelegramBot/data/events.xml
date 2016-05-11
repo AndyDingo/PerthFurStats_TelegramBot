@@ -1,19 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?> 
 <events>
 	<event>
-		<id>91</id>
-		<url>http://www.perthfurs.net/events/view/91</url>
-		<title>South Perth Foreshore Meet</title>
-		<location>South Perth Foreshore</location>
-		<start>2016-05-07 10:00:00</start>
-		<end></end>
-		<status>Free to join</status>
-		<author>Cyrin</author>
-		<created>2016-04-26 09:05:14</created>
-		<lastcomment_date></lastcomment_date>
-		<lastcomment_author></lastcomment_author>
-	</event>
-	<event>
 		<id>94</id>
 		<url>http://www.perthfurs.net/events/view/94</url>
 		<title>FurDU 2016</title>

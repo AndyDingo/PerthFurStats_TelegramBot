@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.41
+ * Version   : 1.0.0.42
  */
 
 using System;
@@ -93,7 +93,7 @@ namespace nwTelegramBot
         {
             try
             {
-                string s, t, u, str_ups;
+                string str_ups;
 
                 Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: Loading configuration...");
 
@@ -102,11 +102,7 @@ namespace nwTelegramBot
                     nwCreateSettings();
 
                 // Populate the strings
-                s = nwGrabString("filename"); //file name [NYI]
                 str_ups = nwGrabString("updatesite"); //update site
-
-                t = @"\";
-                u = t + s;
 
                 Console.WriteLine(); // blank line
 
@@ -304,7 +300,8 @@ namespace nwTelegramBot
                     s_cleanname = Regex.Replace(s_cleanname, @"[^\u0000-\u007F]", string.Empty);
 
                     // TEST FEATURE: STORE NAMES IN user config for testing
-                    nwScrapeNames(Bot, update);
+                    //if (nwGrabString("debugmode") == "true")
+                    //    nwScrapeNames(Bot, update);
 
                     // Do stuff if we are a text message
                     if (update.Message.Type == MessageType.TextMessage)
@@ -785,7 +782,7 @@ namespace nwTelegramBot
                             int emuse = nwGrabInt("cusage/emote");
                             int emmax = nwGrabInt("climits/emote");
 
-                            if (body == string.Empty || body == " ")
+                            if (body == string.Empty || body == " " || body == "@")
                             {
                                 bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
 
@@ -802,12 +799,23 @@ namespace nwTelegramBot
 
                             string ms11 = mysplit1[1];
 
-                            if (nwCheckInReplyTimer(dt) != false && ms11 != string.Empty)
-                                replyText = "*@" + update.Message.From.Username + " slaps @" + ms11 + " around with a large trout!*";
-                            else
-                                replyText = "*@PFStats_bot slaps @" + update.Message.From.Username + " around with a large trout!*";
+                            if (nwCheckInReplyTimer(dt) != false && s_username == string.Empty)
+                            {
+                                replyText = "I'm sorry, I can't let you do that Dave";
+                                nwSetString("cusage/emote", Convert.ToString(emuse++));
+                                break;
+                            }
 
-                            nwSetString("cusage/stats", Convert.ToString(emuse++));
+                            if (nwCheckInReplyTimer(dt) != false && ms11 != string.Empty)
+                            {
+                                replyText = "*@" + update.Message.From.Username + " slaps @" + ms11 + " around with a large sea trout!*";
+                            }
+                            else
+                            {
+                                replyText = "*@PFStats_bot slaps @" + update.Message.From.Username + " around with a large sea trout!*";
+                            }
+
+                            nwSetString("cusage/emote", Convert.ToString(emuse++));
                             break;
                         case "/image": // TODO: Finish this command
                             if (nwCheckInReplyTimer(dt) != false)

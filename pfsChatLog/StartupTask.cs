@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.41
+ * Version   : 1.0.0.42
  */
 
 using Windows.ApplicationModel.Background;
@@ -124,8 +124,8 @@ namespace pfsChatLog
                                         break;
                                     }
 
-                                    cStorageExtensions cse = new cStorageExtensions();
-                                    await cse.nwSaveMessageToLocalFile(filename, "[" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_cleanname + "> " + update.Message.Text);
+                                    //cStorageExtensions cse = new cStorageExtensions();
+                                    await cStorageExtensions.nwSaveMessageToLocalFile(filename, "[" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_cleanname + "> " + update.Message.Text);
                                     
                                     break;
                                 case MessageType.StickerMessage:
