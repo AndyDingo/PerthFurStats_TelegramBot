@@ -813,7 +813,8 @@ namespace nwTelegramBot
                             string[] mysplit1 = new string[] { "", "" };
                             mysplit1 = basestr1.Split('@');
 
-                            string s_target = mysplit1[1];
+                            // Sanitise target string.
+                            string s_target = mysplit1[1].Remove('\r').Remove('\n').Remove(' ').Remove('{').Remove('}');
 
                             //break on empty strings
                             if (s_target == string.Empty || s_target == " ")
