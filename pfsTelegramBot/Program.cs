@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.42
+ * Version   : 1.0.0.43
  */
 
 using System;
@@ -390,12 +390,15 @@ namespace nwTelegramBot
 
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
-                            if (nwGrabString("debugmode") == "true")
-                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted an unknown sticker.");
-                            else
-                                Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted an unknown sticker.");
+                            // download the emoji for the image, if there is one. Added in May API update.
+                            string s = update.Message.Sticker.Emoji;
 
-                            sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_cleanname + " has posted an unknown sticker.");
+                            if (nwGrabString("debugmode") == "true")
+                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted a sticker that represents the " + s + " emoticon.");
+                            else
+                                Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted a sticker that represents the " + s + " emoticon.");
+
+                            sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_cleanname + " has posted a sticker that represents the " + s + " emoticon.");
                         }
 
                         if (nwGrabString("dloadMedia") == "true")
@@ -622,17 +625,29 @@ namespace nwTelegramBot
                                 replyText = "Hi " + update.Message.From.FirstName + ", I am indeed alive.";
                             break;
                         case "/backup":
+                            // check to see if private message
                             if (s_chattype == "Private")
                             {
+                                bool b_kat = false;
+                                // check the username
                                 if (s_username != "AndyDingoFolf")
                                 {
                                     if (nwCheckInReplyTimer(dt) != false)
                                         replyText = "You have insufficient permissions to access this command.";
                                     break;
                                 }
+                                // if it is okay to reply, do so.
                                 if (nwCheckInReplyTimer(dt) != false)
+                                {
                                     replyText = "Starting backup...";
-                                cZipBackup.Instance.CreateSample(dt.ToString(nwGrabString("dateformat")) + "_backup.zip", null, Environment.CurrentDirectory + @"\logs_tg\");
+                                    cZipBackup.Instance.CreateSample(dt.ToString(nwGrabString("dateformat")) + "_backup.zip", null, Environment.CurrentDirectory + @"\logs_tg\");
+                                    b_kat = true;
+                                }
+
+                                if (b_kat == true)
+                                {
+                                    replyText = "Backup complete";
+                                }
                             }
                             else
                             {
@@ -658,6 +673,7 @@ namespace nwTelegramBot
                             break;
                         case "/dog":
                         case "/doge":
+                        case "/shiba":
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "This command is not yet implemented.";
                             break;
@@ -787,7 +803,7 @@ namespace nwTelegramBot
                                 bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
 
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "*@PFStats_bot slaps @" + update.Message.From.Username + " around with a large trout!*";
+                                    replyText = "*@PFStats_bot slaps @" + s_username + " around with a large trout!*";
 
                                 nwSetString("cusage/emote", Convert.ToString(emuse++));
                                 break;
@@ -797,7 +813,14 @@ namespace nwTelegramBot
                             string[] mysplit1 = new string[] { "", "" };
                             mysplit1 = basestr1.Split('@');
 
-                            string ms11 = mysplit1[1];
+                            string s_target = mysplit1[1];
+
+                            //break on empty strings
+                            if (s_target == string.Empty || s_target == " ")
+                            {
+                                replyText = "No target was selected. Usage: /slap @username";
+                                break;
+                            }
 
                             if (nwCheckInReplyTimer(dt) != false && s_username == string.Empty)
                             {
@@ -806,13 +829,13 @@ namespace nwTelegramBot
                                 break;
                             }
 
-                            if (nwCheckInReplyTimer(dt) != false && ms11 != string.Empty)
+                            if (nwCheckInReplyTimer(dt) != false && s_target != string.Empty)
                             {
-                                replyText = "*@" + update.Message.From.Username + " slaps @" + ms11 + " around with a large sea trout!*";
+                                replyText = "*@" + s_username + " slaps @" + s_target + " around with a large sea trout!*";
                             }
                             else
                             {
-                                replyText = "*@PFStats_bot slaps @" + update.Message.From.Username + " around with a large sea trout!*";
+                                replyText = "*@PFStats_bot slaps @" + s_username + " around with a large sea trout!*";
                             }
 
                             nwSetString("cusage/emote", Convert.ToString(emuse++));
