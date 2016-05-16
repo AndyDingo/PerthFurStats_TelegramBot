@@ -311,7 +311,7 @@ namespace nwTelegramBot
                         DateTime m = update.Message.Date.ToLocalTime();
 
                         //If we have set the bot to be able to respond to our basic commands
-                        if (nwGrabString("botresponds") == "true" || nwGrabString("debugmode") == "true")
+                        if (nwGrabString("botresponds") == "true" || nwGrabString("debugmode") == "true" || nwGrabString("adminmode") == "true")
                         {
                             // TODO: MOVE ALL COMMANDS TO pfsCommandBot
                             nwProcessSlashCommands(Bot, update, me, m);
@@ -507,40 +507,6 @@ namespace nwTelegramBot
 
                 await Task.Delay(1000);
             }
-        }
-
-        private static void nwScrapeNames(Api bot, Update update)
-        {
-            string fname = update.Message.From.FirstName;
-            string uname = update.Message.From.Username;
-
-            XElement srcTree = new XElement("user",
-    new XElement("name", fname),
-    new XElement("username", uname),
-    new XElement("group", "User")
-);
-
-            Console.WriteLine(srcTree);
-
-            
-
-
-
-            XmlDocument doc = new XmlDocument();
-            doc.Load(cfgfile);
-
-            XmlNode xUser = doc.CreateElement("user");
-            XmlNode xFirstname = doc.CreateElement("name");
-            XmlNode xUsername = doc.CreateElement("username");
-            XmlNode xGroup = doc.CreateElement("group");
-
-            xFirstname.InnerText = fname;
-            xUsername.InnerText = uname;
-            xGroup.InnerText = "User";
-
-            //doc.SelectSingleNode("config/" + key).InnerText = value;
-            doc.Save(cfgfile);
-
         }
 
         /// <summary>
@@ -843,8 +809,8 @@ namespace nwTelegramBot
                             break;
                         case "/sfw":
                         case "/safeforwork":
-                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.UploadPhoto);
-                            string s_fname= Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
+                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.UploadVideo);
+                            string s_fname = Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
 
                             if (nwCheckInReplyTimer(dt) != false)
                             {
@@ -855,8 +821,8 @@ namespace nwTelegramBot
                                     FileToSend fts = new FileToSend();
                                     fts.Content = sr.BaseStream;
                                     fts.Filename = Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
-
-                                    bot.SendVideo(update.Message.Chat.Id, fts);
+                                    // Send to the channel
+                                    await bot.SendVideo(update.Message.Chat.Id, fts, 0, "", false, update.Message.MessageId);
                                 }
                                 break;
                             }
