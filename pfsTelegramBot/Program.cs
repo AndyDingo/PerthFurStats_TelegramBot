@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.43
+ * Version   : 1.0.0.47
  */
 
 using System;
@@ -803,7 +803,7 @@ namespace nwTelegramBot
                                 bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
 
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "*@PFStats_bot slaps @" + s_username + " around with a large trout!*";
+                                    replyText = "*@PFStats_bot slaps @" + s_username + " around a bit with a large trout!*";
 
                                 nwSetString("cusage/emote", Convert.ToString(emuse++));
                                 break;
@@ -814,7 +814,7 @@ namespace nwTelegramBot
                             mysplit1 = basestr1.Split('@');
 
                             // Sanitise target string.
-                            string s_target = mysplit1[1].Remove('\r').Remove('\n').Remove(' ').Remove('{').Remove('}');
+                            string s_target = mysplit1[1];
 
                             //break on empty strings
                             if (s_target == string.Empty || s_target == " ")
@@ -832,14 +832,34 @@ namespace nwTelegramBot
 
                             if (nwCheckInReplyTimer(dt) != false && s_target != string.Empty)
                             {
-                                replyText = "*@" + s_username + " slaps @" + s_target + " around with a large sea trout!*";
+                                replyText = "*@" + s_username + " slaps @" + s_target + " around a bit with a large sea trout!*";
                             }
                             else
                             {
-                                replyText = "*@PFStats_bot slaps @" + s_username + " around with a large sea trout!*";
+                                replyText = "*@PFStats_bot slaps @" + s_username + " around a bit with a large sea trout!*";
                             }
 
                             nwSetString("cusage/emote", Convert.ToString(emuse++));
+                            break;
+                        case "/sfw":
+                        case "/safeforwork":
+                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.UploadPhoto);
+                            string s_fname= Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+                                // Create an instance of StreamReader to read from a file.
+                                // The using statement also closes the StreamReader.
+                                using (StreamReader sr = new StreamReader(s_fname))
+                                {
+                                    FileToSend fts = new FileToSend();
+                                    fts.Content = sr.BaseStream;
+                                    fts.Filename = Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
+
+                                    bot.SendVideo(update.Message.Chat.Id, fts);
+                                }
+                                break;
+                            }
                             break;
                         case "/image": // TODO: Finish this command
                             if (nwCheckInReplyTimer(dt) != false)
