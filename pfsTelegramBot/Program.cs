@@ -764,45 +764,49 @@ namespace nwTelegramBot
                             int emuse = nwGrabInt("cusage/emote");
                             int emmax = nwGrabInt("climits/emote");
 
-                            if (body == string.Empty || body == " " || body == "@")
+                            if (nwCheckInReplyTimer(dt) != false)
                             {
-                                bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                                if (body == string.Empty || body == " " || body == "@")
+                                {
+                                    bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
 
-                                if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "*@PFStats_bot slaps @" + s_username + " around a bit with a large trout!*";
 
-                                nwSetString("cusage/emote", Convert.ToString(emuse++));
-                                break;
-                            }
+                                    nwSetString("cusage/emote", Convert.ToString(emuse++));
+                                    break;
+                                }
 
-                            string basestr1 = body;
-                            string[] mysplit1 = new string[] { "", "" };
-                            mysplit1 = basestr1.Split('@');
+                                string basestr1 = body;
+                                string[] mysplit1 = new string[] { "", "" };
+                                mysplit1 = basestr1.Split('@');
 
-                            // Sanitise target string.
-                            string s_target = mysplit1[1];
+                                // Sanitise target string.
+                                string s_target = mysplit1[1];
 
-                            //break on empty strings
-                            if (s_target == string.Empty || s_target == " ")
-                            {
-                                replyText = "No target was selected. Usage: /slap @username";
-                                break;
-                            }
+                                //break on empty strings
+                                if (s_target == string.Empty || s_target == " ")
+                                {
+                                    bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                                    replyText = "No target was selected. Usage: /slap @username";
+                                    break;
+                                }
 
-                            if (nwCheckInReplyTimer(dt) != false && s_username == string.Empty)
-                            {
-                                replyText = "I'm sorry, I can't let you do that Dave";
-                                nwSetString("cusage/emote", Convert.ToString(emuse++));
-                                break;
-                            }
+                                if (s_username == string.Empty)
+                                {
+                                    bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                                    replyText = "I'm sorry, I can't let you do that Dave";
+                                    nwSetString("cusage/emote", Convert.ToString(emuse++));
+                                    break;
+                                }
 
-                            if (nwCheckInReplyTimer(dt) != false && s_target != string.Empty)
-                            {
-                                replyText = "*@" + s_username + " slaps @" + s_target + " around a bit with a large sea trout!*";
-                            }
-                            else
-                            {
-                                replyText = "*@PFStats_bot slaps @" + s_username + " around a bit with a large sea trout!*";
+                                if (s_target != string.Empty)
+                                {
+                                    replyText = "*@" + s_username + " slaps @" + s_target + " around a bit with a large sea trout!*";
+                                }
+                                else
+                                {
+                                    replyText = "*@PFStats_bot slaps @" + s_username + " around a bit with a large sea trout!*";
+                                }
                             }
 
                             nwSetString("cusage/emote", Convert.ToString(emuse++));
@@ -1025,15 +1029,29 @@ namespace nwTelegramBot
                             emuse = nwGrabInt("cusage/emote");
                             emmax = nwGrabInt("climits/emote");
 
-                            if (body == string.Empty || body == " ")
+                            if (nwCheckInReplyTimer(dt) != false)
                             {
-                                break;
-                            }
+                                bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
 
-                            replyText = nwRandomGreeting() + ". This command is coming soon.";
+                                if (body == string.Empty || body == " ")
+                                {
+                                    break;
+                                }
+
+                                if (s_chattype == "Private")
+                                {
+
+
+
+                                }
+
+
+                                replyText = nwRandomGreeting() + ". This command is coming soon.";
+                            }
 
                             nwSetString("cusage/emote", Convert.ToString(emuse++));
                             break;
+                        case "/action":
                         case "/me": // TODO: Finish this command
                                     // performs an action on the caller
                                     // usage /em -[action (see list of actions)]
