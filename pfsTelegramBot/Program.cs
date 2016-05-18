@@ -44,7 +44,7 @@ namespace nwTelegramBot
         static void Main(string[] args)
         {
             Console.Title = "PerthFurs SFW Telegram Group Command Bot";
-            
+
             try
             {
                 DateTime dt = new DateTime(2016, 2, 2);
@@ -98,7 +98,7 @@ namespace nwTelegramBot
                 Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: Loading configuration...");
 
                 // Work item 01. Create our XML document if it doesn't exist
-                if (File.Exists(cfgfile)!=true)
+                if (File.Exists(cfgfile) != true)
                     nwCreateSettings();
 
                 // Populate the strings
@@ -138,7 +138,7 @@ namespace nwTelegramBot
 
                 writer.WriteComment("PerthFurStats Bot configuration File");
                 writer.WriteComment("This file is generated (mostly)automatically, please don't edit manually");
-             
+
                 writer.WriteElementString("logformat", "mircstats");
                 writer.WriteElementString("dateformat", "yyyyMMdd");
                 writer.WriteElementString("timeformat", "HH:mm");
@@ -158,6 +158,7 @@ namespace nwTelegramBot
         /// Checks for updates to this program from a specified update site.
         /// </summary>
         /// <param name="site">Site URL must be a sting and must be a valid url of no more than 255 characters, must include the name of a file.</param>
+        /// <param name="dt">A DateTime object.</param>
         /// <remarks>This subroutine is still in testing. Do not use in regular releases at the current time.</remarks>
         private static void nwDoUpdateCheck(DateTime dt, string site)
         {
@@ -235,7 +236,7 @@ namespace nwTelegramBot
         }
 
         /// <summary>
-        /// 
+        /// Set a string within settings.
         /// </summary>
         /// <param name="key">the setting key to grab.</param>
         /// <param name="value">The value to write.</param>
@@ -252,7 +253,7 @@ namespace nwTelegramBot
         /// Returns a string to be used as part of a date time format.
         /// </summary>
         /// <param name="nodate">If true, don't return a date, false otherwise.</param>
-        /// <returns></returns>
+        /// <returns>Returns the format.</returns>
         private static string nwParseFormat(bool nodate)
         {
             string t;
@@ -270,7 +271,7 @@ namespace nwTelegramBot
         /// <summary>
         /// This is what we use to grab the logs from the server and download them into a readable format.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Doesn't actually return much other than a HTTP status code.</returns>
         static async Task Run()
         {
             var Bot = new Api("170729696:AAGYA8FPN4RkquTRrY-teqrn-J9YdnZX22k"); // Api key, please generate your own, don't use mine.
@@ -515,7 +516,7 @@ namespace nwTelegramBot
         /// <param name="bot">The bot API.</param>
         /// <param name="update">The update</param>
         /// <param name="me">The user, or bot.</param>
-        /// <param name="m">The date/time component.</param>
+        /// <param name="dt">The date/time component.</param>
         /// <remarks>Only designed to work if regular commands are enabled.</remarks>
         private static async void nwProcessSlashCommands(Api bot, Update update, User me, DateTime dt)
         {
@@ -566,16 +567,22 @@ namespace nwTelegramBot
                     // Parse
                     string command;
                     string body;
+
                     if (text.StartsWith("/s/", StringComparison.Ordinal))
                     {
+
                         command = "/s"; // special case for sed
                         body = text.Substring(2);
+
                     }
                     else
                     {
+
                         command = text.Split(' ')[0];
                         body = text.Replace(command, "").Trim();
+
                     }
+
                     var stringBuilder = new StringBuilder();
 
                     switch (command.ToLowerInvariant())
@@ -583,7 +590,7 @@ namespace nwTelegramBot
                         case "/admins":
                             bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "Group admins are @Inflatophin and @AndyDingoFolf.";
+                                replyText = "The group admins, to whom all must obey, are @Inflatophin and @AndyDingoFolf.";
                             break;
                         case "/alive":
                             bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
@@ -695,7 +702,7 @@ namespace nwTelegramBot
                             dook.Load(Directory.GetCurrentDirectory() + @"/data/events.xml");
                             DateTime dta = new DateTime(2016, 4, 1);
                             dta = DateTime.Now;
-                            
+
                             // Get our nodes
                             XmlNodeList nodes;
                             nodes = dook.GetElementsByTagName("event");
@@ -937,12 +944,12 @@ namespace nwTelegramBot
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText2 = body;
                             }
-                            
+
                             if (body.Length < 2)
                             {
                                 break;
                             }
-                            
+
                             nwSetString("cusage/say", Convert.ToString(sayuse++));
                             break;
                         case "/stats": // change to /stats [week|month|year|alltime]
@@ -1023,7 +1030,6 @@ namespace nwTelegramBot
                             }
                             break;
                         case "/em": // TODO: Finish this command
-                        case "/target":
                             // usage /em -[action (see list of actions)] -[@username of target]
                             // performs an action on a target
                             emuse = nwGrabInt("cusage/emote");
@@ -1067,22 +1073,6 @@ namespace nwTelegramBot
                             replyText = nwRandomGreeting() + ". This command is coming soon. *pokes @TsarTheErmine *";
 
                             nwSetString("cusage/emote", Convert.ToString(emuse++));
-                            break;
-                        case "/user":
-
-                            int useruse = nwGrabInt("cusage/user");
-                            int usermax = nwGrabInt("climits/user");
-
-                            string s_cleanname = update.Message.From.FirstName;
-                            s_cleanname = Regex.Replace(s_cleanname, @"[^\u0000-\u007F]", string.Empty);
-
-
-                            nwGetUserPermissions(update.Message.From.FirstName);
-                            nwSetString("cusage/user", Convert.ToString(useruse++));
-
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "This command is not yet implemented.";
                             break;
                         case "/exchange":
                         case "/rate":
@@ -1138,12 +1128,12 @@ namespace nwTelegramBot
                             }
                             break;
                     }
-                    
+
                     // Add to total command use
                     int totaluse = nwGrabInt("cusage/total");
                     totaluse++;
                     nwSetString("cusage/total", Convert.ToString(totaluse));
-                    
+
                     // Output
                     replyText += stringBuilder.ToString();
 
@@ -1181,7 +1171,7 @@ namespace nwTelegramBot
                     if (!string.IsNullOrEmpty(replyTextMarkdown))
                     {
                         nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyTextMarkdown);
-                        await bot.SendTextMessage(update.Message.Chat.Id, replyTextMarkdown, false,false, 0, null, ParseMode.Markdown);
+                        await bot.SendTextMessage(update.Message.Chat.Id, replyTextMarkdown, false, false, 0, null, ParseMode.Markdown);
 
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
@@ -1234,7 +1224,7 @@ namespace nwTelegramBot
                             nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: Unable to download " + ex.HResult + " " + ex.Message);
                             await bot.SendTextMessage(update.Message.Chat.Id, replyImage);
                         }
-                        catch(NullReferenceException ex)
+                        catch (NullReferenceException ex)
                         {
                             nwErrorCatcher(ex);
                         }
@@ -1283,7 +1273,7 @@ namespace nwTelegramBot
         /// <returns>A greeting, as a string.</returns>
         private static string nwRandomGreeting()
         {
-           int i =cDiceBag.Instance.d8(1);
+            int i = cDiceBag.Instance.d8(1);
             switch (i)
             {
                 case 1:
@@ -1312,7 +1302,7 @@ namespace nwTelegramBot
         /// Returns whether or not we are in the 10 min grace period for commands.
         /// </summary>
         /// <param name="dt">A DateTime object.</param>
-        /// <returns></returns>
+        /// <returns>TRUE, or FALSE.</returns>
         private static bool nwCheckInReplyTimer(DateTime dt)
         {
             //insert delay here
@@ -1355,7 +1345,7 @@ namespace nwTelegramBot
             Console.WriteLine("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine + "* System: " + ex.StackTrace);
             Console.ForegroundColor = ConsoleColor.Green;
 
-            using (StreamWriter sw = new StreamWriter(Directory.GetCurrentDirectory()+@"\pfsTelegramBot.log", true))
+            using (StreamWriter sw = new StreamWriter(Directory.GetCurrentDirectory() + @"\pfsTelegramBot.log", true))
             {
                 sw.WriteLine("-----------------------------------------------------------------------------");
                 sw.WriteLine("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine +
@@ -1430,62 +1420,6 @@ namespace nwTelegramBot
 
             return result;
         }
-
-        // Permission system below this line.
-        // TODO : Finish this
-        private static PermissionType nwGetUserPermissions(string firstName)
-        {
-            XmlDocument xdoc = new XmlDocument();
-            xdoc.Load(ucfgfile);
-
-            XmlNodeList xnl = xdoc.GetElementsByTagName("user");
-            
-            string s;
-
-            for (var io = 0; io > xnl.Count; io++)
-            {
-                //if (xnl.)
-
-                Console.WriteLine(xnl.Item(io).SelectSingleNode("name").InnerText);
-                Console.WriteLine(xnl.Item(io).SelectSingleNode("username").InnerText);
-                Console.WriteLine(xnl.Item(io).SelectSingleNode("group").InnerText);
-
-                s = xnl.Item(io).SelectSingleNode("group").InnerText;
-
-                switch (s)
-                {
-                    case "Admin":
-                        return PermissionType.Admin;
-                    case "User":
-                        return PermissionType.User;
-                    case "PowerUser":
-                        return PermissionType.PowerUser;
-                    case "Banned":
-                        return PermissionType.Banned;
-                    default:
-                        return PermissionType.User;
-                }
-            }
-            return PermissionType.User;
-        }
-        private static bool nwHasPermissions()
-        {
-            return false;
-        }
-
-        private static string nwGetGroupPermissions()
-        {
-            return "";
-        }
-
-    }
-
-    enum PermissionType
-    {
-        Admin,
-        User,
-        PowerUser,
-        Banned,
     }
 }
 
