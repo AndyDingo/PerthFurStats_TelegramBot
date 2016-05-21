@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.47
+ * Version   : 1.0.0.49
  */
 
 using System;
@@ -32,9 +32,11 @@ namespace nwTelegramBot
     class Program
     {
         #region -= VARIABLES =-
-        public static string logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log"; // error log
-        public static string cfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.cfg"; // Main config
-        public static string ucfgfile = Environment.CurrentDirectory + @"\pfsPermConfig.cfg"; // User config
+        public static string s_logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log"; // error log
+        public static string s_cfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.cfg"; // Main config
+        public static string s_ucfgfile = Environment.CurrentDirectory + @"\pfsPermConfig.cfg"; // User config
+        public static string s_ucmd_cfgfile = Environment.CurrentDirectory + @"\data\pfsUserCmdConfig.cfg"; // User config
+        public static string s_gcmd_cfgfile = Environment.CurrentDirectory + @"\data\pfsGlobalCmdConfig.cfg"; // User config
         #endregion
 
         /// <summary>
@@ -98,7 +100,7 @@ namespace nwTelegramBot
                 Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: Loading configuration...");
 
                 // Work item 01. Create our XML document if it doesn't exist
-                if (File.Exists(cfgfile) != true)
+                if (File.Exists(s_cfgfile) != true)
                     nwCreateSettings();
 
                 // Populate the strings
@@ -106,7 +108,7 @@ namespace nwTelegramBot
 
                 Console.WriteLine(); // blank line
 
-                Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: Using configuration file: " + cfgfile);
+                Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: Using configuration file: " + s_cfgfile);
                 Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: Logging to file: " + Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + dt.ToString(nwGrabString("dateformat")) + ".log");
                 Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: Finished loading configuration...");
 
@@ -130,7 +132,7 @@ namespace nwTelegramBot
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
             settings.IndentChars = ("  ");
-            using (XmlWriter writer = XmlWriter.Create(cfgfile, settings))
+            using (XmlWriter writer = XmlWriter.Create(s_cfgfile, settings))
             {
                 // Write XML data.
                 writer.WriteStartElement("config");
@@ -210,7 +212,7 @@ namespace nwTelegramBot
             XmlDocument doc = new XmlDocument();
             string s;
 
-            doc.Load(cfgfile);
+            doc.Load(s_cfgfile);
 
             s = doc.SelectSingleNode("config/" + key).InnerText;
 
@@ -221,18 +223,23 @@ namespace nwTelegramBot
         /// Settings file grabber
         /// </summary>
         /// <param name="key">the setting key to grab.</param>
-        /// <returns>The value of the settings key.</returns>
+        /// <returns>The value of the settings key. On error, it will return -1.</returns>
         /// <remarks>Very BETA.</remarks>
         private static int nwGrabInt(string key)
         {
             XmlDocument doc = new XmlDocument();
             int s;
 
-            doc.Load(cfgfile);
+            doc.Load(s_cfgfile);
 
-            s = Convert.ToInt32(doc.SelectSingleNode("config/" + key).InnerText);
+            if (doc.SelectSingleNode("config/" + key) != null)
+            {
 
-            return s;
+                s = Convert.ToInt32(doc.SelectSingleNode("config/" + key).InnerText);
+                return s;
+
+            }
+            else { return -1; }
         }
 
         /// <summary>
@@ -244,9 +251,40 @@ namespace nwTelegramBot
         private static void nwSetString(string key, string value)
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load(cfgfile);
+            doc.Load(s_cfgfile);
             doc.SelectSingleNode("config/" + key).InnerText = value;
-            doc.Save(cfgfile);
+            doc.Save(s_cfgfile);
+        }
+
+        /// <summary>
+        /// Set a string within settings.
+        /// </summary>
+        /// <param name="key">the setting key to grab.</param>
+        /// <param name="value">The value to write.</param>
+        /// <param name="b_usecmdcfg">Are we using the command config file instead?</param>
+        /// <remarks>Under construction.</remarks>
+        private static void nwSetString(string key, string value, bool b_usecmdcfg = false)
+        {
+
+            XmlDocument doc = new XmlDocument();
+
+            if (b_usecmdcfg == false)
+            {
+
+                doc.Load(s_cfgfile);
+                doc.SelectSingleNode("config/" + key).InnerText = value;
+                doc.Save(s_cfgfile);
+
+            }
+            else
+            {
+
+                doc.Load(s_ucmd_cfgfile);
+                doc.SelectSingleNode("config/" + key).InnerText = value;
+                doc.Save(s_ucmd_cfgfile);
+
+            }
+
         }
 
         /// <summary>
@@ -299,10 +337,6 @@ namespace nwTelegramBot
                     // remove unsightly characters from usernames.
                     string s_cleanname = update.Message.From.FirstName;
                     s_cleanname = Regex.Replace(s_cleanname, @"[^\u0000-\u007F]", string.Empty);
-
-                    // TEST FEATURE: STORE NAMES IN user config for testing
-                    //if (nwGrabString("debugmode") == "true")
-                    //    nwScrapeNames(Bot, update);
 
                     // Do stuff if we are a text message
                     if (update.Message.Type == MessageType.TextMessage)
@@ -631,18 +665,19 @@ namespace nwTelegramBot
                             break;
                         case "/cat":
                             int catuse = nwGrabInt("cusage/cat");
-                            int catmax = nwGrabInt("climits/cat");
+                            int n_catmax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/cat");
+                            int n_catmax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/cat");
 
-                            if (catuse == catmax)
+                            if (catuse == n_catmax1 || catuse == n_catmax2)
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "Sorry, the /cat command has been used too many times.";
                                 break;
                             }
 
-                            nwSetString("cusage/cat", Convert.ToString(catuse++)); // increment usage
-
                             replyImage = "http://thecatapi.com/api/images/get?format=src&type=jpg,png";
+                            nwSetString("cusage/cat", Convert.ToString(catuse++)); // increment usage
+                            nwSetUserString(update.Message.From.FirstName + "/cmd_counts/cat", Convert.ToString(catuse++));
                             break;
                         case "/dog":
                         case "/doge":
@@ -769,7 +804,15 @@ namespace nwTelegramBot
                             // usage /slap [nickname] bot will slap the person matching the nickname.
                             // will return "yournickname slaps targetnickname around with [randomobject]
                             int emuse = nwGrabInt("cusage/emote");
-                            int emmax = nwGrabInt("climits/emote");
+                            int emmax = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/emote");
+                            int emmax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/emote");
+
+                            if (emuse == emmax)
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "Sorry, the /slap command has been used too many times.";
+                                break;
+                            }
 
                             if (nwCheckInReplyTimer(dt) != false)
                             {
@@ -817,9 +860,21 @@ namespace nwTelegramBot
                             }
 
                             nwSetString("cusage/emote", Convert.ToString(emuse++));
+                            nwSetUserString(update.Message.From.FirstName + "/cmd_counts/emote", Convert.ToString(emuse++));
                             break;
                         case "/sfw":
                         case "/safeforwork":
+                            int n_sfwuse = nwGrabInt("cusage/sfw");
+                            int n_sfwmax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/sfw");
+                            int n_sfwmax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/sfw");
+
+                            if (n_sfwuse == n_sfwmax1 || n_sfwuse == n_sfwmax2)
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "Sorry, the /sfw command has been used too many times.";
+                                break;
+                            }
+
                             bot.SendChatAction(update.Message.Chat.Id, ChatAction.UploadVideo);
                             string s_fname = Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
 
@@ -837,6 +892,9 @@ namespace nwTelegramBot
                                 }
                                 break;
                             }
+
+                            nwSetString("cusage/sfw", Convert.ToString(n_sfwuse++));
+                            nwSetUserString(update.Message.From.FirstName + "/cmd_counts/sfw", Convert.ToString(n_sfwuse++));
                             break;
                         case "/image": // TODO: Finish this command
                             if (nwCheckInReplyTimer(dt) != false)
@@ -845,7 +903,15 @@ namespace nwTelegramBot
                         case "/humour":
                         case "/joke": // TODO: Fix this command
                             int jokeuse = nwGrabInt("cusage/joke");
-                            int jokemax = nwGrabInt("climits/joke");
+                            int n_jokemax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/joke");
+                            int n_jokemax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/joke");
+
+                            if (jokeuse == n_jokemax1 || jokeuse == n_jokemax2)
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "Sorry, the /joke command has been used too many times.";
+                                break;
+                            }
 
                             bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
 
@@ -853,6 +919,7 @@ namespace nwTelegramBot
                                 replyText = "I'm sorry " + update.Message.From.FirstName + ", My humor emitter array requires recharging. Please try again another time.";
 
                             nwSetString("cusage/joke", Convert.ToString(jokeuse++));
+                            nwSetUserString(update.Message.From.FirstName + "/cmd_counts/joke", Convert.ToString(jokeuse++));
                             break;
                         case "/link":
                             bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
@@ -867,7 +934,15 @@ namespace nwTelegramBot
                             break;
                         case "/roll":
                             int rolluse = nwGrabInt("cusage/roll");
-                            int rollmax = nwGrabInt("climits/roll");
+                            int n_rollmax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/roll");
+                            int n_rollmax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/roll");
+
+                            if (rolluse == n_rollmax1 || rolluse == n_rollmax2)
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "Sorry, the /roll command has been used too many times.";
+                                break;
+                            }
 
                             if (body == string.Empty || body == " ")
                             {
@@ -893,6 +968,7 @@ namespace nwTelegramBot
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "You have rolled: " + Environment.NewLine + tst1;
                                 nwSetString("cusage/roll", Convert.ToString(rolluse++));
+                                nwSetUserString(update.Message.From.FirstName + "/cmd_counts/roll", Convert.ToString(rolluse++));
                             }
                             else
                                 break;
@@ -930,7 +1006,15 @@ namespace nwTelegramBot
                             break;
                         case "/say":
                             int sayuse = nwGrabInt("cusage/say");
-                            int saymax = nwGrabInt("climits/say");
+                            int n_saymax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/say");
+                            int n_saymax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/say");
+
+                            if (sayuse == n_saymax1 || sayuse == n_saymax2)
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "Sorry, the /say command has been used too many times.";
+                                break;
+                            }
 
                             if (s_chattype == "Private")
                             {
@@ -951,10 +1035,19 @@ namespace nwTelegramBot
                             }
 
                             nwSetString("cusage/say", Convert.ToString(sayuse++));
+                            nwSetUserString(update.Message.From.FirstName + "/cmd_counts/say", Convert.ToString(sayuse++));
                             break;
                         case "/stats": // change to /stats [week|month|year|alltime]
                             int statuse = nwGrabInt("cusage/stats");
-                            int statmax = nwGrabInt("climits/stats");
+                            int statmax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/stats");
+                            int statmax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/stats");
+
+                            if (statuse == statmax1 || statuse == statmax2)
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "Sorry, the /stat command has been used too many times.";
+                                break;
+                            }
 
                             if (body == string.Empty || body == " ")
                             {
@@ -964,6 +1057,7 @@ namespace nwTelegramBot
                                     replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular usage: /stats -[week|month|year|alltime|archive|commands]";
 
                                 nwSetString("cusage/stats", Convert.ToString(statuse++));
+                                nwSetUserString(update.Message.From.FirstName + "/cmd_counts/stats", Convert.ToString(statuse++));
                                 break;
                             }
                             else
@@ -1033,7 +1127,15 @@ namespace nwTelegramBot
                             // usage /em -[action (see list of actions)] -[@username of target]
                             // performs an action on a target
                             emuse = nwGrabInt("cusage/emote");
-                            emmax = nwGrabInt("climits/emote");
+                            int n_emmax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/emote");
+                            int n_emmax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/emote");
+
+                            if (emuse == n_emmax1 || emuse == n_emmax2)
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "Sorry, the /em command has been used too many times.";
+                                break;
+                            }
 
                             if (nwCheckInReplyTimer(dt) != false)
                             {
@@ -1056,6 +1158,7 @@ namespace nwTelegramBot
                             }
 
                             nwSetString("cusage/emote", Convert.ToString(emuse++));
+                            nwSetUserString(update.Message.From.FirstName + "/cmd_counts/emote", Convert.ToString(emuse++));
                             break;
                         case "/action":
                         case "/me": // TODO: Finish this command
@@ -1063,7 +1166,8 @@ namespace nwTelegramBot
                                     // usage /em -[action (see list of actions)]
                                     //usage
                             emuse = nwGrabInt("cusage/emote");
-                            emmax = nwGrabInt("climits/emote");
+                            int n_memax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/emote");
+                            int n_memax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/emote");
 
                             if (body == string.Empty || body == " ")
                             {
@@ -1073,6 +1177,7 @@ namespace nwTelegramBot
                             replyText = nwRandomGreeting() + ". This command is coming soon. *pokes @TsarTheErmine *";
 
                             nwSetString("cusage/emote", Convert.ToString(emuse++));
+                            nwSetUserString(update.Message.From.FirstName + "/cmd_counts/emote", Convert.ToString(emuse++));
                             break;
                         case "/exchange":
                         case "/rate":
@@ -1104,14 +1209,49 @@ namespace nwTelegramBot
                             }
 
                             break;
+                        case "/user": // TODO : Finish this command
+                            // This command returns a users permission level.
+                            // Defaults to the person who used the command.
+                            int useruse = nwGrabInt("cusage/user");
+                            int n_usermax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/user");
+                            int n_usermax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/user");
+
+                            if (useruse == n_usermax1 || useruse == n_usermax2)
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "Sorry, the /user command has been used too many times.";
+                                break;
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+                            
+                                if (s_chattype == "Private")
+                                {
+
+                                    replyText = "Your permissions are listed below: " + Environment.NewLine + nwGetUserPermissions(s_username);
+
+                                    break;
+                                    
+                                }
+                                else
+                                {
+                                    replyText = "This command can only be used in a private message.";
+                                }
+                            
+                            }
+
+                            nwSetString("cusage/user", Convert.ToString(useruse++));
+                            nwSetUserString(update.Message.From.FirstName + "/cmd_counts/user", Convert.ToString(useruse++));
+                            break;
                         case "/version":
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart;
+                                replyText = "Version " + cExtensions.nwGetFileVersionInfo.FileMajorPart + "." + cExtensions.nwGetFileVersionInfo.FileMinorPart + ", Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart;
                             break;
                         case "/about":
                         case "/info":
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "PerthFurStats is the best bot" + Environment.NewLine + "Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart + Environment.NewLine + "By @AndyDingoWolf" + Environment.NewLine + "This bot uses open source software.";
+                                replyText = "PerthFurStats is the best bot" + Environment.NewLine + "Version " + cExtensions.nwGetFileVersionInfo.FileMajorPart + "." + cExtensions.nwGetFileVersionInfo.FileMinorPart + ", Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart + Environment.NewLine + "By @AndyDingoWolf" + Environment.NewLine + "This bot uses open source software.";
 
                             nwSetString("cusage/about", Convert.ToString(1));
                             break;
@@ -1252,6 +1392,36 @@ namespace nwTelegramBot
             {
                 nwErrorCatcher(ex);
             }
+        }
+
+        private static void nwSetUserString(string key, string value)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(s_ucmd_cfgfile);
+            doc.SelectSingleNode("config/" + key).InnerText = value;
+            doc.Save(s_ucmd_cfgfile);
+        }
+
+        /// <summary>
+        /// Get the users permissions, display to the user.
+        /// </summary>
+        /// <param name="s_username"></param>
+        private static string nwGetUserPermissions(string s_username)
+        {
+            XmlDocument xdoc = new XmlDocument();
+            xdoc.Load(s_ucfgfile);
+
+            XmlNodeList xnl1 = xdoc.GetElementsByTagName("owners");
+            XmlNodeList xnl2 = xdoc.GetElementsByTagName("admins");
+            XmlNodeList xnl3 = xdoc.GetElementsByTagName("developers");
+            
+            StringBuilder sb = new StringBuilder();
+
+            for (var io = 0; io > xnl1.Count; io++) { sb.AppendLine(xnl1.Item(io).SelectSingleNode("admins").InnerText); }
+            for (var io = 0; io > xnl2.Count; io++) { sb.AppendLine(xnl2.Item(io).SelectSingleNode("admins").InnerText); }
+            for (var io = 0; io > xnl3.Count; io++) { sb.AppendLine(xnl3.Item(io).SelectSingleNode("admins").InnerText); }
+
+            return sb.ToString();
         }
 
         /// <summary>

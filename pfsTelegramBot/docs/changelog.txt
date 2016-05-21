@@ -1,7 +1,7 @@
 ﻿NW's TELEGRAM BOT -Changelog-
 ============================================================================================
 
-VERSION: 1.0.0.47
+VERSION: 1.0.0.49
 FOR: WINDOWS 8/10+
 LAST UPDATED ON: 
 LAST UPDATED BY: ANDYDINGOWOLF
@@ -13,8 +13,12 @@ Note: All changes go in this log file under the version those
 changes were made for. Newest Changes generally go first.
 +==================================+
 
-Version 0.39 ALPHA
+Version 0.49 ALPHA
 ------------------------------------
+- Improve flood protection system. [AndyDingo]
+- Basic user perm system. [AndyDingo]
+- Add command limits. [AndyDingo]
+- add /sfw command. [AndyDingo]
 - Minor changes to error handler. [AndyDingo]
 - Debug mode adds message id and chat id to outputted data on occasion. [AndyDingo]
 - Event command fixed. Fix for issue #5. [AndyDingo]
@@ -22,8 +26,8 @@ Version 0.39 ALPHA
 - Settings file added. [AndyDingo]
 - Update notifier added. [AndyDingo]
 - new setting 'botresponds' (Does the bot respond to certain commands?) [AndyDingo]
-- new setting 'dloadmedia' (NYI) [AndyDingo]
-- new setting 'debugmode' (NYI) [AndyDingo]
+- new setting 'dloadmedia' [AndyDingo]
+- new setting 'debugmode' [AndyDingo]
 - setting 'logformat' has been renamed 'dateformat'. [AndyDingo]
 - new setting 'timeformat'. [AndyDingo]
 - add weather api. [AndyDingo]

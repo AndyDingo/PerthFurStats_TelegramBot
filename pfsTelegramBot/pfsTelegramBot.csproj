@@ -80,6 +80,7 @@
   <ItemGroup>
     <Compile Include="cDiceBag.cs" />
     <Compile Include="cExtensions.cs" />
+    <Compile Include="cSettings.cs" />
     <Compile Include="cZipBackup.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProHttpClient.cs" />
@@ -89,8 +90,9 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="pfsCmdConfig.cfg">
+    <None Include="data\pfsGlobalCmdConfig.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
@@ -103,10 +105,12 @@
     <Content Include="data\events.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="data\pfsUserCmdConfig.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="docs\changelog.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="docs\devdocs\events.txt" />
     <Content Include="docs\devdocs\FEATURE_PROGRESS.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -120,7 +124,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
-    <None Include="pfsPermConfig.cfg" />
+    <None Include="pfsPermConfig.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="pfsTelegramBot.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>

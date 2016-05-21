@@ -1,7 +1,7 @@
 ﻿NW's TELEGRAM BOT -FEATURE PROGRESS-
 ============================================================================================
 
-VERSION: 1.0.0.47
+VERSION: 1.0.0.49
 FOR: WINDOWS 8/10+
 LAST UPDATED ON: 
 LAST UPDATED BY: ANDYDINGOWOLF
@@ -16,9 +16,8 @@ Please use "Word Wrap" if using notepad or wordpad to view this file.
 * Stickers (75%)
 * Photos (75%)
 * Audio (100%)
-* Split on day end (0%)
+* Split on day end (100%)
 * Update checker (100%)
-* Speak lines (0%) - moved to project #2
 
 EOF
 +==================================+

@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.47
+ * Version   : 1.0.0.49
  */
 
 using System;
@@ -22,16 +22,28 @@ namespace nwTelegramBot
     /// </summary>
     public static class cExtensions
     {
+        /// <summary>
+        /// Is this a positive number?
+        /// </summary>
+        /// <returns>true, if it is indeed, or false.</returns>
         public static bool IsPositive(this int number)
         {
             return number > 0;
         }
 
+        /// <summary>
+        /// Is this a negative number?
+        /// </summary>
+        /// <returns>true, if it is indeed, or false.</returns>
         public static bool IsNegative(this int number)
         {
             return number < 0;
         }
 
+        /// <summary>
+        /// Is this zero?
+        /// </summary>
+        /// <returns>true, if it is indeed, or false.</returns>
         public static bool IsZero(this int number)
         {
             return number == 0;
@@ -77,5 +89,17 @@ namespace nwTelegramBot
 
             return final;
         }
+    }
+
+    /// <summary>
+    /// The type of the permission
+    /// </summary>
+    enum PermissionType : int
+    {
+        Admin,
+        Developer,
+        User,
+        PowerUser,
+        Banned,
     }
 }
