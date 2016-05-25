@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.49
+ * Version   : 1.0.0.51
  */
 
 using System;
@@ -21,7 +21,7 @@ using File = System.IO.File;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
+using Telegram.Bot.Types.Enums;
 
 namespace nwTelegramBot
 {
@@ -68,7 +68,7 @@ namespace nwTelegramBot
 
                 // Network available?
                 if (isAvailable == true)
-                    Run().Wait(-1);
+                    Run().Wait();
                 else
                 {
                     Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: No valid Internet Connection detected.");
@@ -76,6 +76,14 @@ namespace nwTelegramBot
                 }
             }
             catch (TaskCanceledException ex)
+            {
+                nwErrorCatcher(ex);
+            }
+            catch (NullReferenceException ex)
+            {
+                nwErrorCatcher(ex);
+            }
+            catch (AggregateException ex)
             {
                 nwErrorCatcher(ex);
             }
@@ -116,7 +124,7 @@ namespace nwTelegramBot
 
                 Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: Checking for update...");
 
-                nwDoUpdateCheck(dt, str_ups); // Do our update check.
+                //nwDoUpdateCheck(dt, str_ups); // Do our update check.
             }
             catch (Exception ex)
             {
@@ -312,7 +320,7 @@ namespace nwTelegramBot
         /// <returns>Doesn't actually return much other than a HTTP status code.</returns>
         static async Task Run()
         {
-            var Bot = new Api("170729696:AAGYA8FPN4RkquTRrY-teqrn-J9YdnZX22k"); // Api key, please generate your own, don't use mine.
+            var Bot = new Client("170729696:AAGYA8FPN4RkquTRrY-teqrn-J9YdnZX22k"); // Api key, please generate your own, don't use mine.
 
             var me = await Bot.GetMe();
 
@@ -323,20 +331,22 @@ namespace nwTelegramBot
             Console.ForegroundColor = ConsoleColor.Green;
 
 
-            var offset = 0; // status offset
+            int offset = 0; // status offset
+            //offset = nwGrabInt("offset");
 
             while (true)
             {
-                var updates = await Bot.GetUpdates(offset); // get updates
-
-                //Bot.InlineQueryReceived += new EventHandler<InlineQueryEventArgs>(nwHandleShit);
-
+                Update[] updates;
+                updates = await Bot.GetUpdates(offset, 100); // get updates
+                //updates = await Bot.GetUpdates(); // get updates
                 // For each update in the list
-                foreach (var update in updates)
+                foreach (Update update in updates)
                 {
                     // remove unsightly characters from usernames.
-                    string s_cleanname = update.Message.From.FirstName;
-                    s_cleanname = Regex.Replace(s_cleanname, @"[^\u0000-\u007F]", string.Empty);
+                    //string ss = update.Message.From.FirstName;
+                    //ss = Regex.Replace(ss, @"[^\u0000-\u007F]", string.Empty);
+
+                    
 
                     // Do stuff if we are a text message
                     if (update.Message.Type == MessageType.TextMessage)
@@ -346,23 +356,23 @@ namespace nwTelegramBot
                         DateTime m = update.Message.Date.ToLocalTime();
 
                         //If we have set the bot to be able to respond to our basic commands
-                        if (nwGrabString("botresponds") == "true" || nwGrabString("debugmode") == "true" || nwGrabString("adminmode") == "true")
+                        if (nwGrabString("botresponds") == "true" && update.Message.Text.StartsWith("/"))
                         {
                             // TODO: MOVE ALL COMMANDS TO pfsCommandBot
                             nwProcessSlashCommands(Bot, update, me, m);
                         }
                         else
                         {
-                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_cleanname + " has attempted to use a command, but they were disabled.");
+                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has attempted to use a command, but they were disabled.");
                         }
 
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
                             if (nwGrabString("debugmode") == "true")
-                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_cleanname + "> " + update.Message.Text);
+                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "<" + update.Message.From.FirstName + "> " + update.Message.Text);
                             else
-                                Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_cleanname + "> " + update.Message.Text);
-                            sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_cleanname + "> " + update.Message.Text);
+                                Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + update.Message.From.FirstName + "> " + update.Message.Text);
+                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + update.Message.From.FirstName + "> " + update.Message.Text);
                         }
                     }
 
@@ -391,9 +401,9 @@ namespace nwTelegramBot
 
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
-                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: A user (" + s_cleanname + ") has joined or left the group.");
+                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: A user (" + update.Message.From.FirstName + ") has joined or left the group.");
 
-                            sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_cleanname + " has joined or left the group!");
+                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has joined or left the group!");
                         }
                     }
 
@@ -408,11 +418,11 @@ namespace nwTelegramBot
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
                             if (nwGrabString("debugmode") == "true")
-                                nwPrintSystemMessage("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " posted about a venue on Foursquare.");
+                                nwPrintSystemMessage("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " posted about a venue on Foursquare.");
                             else
-                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " posted about a venue on Foursquare.");
+                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " posted about a venue on Foursquare.");
 
-                            sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_cleanname + " has posted about a venue on Foursquare.");
+                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted about a venue on Foursquare.");
                         }
                     }
 
@@ -429,28 +439,12 @@ namespace nwTelegramBot
                             string s = update.Message.Sticker.Emoji;
 
                             if (nwGrabString("debugmode") == "true")
-                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted a sticker that represents the " + s + " emoticon.");
+                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a sticker that represents the " + s + " emoticon.");
                             else
-                                Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted a sticker that represents the " + s + " emoticon.");
+                                Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a sticker that represents the " + s + " emoticon.");
 
-                            sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_cleanname + " has posted a sticker that represents the " + s + " emoticon.");
+                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a sticker that represents the " + s + " emoticon.");
                         }
-
-                        if (nwGrabString("dloadMedia") == "true")
-                        {
-                            var file = await Bot.GetFile(update.Message.Sticker.FileId);
-
-                            nwPrintSystemMessage(string.Format("[" + m.ToString(nwParseFormat(true)) + "] * System: Received Sticker: {0}", file.FilePath));
-
-                            var filename = file.FileId + "." + file.FilePath.Split('.').Last();
-
-                            using (var profileImageStream = File.Open(filename, FileMode.Create))
-                            {
-                                await file.FileStream.CopyToAsync(profileImageStream);
-                            }
-                        }
-                        else { nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: Setting 'dloadmedia' has been set to 'false', ignoring download request."); }
-
                     }
 
                     // Do stuff if we are a voice message
@@ -462,8 +456,8 @@ namespace nwTelegramBot
 
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
-                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted a voice message.");
-                            sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted a voice message.");
+                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a voice message.");
+                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a voice message.");
                         }
                     }
 
@@ -476,8 +470,8 @@ namespace nwTelegramBot
 
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
-                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted a video message.");
-                            sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted a video message.");
+                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a video message.");
+                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a video message.");
                         }
                     }
 
@@ -497,30 +491,15 @@ namespace nwTelegramBot
                             // check to see if the caption string is empty or not
                             if (s == string.Empty || s == null || s == "" || s == "/n")
                             {
-                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_cleanname + " has posted a photo with no caption.");
-                                sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted a photo with no caption.");
+                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a photo with no caption.");
+                                await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a photo with no caption.");
                             }
                             else
                             {
-                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_cleanname + " has posted a photo with the caption '" + s + "'.");
-                                sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted a photo with the caption '" + s + "'.");
+                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a photo with the caption '" + s + "'.");
+                                await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a photo with the caption '" + s + "'.");
                             }
                         }
-
-                        if (nwGrabString("dloadImages") == "true")
-                        {
-                            var file = await Bot.GetFile(update.Message.Photo.LastOrDefault()?.FileId);
-
-                            nwPrintSystemMessage(string.Format("[" + m.ToString(nwParseFormat(true)) + "] * System: Received Photo: {0}", file.FilePath));
-
-                            var filename = file.FileId + "." + file.FilePath.Split('.').Last();
-
-                            using (var profileImageStream = File.Open(filename, FileMode.Create))
-                            {
-                                await file.FileStream.CopyToAsync(profileImageStream);
-                            }
-                        }
-                        else { nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: Setting 'dloadimages' has been set to 'false', ignoring download request."); }
                     }
 
                     // Do stuff if we are an audio message
@@ -532,12 +511,13 @@ namespace nwTelegramBot
 
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
-                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted an audio message.");
-                            sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_cleanname + " has posted an audio message.");
+                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted an audio message.");
+                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted an audio message.");
                         }
                     }
 
                     offset = update.Id + 1; // do not touch.
+                    nwSetString("offset", offset.ToString());
                 }
 
                 await Task.Delay(1000);
@@ -552,7 +532,7 @@ namespace nwTelegramBot
         /// <param name="me">The user, or bot.</param>
         /// <param name="dt">The date/time component.</param>
         /// <remarks>Only designed to work if regular commands are enabled.</remarks>
-        private static async void nwProcessSlashCommands(Api bot, Update update, User me, DateTime dt)
+        private static async void nwProcessSlashCommands(Client bot, Update update, User me, DateTime dt)
         {
             // read configuration and extract api keys
             var wundergroundKey = nwGrabString("weatherapi");
@@ -1181,32 +1161,32 @@ namespace nwTelegramBot
                             break;
                         case "/exchange":
                         case "/rate":
-                            string exo = httpClient.DownloadString("https//www.exchangerate-api.com/AUD/USD?k=" + exchangeKey).Result;
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "1 USD = " + exo;
+                            //string exo = httpClient.DownloadString("https//www.exchangerate-api.com/AUD/USD?k=" + exchangeKey).Result;
+                            //if (nwCheckInReplyTimer(dt) != false)
+                            //    replyText = "1 USD = " + exo;
                             break;
                         case "/forecast":
                         case "/weather": // TODO - change to BOM api
-                            if (body.Length < 2)
-                            {
-                                body = "Perth, Australia";
-                            }
+                            //if (body.Length < 2)
+                            //{
+                            //    body = "Perth, Australia";
+                            //}
 
-                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                            //bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
 
-                            //dynamic dfor = JObject.Parse(httpClient.DownloadString("http://api.wunderground.com/api/" + wundergroundKey + "/forecast/q/" + body + ".json").Result);
-                            dynamic dfor = JObject.Parse(httpClient.DownloadString("http://www.bom.gov.au/fwo/IDW60801/IDW60801.94608.json").Result);
-                            if (dfor.forecast == null || dfor.forecast.txt_forecast == null)
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", you have disappointed me.  \"" + body + "\" is sadly, not going to work.  Please try \"City, ST\" or \"City, Country\" next time.";
-                                break;
-                            }
-                            for (var ifor = 0; ifor < Enumerable.Count(dfor.observations.data.sort_order) - 1; ifor++)
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    stringBuilder.AppendLine(dfor.observations.data.sort_order[ifor].title.ToString() + ": " + dfor.observations.data.sort_order[ifor].fcttext_metric.ToString());
-                            }
+                            ////dynamic dfor = JObject.Parse(httpClient.DownloadString("http://api.wunderground.com/api/" + wundergroundKey + "/forecast/q/" + body + ".json").Result);
+                            //dynamic dfor = JObject.Parse(httpClient.DownloadString("http://www.bom.gov.au/fwo/IDW60801/IDW60801.94608.json").Result);
+                            //if (dfor.forecast == null || dfor.forecast.txt_forecast == null)
+                            //{
+                            //    if (nwCheckInReplyTimer(dt) != false)
+                            //        replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", you have disappointed me.  \"" + body + "\" is sadly, not going to work.  Please try \"City, ST\" or \"City, Country\" next time.";
+                            //    break;
+                            //}
+                            //for (var ifor = 0; ifor < Enumerable.Count(dfor.observations.data.sort_order) - 1; ifor++)
+                            //{
+                            //    if (nwCheckInReplyTimer(dt) != false)
+                            //        stringBuilder.AppendLine(dfor.observations.data.sort_order[ifor].title.ToString() + ": " + dfor.observations.data.sort_order[ifor].fcttext_metric.ToString());
+                            //}
 
                             break;
                         case "/user": // TODO : Finish this command
@@ -1284,7 +1264,7 @@ namespace nwTelegramBot
 
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
-                            sw.WriteLine("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyText);
+                            await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyText);
                         }
                     }
                     replyText2 += stringBuilder.ToString();
@@ -1295,7 +1275,7 @@ namespace nwTelegramBot
 
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
-                            sw.WriteLine("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyText2);
+                            await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyText2);
                         }
                     }
                     // replyText3 For text containing urls
@@ -1305,7 +1285,7 @@ namespace nwTelegramBot
 
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
-                            sw.WriteLine("[" + dt.ToString(nwParseFormat(true)) + "] " + me.Username + " " + replyTextEvent);
+                            await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] " + me.Username + " " + replyTextEvent);
                         }
                     }
                     if (!string.IsNullOrEmpty(replyTextMarkdown))
@@ -1315,7 +1295,7 @@ namespace nwTelegramBot
 
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
-                            sw.WriteLine("[" + dt.ToString(nwParseFormat(true)) + "] " + me.Username + " " + replyTextMarkdown);
+                            await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] " + me.Username + " " + replyTextMarkdown);
                         }
                     }
 
@@ -1521,75 +1501,80 @@ namespace nwTelegramBot
                 sw.WriteLine("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine +
                     "* System: Stack Trace: " + ex.StackTrace + Environment.NewLine +
                     "* System: Inner Exception: " + ex.InnerException + Environment.NewLine +
+                    "* System: Inner Exception: " + ex.InnerException.Data.ToString() + Environment.NewLine +
+                    "* System: Inner Exception: " + ex.InnerException.Message + Environment.NewLine +
+                    "* System: Inner Exception: " + ex.InnerException.Source + Environment.NewLine +
+                    "* System: Inner Exception: " + ex.InnerException.StackTrace + Environment.NewLine +
+                    "* System: Inner Exception: " + ex.InnerException.TargetSite + Environment.NewLine +
                     "* System: Source: " + ex.Source + Environment.NewLine +
                    "* System: Target Site: " + ex.TargetSite + Environment.NewLine +
                    "* System: Help Link: " + ex.HelpLink);
             }
         }
 
-        private static InlineKeyboardMarkup GeneratePagination(int total, int current)
-        {
-            if (total < 2)
-                throw new ArgumentOutOfRangeException(nameof(total));
+        //private static InlineKeyboardMarkup GeneratePagination(int total, int current)
+        //{
+        //    if (total < 2)
+        //        throw new ArgumentOutOfRangeException(nameof(total));
 
-            if (current > total)
-                throw new ArgumentOutOfRangeException(nameof(current));
+        //    if (current > total)
+        //        throw new ArgumentOutOfRangeException(nameof(current));
 
-            var result = new InlineKeyboardMarkup(new[]
-                {
-            new InlineKeyboardButton[total > 4 ? 5 : total]
-        }
-            );
+        //    var result = new InlineKeyboardMarkup(new[]
+        //        {
+        //    new InlineKeyboardButton[total > 4 ? 5 : total]
+        //}
+        //    );
 
-            if (current == 1)
-                result.InlineKeyboard[0][0] = new InlineKeyboardButton("·1·", "1");
-            else if (current < 4 || total < 6)
-                result.InlineKeyboard[0][0] = new InlineKeyboardButton(" 1 ", "1");
-            else
-                result.InlineKeyboard[0][0] = new InlineKeyboardButton("«1 ", "1");
+        //    if (current == 1)
+        //        result.InlineKeyboard[0][0] = new InlineKeyboardButton("·1·", "1");
+        //    else if (current < 4 || total < 6)
+        //        result.InlineKeyboard[0][0] = new InlineKeyboardButton(" 1 ", "1");
+        //    else
+        //        result.InlineKeyboard[0][0] = new InlineKeyboardButton("«1 ", "1");
 
-            if (current == 2)
-                result.InlineKeyboard[0][1] = new InlineKeyboardButton("·2·", "2");
-            else if (current < 4 || total < 6)
-                result.InlineKeyboard[0][1] = new InlineKeyboardButton(" 2 ", "2");
-            else if (current > total - 2)
-                result.InlineKeyboard[0][1] = new InlineKeyboardButton($"‹{total - 3} ", $"{total - 3}");
-            else
-                result.InlineKeyboard[0][1] = new InlineKeyboardButton($"‹{current - 1} ", $"{current - 1}");
+        //    if (current == 2)
+        //        result.InlineKeyboard[0][1] = new InlineKeyboardButton("·2·", "2");
+        //    else if (current < 4 || total < 6)
+        //        result.InlineKeyboard[0][1] = new InlineKeyboardButton(" 2 ", "2");
+        //    else if (current > total - 2)
+        //        result.InlineKeyboard[0][1] = new InlineKeyboardButton($"‹{total - 3} ", $"{total - 3}");
+        //    else
+        //        result.InlineKeyboard[0][1] = new InlineKeyboardButton($"‹{current - 1} ", $"{current - 1}");
 
-            if (total > 2)
-                if (current < 3 || (total < 5 && current != 3))
-                    result.InlineKeyboard[0][2] = new InlineKeyboardButton(" 3 ", "3");
-                else if (current != 3 && current > total - 2)
-                    result.InlineKeyboard[0][2] = new InlineKeyboardButton($" {total - 2} ", $"{ total - 2 }");
-                else
-                    result.InlineKeyboard[0][2] = new InlineKeyboardButton($"·{current}·", $"{current}");
+        //    if (total > 2)
+        //        if (current < 3 || (total < 5 && current != 3))
+        //            result.InlineKeyboard[0][2] = new InlineKeyboardButton(" 3 ", "3");
+        //        else if (current != 3 && current > total - 2)
+        //            result.InlineKeyboard[0][2] = new InlineKeyboardButton($" {total - 2} ", $"{ total - 2 }");
+        //        else
+        //            result.InlineKeyboard[0][2] = new InlineKeyboardButton($"·{current}·", $"{current}");
 
-            if (total == 4)
-                if (current == 4)
-                    result.InlineKeyboard[0][3] = new InlineKeyboardButton("·4·", "4");
-                else
-                    result.InlineKeyboard[0][3] = new InlineKeyboardButton(" 4 ", "4");
-            else if (total > 3)
-                if (current < 3 && total > 5)
-                    result.InlineKeyboard[0][3] = new InlineKeyboardButton(" 4›", "4");
-                else if (current < total - 2 && total > 5)
-                    result.InlineKeyboard[0][3] = new InlineKeyboardButton($" {current + 1}›", $"{current + 1}");
-                else if (current == total - 1)
-                    result.InlineKeyboard[0][3] = new InlineKeyboardButton($"·{current}·", $"{current}");
-                else
-                    result.InlineKeyboard[0][3] = new InlineKeyboardButton($" {total - 1} ", $"{total - 1}");
+        //    if (total == 4)
+        //        if (current == 4)
+        //            result.InlineKeyboard[0][3] = new InlineKeyboardButton("·4·", "4");
+        //        else
+        //            result.InlineKeyboard[0][3] = new InlineKeyboardButton(" 4 ", "4");
+        //    else if (total > 3)
+        //        if (current < 3 && total > 5)
+        //            result.InlineKeyboard[0][3] = new InlineKeyboardButton(" 4›", "4");
+        //        else if (current < total - 2 && total > 5)
+        //            result.InlineKeyboard[0][3] = new InlineKeyboardButton($" {current + 1}›", $"{current + 1}");
+        //        else if (current == total - 1)
+        //            result.InlineKeyboard[0][3] = new InlineKeyboardButton($"·{current}·", $"{current}");
+        //        else
+        //            result.InlineKeyboard[0][3] = new InlineKeyboardButton($" {total - 1} ", $"{total - 1}");
 
-            if (total > 4)
-                if (current == total)
-                    result.InlineKeyboard[0][4] = new InlineKeyboardButton($"·{current}·", $"{current}");
-                else if (current > total - 3 || total < 6)
-                    result.InlineKeyboard[0][4] = new InlineKeyboardButton($" {total} ", $"{total}");
-                else
-                    result.InlineKeyboard[0][4] = new InlineKeyboardButton($" {total}»", $"{total}");
+        //    if (total > 4)
+        //        if (current == total)
+        //            result.InlineKeyboard[0][4] = new InlineKeyboardButton($"·{current}·", $"{current}");
+        //        else if (current > total - 3 || total < 6)
+        //            result.InlineKeyboard[0][4] = new InlineKeyboardButton($" {total} ", $"{total}");
+        //        else
+        //            result.InlineKeyboard[0][4] = new InlineKeyboardButton($" {total}»", $"{total}");
 
-            return result;
-        }
+        //    return result;
+        //}
     }
 }
 
