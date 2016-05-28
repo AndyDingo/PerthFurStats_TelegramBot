@@ -68,7 +68,7 @@ namespace nwTelegramBot
 
                 // Network available?
                 if (isAvailable == true)
-                    Run().Wait();
+                    Run().Wait(-1);
                 else
                 {
                     Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: No valid Internet Connection detected.");
@@ -324,6 +324,9 @@ namespace nwTelegramBot
 
             var me = await Bot.GetMe();
 
+            Bot.PollingTimeout = TimeSpan.FromDays(1);
+            Bot.UploadTimeout = TimeSpan.FromMinutes(5);
+
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("-----------------------------------------------------------------");
             Console.WriteLine("Hello my name is {0}, I'm a bot for Perthfurs SFW Telegram.", me.Username);
@@ -337,7 +340,7 @@ namespace nwTelegramBot
             while (true)
             {
                 Update[] updates;
-                updates = await Bot.GetUpdates(offset, 100); // get updates
+                updates = await Bot.GetUpdates(offset, 10000); // get updates
                 //updates = await Bot.GetUpdates(); // get updates
                 // For each update in the list
                 foreach (Update update in updates)
@@ -346,181 +349,189 @@ namespace nwTelegramBot
                     //string ss = update.Message.From.FirstName;
                     //ss = Regex.Replace(ss, @"[^\u0000-\u007F]", string.Empty);
 
-                    
-
-                    // Do stuff if we are a text message
-                    if (update.Message.Type == MessageType.TextMessage)
+                    switch (update.Type)
                     {
-                        await Task.Delay(2000);
+                        case UpdateType.MessageUpdate:
 
-                        DateTime m = update.Message.Date.ToLocalTime();
+                            Message message = update.Message;
+                            DateTime m = update.Message.Date.ToLocalTime();
 
-                        //If we have set the bot to be able to respond to our basic commands
-                        if (nwGrabString("botresponds") == "true" && update.Message.Text.StartsWith("/"))
-                        {
-                            // TODO: MOVE ALL COMMANDS TO pfsCommandBot
-                            nwProcessSlashCommands(Bot, update, me, m);
-                        }
-                        else
-                        {
-                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has attempted to use a command, but they were disabled.");
-                        }
-
-                        using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                        {
-                            if (nwGrabString("debugmode") == "true")
-                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "<" + update.Message.From.FirstName + "> " + update.Message.Text);
-                            else
-                                Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + update.Message.From.FirstName + "> " + update.Message.Text);
-                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + update.Message.From.FirstName + "> " + update.Message.Text);
-                        }
-                    }
-
-                    // UNKNOWN MESSAGES.
-                    // TODO: Work out what to actually flocking do with them.
-                    if (update.Message.Type == MessageType.UnknownMessage)
-                    {
-                        await Task.Delay(2000);
-
-                        DateTime m = update.Message.Date.ToLocalTime();
-
-                        using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                        {
-                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: Unknown, please report");
-
-                            //sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: Unknown, please report");
-                        }
-                    }
-
-                    // SERVICE MESSAGES
-                    if (update.Message.Type == MessageType.ServiceMessage)
-                    {
-                        await Task.Delay(2000);
-
-                        DateTime m = update.Message.Date.ToLocalTime();
-
-                        using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                        {
-                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: A user (" + update.Message.From.FirstName + ") has joined or left the group.");
-
-                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has joined or left the group!");
-                        }
-                    }
-
-                    // Venue messages. Added in API v2.0
-                    // TODO: IMPLEMENT PROPERLY
-                    if (update.Message.Type == MessageType.VenueMessage)
-                    {
-                        await Task.Delay(2000);
-
-                        DateTime m = update.Message.Date.ToLocalTime();
-
-                        using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                        {
-                            if (nwGrabString("debugmode") == "true")
-                                nwPrintSystemMessage("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " posted about a venue on Foursquare.");
-                            else
-                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " posted about a venue on Foursquare.");
-
-                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted about a venue on Foursquare.");
-                        }
-                    }
-
-                    // Do stuff if we are a sticker message
-                    if (update.Message.Type == MessageType.StickerMessage)
-                    {
-                        await Task.Delay(2000);
-
-                        DateTime m = update.Message.Date.ToLocalTime();
-
-                        using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                        {
-                            // download the emoji for the image, if there is one. Added in May API update.
-                            string s = update.Message.Sticker.Emoji;
-
-                            if (nwGrabString("debugmode") == "true")
-                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a sticker that represents the " + s + " emoticon.");
-                            else
-                                Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a sticker that represents the " + s + " emoticon.");
-
-                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a sticker that represents the " + s + " emoticon.");
-                        }
-                    }
-
-                    // Do stuff if we are a voice message
-                    if (update.Message.Type == MessageType.VoiceMessage)
-                    {
-                        await Task.Delay(2000);
-
-                        DateTime m = update.Message.Date.ToLocalTime();
-
-                        using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                        {
-                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a voice message.");
-                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a voice message.");
-                        }
-                    }
-
-                    // Do stuff if we are a video message
-                    if (update.Message.Type == MessageType.VideoMessage)
-                    {
-                        await Task.Delay(2000);
-
-                        DateTime m = update.Message.Date.ToLocalTime();
-
-                        using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                        {
-                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a video message.");
-                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a video message.");
-                        }
-                    }
-
-                    // Do stuff if we are a photo message
-                    if (update.Message.Type == MessageType.PhotoMessage)
-                    {
-                        await Task.Delay(2000);
-
-                        DateTime m = update.Message.Date.ToLocalTime(); // Get date/time
-
-                        //write following to file stream.
-                        using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                        {
-                            // download the caption for the image, if there is one.
-                            string s = update.Message.Caption;
-
-                            // check to see if the caption string is empty or not
-                            if (s == string.Empty || s == null || s == "" || s == "/n")
+                            // Do stuff if we are a text message
+                            switch (message.Type)
                             {
-                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a photo with no caption.");
-                                await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a photo with no caption.");
+                                case MessageType.TextMessage:
+
+                                    //If we have set the bot to be able to respond to our basic commands
+                                    if (nwGrabString("botresponds") == "true" && update.Message.Text.StartsWith("/"))
+                                    {
+                                        // TODO: MOVE ALL COMMANDS TO pfsCommandBot
+                                        nwProcessSlashCommands(Bot, update, me, m);
+                                    }
+                                    else
+                                    {
+                                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has attempted to use a command, but they were disabled.");
+                                    }
+
+                                    using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    {
+                                        if (nwGrabString("debugmode") == "true")
+                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "<" + update.Message.From.FirstName + "> " + update.Message.Text);
+                                        else
+                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + update.Message.From.FirstName + "> " + update.Message.Text);
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + update.Message.From.FirstName + "> " + update.Message.Text);
+                                    }
+
+                                    break;
+
+                                case MessageType.UnknownMessage:
+
+                                    // UNKNOWN MESSAGES.
+                                    // TODO: Work out what to actually flocking do with them.
+                                    await Task.Delay(2000);
+
+
+                                    using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    {
+                                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: Unknown, please report");
+
+                                        //sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: Unknown, please report");
+                                    }
+                                    break;
+
+                                case MessageType.ServiceMessage:
+                                    await Task.Delay(2000);
+
+
+                                    using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    {
+                                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: A user (" + update.Message.From.FirstName + ") has joined or left the group.");
+
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has joined or left the group!");
+                                    }
+
+                                    break;
+                                // Venue messages. Added in API v2.0
+                                // TODO: IMPLEMENT PROPERLY
+                                case MessageType.VenueMessage:
+                                    await Task.Delay(2000);
+
+
+                                    using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    {
+                                        if (nwGrabString("debugmode") == "true")
+                                            nwPrintSystemMessage("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " posted about a venue on Foursquare.");
+                                        else
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " posted about a venue on Foursquare.");
+
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted about a venue on Foursquare.");
+                                    }
+
+                                    break;
+                                // Do stuff if we are a sticker message
+                                case MessageType.StickerMessage:
+                                    await Task.Delay(2000);
+
+
+                                    using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    {
+                                        // download the emoji for the image, if there is one. Added in May API update.
+                                        string s = update.Message.Sticker.Emoji;
+
+                                        if (nwGrabString("debugmode") == "true")
+                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a sticker that represents the " + s + " emoticon.");
+                                        else
+                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a sticker that represents the " + s + " emoticon.");
+
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a sticker that represents the " + s + " emoticon.");
+                                    }
+
+                                    break;
+                                // Do stuff if we are a voice message
+                                case MessageType.VoiceMessage:
+                                    await Task.Delay(2000);
+
+                                    m = update.Message.Date.ToLocalTime();
+
+                                    using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    {
+                                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a voice message.");
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a voice message.");
+                                    }
+                                    break;
+
+                                case MessageType.VideoMessage:
+                                    await Task.Delay(2000);
+
+                                    m = update.Message.Date.ToLocalTime();
+
+                                    using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    {
+                                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a video message.");
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a video message.");
+                                    }
+
+                                    break;
+                                // Do stuff if we are a photo message
+                                case MessageType.PhotoMessage:
+                                    await Task.Delay(2000);
+
+                                    m = update.Message.Date.ToLocalTime(); // Get date/time
+
+                                    //write following to file stream.
+                                    using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    {
+                                        // download the caption for the image, if there is one.
+                                        string s = update.Message.Caption;
+
+                                        // check to see if the caption string is empty or not
+                                        if (s == string.Empty || s == null || s == "" || s == "/n")
+                                        {
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a photo with no caption.");
+                                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a photo with no caption.");
+                                        }
+                                        else
+                                        {
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a photo with the caption '" + s + "'.");
+                                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a photo with the caption '" + s + "'.");
+                                        }
+                                    }
+                                    break;
+
+                                // Do stuff if we are an audio message
+                                case MessageType.AudioMessage:
+                                    await Task.Delay(2000);
+
+                                    m = update.Message.Date.ToLocalTime();
+
+                                    using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    {
+                                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted an audio message.");
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted an audio message.");
+                                    }
+                                    break;
+                                default:
+                                    Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * System: BORK BORK BORK");
+                                    break;
+
+                                    
                             }
-                            else
-                            {
-                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a photo with the caption '" + s + "'.");
-                                await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a photo with the caption '" + s + "'.");
-                            }
-                        }
+
+                            offset = update.Id + 1; // do not touch.
+                            nwSetString("offset", offset.ToString());
+
+                            break;
+                        case UpdateType.InlineQueryUpdate:
+                            break;
+                        default:
+                            break;
                     }
 
-                    // Do stuff if we are an audio message
-                    if (update.Message.Type == MessageType.AudioMessage)
-                    {
-                        await Task.Delay(2000);
 
-                        DateTime m = update.Message.Date.ToLocalTime();
 
-                        using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                        {
-                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted an audio message.");
-                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted an audio message.");
-                        }
-                    }
 
-                    offset = update.Id + 1; // do not touch.
-                    nwSetString("offset", offset.ToString());
+
+
                 }
-
-                await Task.Delay(1000);
             }
         }
 
@@ -1377,9 +1388,9 @@ namespace nwTelegramBot
         private static void nwSetUserString(string key, string value)
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load(s_ucmd_cfgfile);
+            doc.Load(s_gcmd_cfgfile);
             doc.SelectSingleNode("config/" + key).InnerText = value;
-            doc.Save(s_ucmd_cfgfile);
+            doc.Save(s_gcmd_cfgfile);
         }
 
         /// <summary>
@@ -1500,12 +1511,12 @@ namespace nwTelegramBot
                 sw.WriteLine("-----------------------------------------------------------------------------");
                 sw.WriteLine("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine +
                     "* System: Stack Trace: " + ex.StackTrace + Environment.NewLine +
-                    "* System: Inner Exception: " + ex.InnerException + Environment.NewLine +
-                    "* System: Inner Exception: " + ex.InnerException.Data.ToString() + Environment.NewLine +
-                    "* System: Inner Exception: " + ex.InnerException.Message + Environment.NewLine +
-                    "* System: Inner Exception: " + ex.InnerException.Source + Environment.NewLine +
-                    "* System: Inner Exception: " + ex.InnerException.StackTrace + Environment.NewLine +
-                    "* System: Inner Exception: " + ex.InnerException.TargetSite + Environment.NewLine +
+                    //"* System: Inner Exception: " + ex.InnerException + Environment.NewLine +
+                    //"* System: Inner Exception: " + ex.InnerException.Data.ToString() + Environment.NewLine +
+                    //"* System: Inner Exception: " + ex.InnerException.Message + Environment.NewLine +
+                    //"* System: Inner Exception: " + ex.InnerException.Source + Environment.NewLine +
+                    //"* System: Inner Exception: " + ex.InnerException.StackTrace + Environment.NewLine +
+                    //"* System: Inner Exception: " + ex.InnerException.TargetSite + Environment.NewLine +
                     "* System: Source: " + ex.Source + Environment.NewLine +
                    "* System: Target Site: " + ex.TargetSite + Environment.NewLine +
                    "* System: Help Link: " + ex.HelpLink);
