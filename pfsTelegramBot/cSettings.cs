@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.51
+ * Version   : 1.0.0.52
  */
 
 using System;
@@ -74,6 +74,66 @@ namespace nwTelegramBot
 
             }
             else { return -1; }
+        }
+
+        /// <summary>
+        /// Set a user setting.
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public static void nwSetUserString(string filename, string key, string value)
+        {
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(filename);
+
+            if (doc.SelectSingleNode("config/" + key) != null)
+            {
+
+                doc.SelectSingleNode("config/" + key).InnerText = value;
+
+            }
+            else
+            {
+
+                doc.CreateElement(key);
+                doc.SelectSingleNode("config/" + key).InnerText = value;
+
+            }
+
+            doc.Save(filename);
+
+        }
+
+        /// <summary>
+        /// Set a global setting.
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public static void nwSetGlobalString(string filename, string key, string value)
+        {
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(filename);
+
+            if (doc.SelectSingleNode("config/" + key) != null)
+            {
+
+                doc.SelectSingleNode("config/" + key).InnerText = value;
+
+            }
+            else
+            {
+
+                doc.CreateElement(key);
+                doc.SelectSingleNode("config/" + key).InnerText = value;
+
+            }
+
+            doc.Save(filename);
+
         }
     }
 }

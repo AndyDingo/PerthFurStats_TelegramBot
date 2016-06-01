@@ -7,21 +7,19 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.51
+ * Version   : 1.0.0.52
  */
 
 using System;
 using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using System.Xml;
-using System.Linq;
-using File = System.IO.File;
-using System.Text;
-using Newtonsoft.Json.Linq;
-using System.Text.RegularExpressions;
 using Telegram.Bot.Types.Enums;
+using File = System.IO.File;
 
 namespace nwTelegramBot
 {
@@ -222,9 +220,20 @@ namespace nwTelegramBot
 
             doc.Load(s_cfgfile);
 
-            s = doc.SelectSingleNode("config/" + key).InnerText;
+            if (doc.SelectSingleNode("config/" + key) != null)
+            {
 
-            return s;
+                s = doc.SelectSingleNode("config/" + key).InnerText;
+                return s;
+
+            }
+            else
+            {
+
+                //Console.WriteLine("Error!");
+                return "Error";
+
+            }
         }
 
         /// <summary>
@@ -335,19 +344,20 @@ namespace nwTelegramBot
 
 
             int offset = 0; // status offset
-            //offset = nwGrabInt("offset");
+            offset = nwGrabInt("offset");
 
             while (true)
             {
                 Update[] updates;
-                updates = await Bot.GetUpdates(offset, 10000); // get updates
+                updates = await Bot.GetUpdates(offset); // get updates
                 //updates = await Bot.GetUpdates(); // get updates
                 // For each update in the list
                 foreach (Update update in updates)
                 {
-                    // remove unsightly characters from usernames.
+                    //remove unsightly characters from first names.
                     //string ss = update.Message.From.FirstName;
                     //ss = Regex.Replace(ss, @"[^\u0000-\u007F]", string.Empty);
+                    //ss.Trim(' ');
 
                     switch (update.Type)
                     {
@@ -362,14 +372,15 @@ namespace nwTelegramBot
                                 case MessageType.TextMessage:
 
                                     //If we have set the bot to be able to respond to our basic commands
-                                    if (nwGrabString("botresponds") == "true" && update.Message.Text.StartsWith("/"))
+                                    if (nwGrabString("botresponds") == "true" && update.Message.Text.StartsWith("/") == true)
                                     {
                                         // TODO: MOVE ALL COMMANDS TO pfsCommandBot
                                         nwProcessSlashCommands(Bot, update, me, m);
                                     }
                                     else
                                     {
-                                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has attempted to use a command, but they were disabled.");
+                                        if (nwGrabString("debugMode") == "true")
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has attempted to use a command, but they were disabled.");
                                     }
 
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
@@ -383,12 +394,8 @@ namespace nwTelegramBot
 
                                     break;
 
-                                case MessageType.UnknownMessage:
-
-                                    // UNKNOWN MESSAGES.
+                                case MessageType.UnknownMessage: // UNKNOWN MESSAGES.
                                     // TODO: Work out what to actually flocking do with them.
-                                    await Task.Delay(2000);
-
 
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
@@ -398,9 +405,7 @@ namespace nwTelegramBot
                                     }
                                     break;
 
-                                case MessageType.ServiceMessage:
-                                    await Task.Delay(2000);
-
+                                case MessageType.ServiceMessage: // Service messages (user leaves or joins)
 
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
@@ -410,11 +415,9 @@ namespace nwTelegramBot
                                     }
 
                                     break;
-                                // Venue messages. Added in API v2.0
+                                
+                                case MessageType.VenueMessage: // Venue messages. Added in API v2.0
                                 // TODO: IMPLEMENT PROPERLY
-                                case MessageType.VenueMessage:
-                                    await Task.Delay(2000);
-
 
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
@@ -427,10 +430,8 @@ namespace nwTelegramBot
                                     }
 
                                     break;
-                                // Do stuff if we are a sticker message
-                                case MessageType.StickerMessage:
-                                    await Task.Delay(2000);
-
+                                
+                                case MessageType.StickerMessage: // Do stuff if we are a sticker message
 
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
@@ -446,9 +447,8 @@ namespace nwTelegramBot
                                     }
 
                                     break;
-                                // Do stuff if we are a voice message
-                                case MessageType.VoiceMessage:
-                                    await Task.Delay(2000);
+                                
+                                case MessageType.VoiceMessage: // Do stuff if we are a voice message
 
                                     m = update.Message.Date.ToLocalTime();
 
@@ -460,7 +460,6 @@ namespace nwTelegramBot
                                     break;
 
                                 case MessageType.VideoMessage:
-                                    await Task.Delay(2000);
 
                                     m = update.Message.Date.ToLocalTime();
 
@@ -471,9 +470,8 @@ namespace nwTelegramBot
                                     }
 
                                     break;
-                                // Do stuff if we are a photo message
-                                case MessageType.PhotoMessage:
-                                    await Task.Delay(2000);
+                                    
+                                case MessageType.PhotoMessage: // Do stuff if we are a photo message
 
                                     m = update.Message.Date.ToLocalTime(); // Get date/time
 
@@ -496,10 +494,8 @@ namespace nwTelegramBot
                                         }
                                     }
                                     break;
-
-                                // Do stuff if we are an audio message
-                                case MessageType.AudioMessage:
-                                    await Task.Delay(2000);
+                                    
+                                case MessageType.AudioMessage: // Do stuff if we are an audio message
 
                                     m = update.Message.Date.ToLocalTime();
 
@@ -509,10 +505,11 @@ namespace nwTelegramBot
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted an audio message.");
                                     }
                                     break;
-                                default:
-                                    Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * System: BORK BORK BORK");
-                                    break;
 
+                                default:
+
+                                    nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: Find out how we got to this point.");
+                                    break;
                                     
                             }
 
@@ -523,16 +520,14 @@ namespace nwTelegramBot
                         case UpdateType.InlineQueryUpdate:
                             break;
                         default:
+                            //nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: Find out how we got to this point.");
                             break;
                     }
-
-
-
-
-
-
+                    
                 }
+
             }
+
         }
 
         /// <summary>
@@ -698,8 +693,18 @@ namespace nwTelegramBot
                             }
                             break;
                         case "/e621":
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "Not happening!";
+                            if (s_chattype == "Private")
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "You have insufficient permissions to access this command.";
+                                break;
+
+                            }
+                            else
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "Not happening, outside of private messages that is.";
+                            }
                             break;
                         case "/dook":
                             if (nwCheckInReplyTimer(dt) != false)
@@ -720,7 +725,7 @@ namespace nwTelegramBot
                         case "/commands":
                             bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyTextEvent = "Hi " + update.Message.From.FirstName + ", Here's a list of commands I can respond to: http://www.perthfurstats.net/node/11 Note that it hasn't been properly updated for Telegram yet.";
+                                replyTextEvent = "Hi " + update.Message.From.FirstName + ", Here's a list of commands I can respond to: http://www.perthfurstats.net/node/11 Note that it is currently a work in progress.";
                             break;
                         case "/event":
                         case "/events": // TODO: Finish this command
@@ -735,6 +740,7 @@ namespace nwTelegramBot
 
                             // Create a new string builder
                             StringBuilder eventString = new StringBuilder();
+                            eventString.AppendLine("Here is a list of upcoming events. Times are in GMT +8:00.");
 
                             // Iterate through available events
                             for (var i1for = 0; i1for < nodes.Count; i1for++)
@@ -795,15 +801,15 @@ namespace nwTelegramBot
                             // usage /slap [nickname] bot will slap the person matching the nickname.
                             // will return "yournickname slaps targetnickname around with [randomobject]
                             int emuse = nwGrabInt("cusage/emote");
-                            int emmax = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/emote");
-                            int emmax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/emote");
+                            //int emmax = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/emote");
+                            //int emmax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/emote");
 
-                            if (emuse == emmax)
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "Sorry, the /slap command has been used too many times.";
-                                break;
-                            }
+                            //if (emuse == emmax)
+                            //{
+                            //    if (nwCheckInReplyTimer(dt) != false)
+                            //        replyText = "Sorry, the /slap command has been used too many times.";
+                            //    break;
+                            //}
 
                             if (nwCheckInReplyTimer(dt) != false)
                             {
@@ -851,7 +857,7 @@ namespace nwTelegramBot
                             }
 
                             nwSetString("cusage/emote", Convert.ToString(emuse++));
-                            nwSetUserString(update.Message.From.FirstName + "/cmd_counts/emote", Convert.ToString(emuse++));
+                            //nwSetUserString(update.Message.From.FirstName + "/cmd_counts/emote", Convert.ToString(emuse++));
                             break;
                         case "/sfw":
                         case "/safeforwork":
@@ -885,7 +891,7 @@ namespace nwTelegramBot
                             }
 
                             nwSetString("cusage/sfw", Convert.ToString(n_sfwuse++));
-                            nwSetUserString(update.Message.From.FirstName + "/cmd_counts/sfw", Convert.ToString(n_sfwuse++));
+                            //nwSetUserString(update.Message.From.FirstName + "/cmd_counts/sfw", Convert.ToString(n_sfwuse++));
                             break;
                         case "/image": // TODO: Finish this command
                             if (nwCheckInReplyTimer(dt) != false)
@@ -995,17 +1001,21 @@ namespace nwTelegramBot
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "This command is not yet implemented.";
                             break;
+                        case "/eeyup":
+                            if (nwCheckInReplyTimer(dt) != false)
+                                replyText = "This command is not yet implemented.";
+                            break;
                         case "/say":
                             int sayuse = nwGrabInt("cusage/say");
-                            int n_saymax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/say");
-                            int n_saymax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/say");
+                            //int n_saymax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/say");
+                            //int n_saymax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/say");
 
-                            if (sayuse == n_saymax1 || sayuse == n_saymax2)
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "Sorry, the /say command has been used too many times.";
-                                break;
-                            }
+                            //if (sayuse == n_saymax1 || sayuse == n_saymax2)
+                            //{
+                            //    if (nwCheckInReplyTimer(dt) != false)
+                            //        replyText = "Sorry, the /say command has been used too many times.";
+                            //    break;
+                            //}
 
                             if (s_chattype == "Private")
                             {
@@ -1025,8 +1035,8 @@ namespace nwTelegramBot
                                 break;
                             }
 
-                            nwSetString("cusage/say", Convert.ToString(sayuse++));
-                            nwSetUserString(update.Message.From.FirstName + "/cmd_counts/say", Convert.ToString(sayuse++));
+                            //nwSetString("cusage/say", Convert.ToString(sayuse++));
+                            //nwSetUserString(update.Message.From.FirstName + "/cmd_counts/say", Convert.ToString(sayuse++));
                             break;
                         case "/stats": // change to /stats [week|month|year|alltime]
                             int statuse = nwGrabInt("cusage/stats");
@@ -1065,41 +1075,41 @@ namespace nwTelegramBot
                                 {
                                     case "week":
                                         if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = "Hi " + update.Message.From.FirstName + ", Please use the following URL to view this last weeks stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
+                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last weeks stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
                                         break;
                                     case "month":
                                         if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = "Hi " + update.Message.From.FirstName + ", Please use the following URL to view this last months stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
+                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last months stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
                                         break;
                                     case "fortnight":
                                         if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = "Hi " + update.Message.From.FirstName + ", Please use the following URL to view this last fortnights stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
+                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last fortnights stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
                                         break;
                                     case "year:":
                                         if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = "Hi " + update.Message.From.FirstName + ", Please use the following URL to view this last years stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
+                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last years stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
                                         break;
                                     case "decade":
                                         if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = "Hi " + update.Message.From.FirstName + ", Please use the following URL to view this last decades stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
+                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last decades stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
                                         break;
                                     case "alltime":
                                         if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = "Hi " + update.Message.From.FirstName + ", Please use the following URL to view the alltime stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
+                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view the alltime stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
                                         break;
                                     case "archive":
                                         if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = "Hi " + update.Message.From.FirstName + ", Please use the following URL to view the stats archives: http://www.perthfurstats.net/node/2";
+                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view the stats archives: http://www.perthfurstats.net/node/2";
                                         break;
                                     case "command":
                                     case "commands":
                                         int tuse = nwGrabInt("cusage/total");
                                         if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = "Hi " + update.Message.From.FirstName + ", Since inception on Feb 15 2016, this bot has processed " + Convert.ToString(tuse) + " total commands.";
+                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Since inception on Feb 15 2016, this bot has processed " + Convert.ToString(tuse) + " total commands.";
                                         break;
                                     default:
                                         if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = "Hi " + update.Message.From.FirstName + ", Please use the following URL to view this last weeks stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular usage: /stats -f[week|month|year|alltime|archive]";
+                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last weeks stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular usage: /stats -f[week|month|year|alltime|archive]";
                                         break;
                                 }
                                 nwSetString("cusage/stats", Convert.ToString(statuse++));
@@ -1393,6 +1403,14 @@ namespace nwTelegramBot
             doc.Save(s_gcmd_cfgfile);
         }
 
+        private static void nwSetGlobalString(string key, string value)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(s_gcmd_cfgfile);
+            doc.SelectSingleNode("config/" + key).InnerText = value;
+            doc.Save(s_gcmd_cfgfile);
+        }
+
         /// <summary>
         /// Get the users permissions, display to the user.
         /// </summary>
@@ -1511,12 +1529,12 @@ namespace nwTelegramBot
                 sw.WriteLine("-----------------------------------------------------------------------------");
                 sw.WriteLine("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine +
                     "* System: Stack Trace: " + ex.StackTrace + Environment.NewLine +
-                    //"* System: Inner Exception: " + ex.InnerException + Environment.NewLine +
-                    //"* System: Inner Exception: " + ex.InnerException.Data.ToString() + Environment.NewLine +
-                    //"* System: Inner Exception: " + ex.InnerException.Message + Environment.NewLine +
-                    //"* System: Inner Exception: " + ex.InnerException.Source + Environment.NewLine +
-                    //"* System: Inner Exception: " + ex.InnerException.StackTrace + Environment.NewLine +
-                    //"* System: Inner Exception: " + ex.InnerException.TargetSite + Environment.NewLine +
+                    "* System: Inner Exception: " + ex.InnerException + Environment.NewLine +
+                    "* System: Inner Exception: " + ex.InnerException.Data.ToString() + Environment.NewLine +
+                    "* System: Inner Exception: " + ex.InnerException.Message + Environment.NewLine +
+                    "* System: Inner Exception: " + ex.InnerException.Source + Environment.NewLine +
+                    "* System: Inner Exception: " + ex.InnerException.StackTrace + Environment.NewLine +
+                    "* System: Inner Exception: " + ex.InnerException.TargetSite + Environment.NewLine +
                     "* System: Source: " + ex.Source + Environment.NewLine +
                    "* System: Target Site: " + ex.TargetSite + Environment.NewLine +
                    "* System: Help Link: " + ex.HelpLink);
