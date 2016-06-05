@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other Stuff", "Other Stuff"
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pfsTelegramBotInline", "pfsTelegramBotInline\pfsTelegramBotInline.csproj", "{9A552B66-210C-47E4-8655-F904E5997F31}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,22 @@ Global
 		{4DA459DC-DF9D-455B-8F25-08E03B71B554}.Release|x64.Build.0 = Release|Any CPU
 		{4DA459DC-DF9D-455B-8F25-08E03B71B554}.Release|x86.ActiveCfg = Release|Any CPU
 		{4DA459DC-DF9D-455B-8F25-08E03B71B554}.Release|x86.Build.0 = Release|Any CPU
+		{9A552B66-210C-47E4-8655-F904E5997F31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A552B66-210C-47E4-8655-F904E5997F31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A552B66-210C-47E4-8655-F904E5997F31}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{9A552B66-210C-47E4-8655-F904E5997F31}.Debug|ARM.Build.0 = Debug|Any CPU
+		{9A552B66-210C-47E4-8655-F904E5997F31}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9A552B66-210C-47E4-8655-F904E5997F31}.Debug|x64.Build.0 = Debug|Any CPU
+		{9A552B66-210C-47E4-8655-F904E5997F31}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9A552B66-210C-47E4-8655-F904E5997F31}.Debug|x86.Build.0 = Debug|Any CPU
+		{9A552B66-210C-47E4-8655-F904E5997F31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A552B66-210C-47E4-8655-F904E5997F31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A552B66-210C-47E4-8655-F904E5997F31}.Release|ARM.ActiveCfg = Release|Any CPU
+		{9A552B66-210C-47E4-8655-F904E5997F31}.Release|ARM.Build.0 = Release|Any CPU
+		{9A552B66-210C-47E4-8655-F904E5997F31}.Release|x64.ActiveCfg = Release|Any CPU
+		{9A552B66-210C-47E4-8655-F904E5997F31}.Release|x64.Build.0 = Release|Any CPU
+		{9A552B66-210C-47E4-8655-F904E5997F31}.Release|x86.ActiveCfg = Release|Any CPU
+		{9A552B66-210C-47E4-8655-F904E5997F31}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

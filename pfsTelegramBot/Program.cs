@@ -19,6 +19,7 @@ using System.Xml;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using File = System.IO.File;
 
 namespace nwTelegramBot
@@ -77,10 +78,10 @@ namespace nwTelegramBot
             {
                 nwErrorCatcher(ex);
             }
-            catch (NullReferenceException ex)
-            {
-                nwErrorCatcher(ex);
-            }
+            //catch (NullReferenceException ex)
+            //{
+            //    nwErrorCatcher(ex);
+            //}
             catch (AggregateException ex)
             {
                 nwErrorCatcher(ex);
@@ -126,7 +127,7 @@ namespace nwTelegramBot
             }
             catch (Exception ex)
             {
-                nwErrorCatcher(ex);
+                //nwErrorCatcher(ex);
             }
         }
 
@@ -329,9 +330,9 @@ namespace nwTelegramBot
         /// <returns>Doesn't actually return much other than a HTTP status code.</returns>
         static async Task Run()
         {
-            var Bot = new Client("170729696:AAGYA8FPN4RkquTRrY-teqrn-J9YdnZX22k"); // Api key, please generate your own, don't use mine.
+            var Bot = new TelegramBotClient("170729696:AAGYA8FPN4RkquTRrY-teqrn-J9YdnZX22k"); // Api key, please generate your own, don't use mine.
 
-            var me = await Bot.GetMe();
+            var me = await Bot.GetMeAsync();
 
             Bot.PollingTimeout = TimeSpan.FromDays(1);
             Bot.UploadTimeout = TimeSpan.FromMinutes(5);
@@ -349,8 +350,9 @@ namespace nwTelegramBot
             while (true)
             {
                 Update[] updates;
-                updates = await Bot.GetUpdates(offset); // get updates
+                updates = await Bot.GetUpdatesAsync(offset); // get updates
                 //updates = await Bot.GetUpdates(); // get updates
+
                 // For each update in the list
                 foreach (Update update in updates)
                 {
@@ -538,7 +540,7 @@ namespace nwTelegramBot
         /// <param name="me">The user, or bot.</param>
         /// <param name="dt">The date/time component.</param>
         /// <remarks>Only designed to work if regular commands are enabled.</remarks>
-        private static async void nwProcessSlashCommands(Client bot, Update update, User me, DateTime dt)
+        private static async void nwProcessSlashCommands(TelegramBotClient bot, Update update, User me, DateTime dt)
         {
             // read configuration and extract api keys
             var wundergroundKey = nwGrabString("weatherapi");
@@ -651,10 +653,10 @@ namespace nwTelegramBot
                             break;
                         case "/cat":
                             int catuse = nwGrabInt("cusage/cat");
-                            int n_catmax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/cat");
-                            int n_catmax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/cat");
+                            //int n_catmax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/cat");
+                            int n_catmax2 = nwGrabInt("climits/cat");
 
-                            if (catuse == n_catmax1 || catuse == n_catmax2)
+                            if (catuse == n_catmax2)
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "Sorry, the /cat command has been used too many times.";
@@ -663,7 +665,7 @@ namespace nwTelegramBot
 
                             replyImage = "http://thecatapi.com/api/images/get?format=src&type=jpg,png";
                             nwSetString("cusage/cat", Convert.ToString(catuse++)); // increment usage
-                            nwSetUserString(update.Message.From.FirstName + "/cmd_counts/cat", Convert.ToString(catuse++));
+                            //nwSetUserString(update.Message.From.FirstName + "/cmd_counts/cat", Convert.ToString(catuse++));
                             break;
                         case "/dog":
                         case "/doge":
@@ -802,14 +804,14 @@ namespace nwTelegramBot
                             // will return "yournickname slaps targetnickname around with [randomobject]
                             int emuse = nwGrabInt("cusage/emote");
                             //int emmax = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/emote");
-                            //int emmax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/emote");
+                            int emmax2 = nwGrabInt("climits/emote");
 
-                            //if (emuse == emmax)
-                            //{
-                            //    if (nwCheckInReplyTimer(dt) != false)
-                            //        replyText = "Sorry, the /slap command has been used too many times.";
-                            //    break;
-                            //}
+                            if (emuse == emmax2)
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "Sorry, the /slap command has been used too many times.";
+                                break;
+                            }
 
                             if (nwCheckInReplyTimer(dt) != false)
                             {
@@ -931,10 +933,10 @@ namespace nwTelegramBot
                             break;
                         case "/roll":
                             int rolluse = nwGrabInt("cusage/roll");
-                            int n_rollmax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/roll");
-                            int n_rollmax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/roll");
+                            //int n_rollmax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/roll");
+                            int n_rollmax2 = nwGrabInt("climits/roll");
 
-                            if (rolluse == n_rollmax1 || rolluse == n_rollmax2)
+                            if (rolluse == n_rollmax2)
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "Sorry, the /roll command has been used too many times.";
@@ -1539,71 +1541,10 @@ namespace nwTelegramBot
                    "* System: Target Site: " + ex.TargetSite + Environment.NewLine +
                    "* System: Help Link: " + ex.HelpLink);
             }
+
         }
-
-        //private static InlineKeyboardMarkup GeneratePagination(int total, int current)
-        //{
-        //    if (total < 2)
-        //        throw new ArgumentOutOfRangeException(nameof(total));
-
-        //    if (current > total)
-        //        throw new ArgumentOutOfRangeException(nameof(current));
-
-        //    var result = new InlineKeyboardMarkup(new[]
-        //        {
-        //    new InlineKeyboardButton[total > 4 ? 5 : total]
-        //}
-        //    );
-
-        //    if (current == 1)
-        //        result.InlineKeyboard[0][0] = new InlineKeyboardButton("·1·", "1");
-        //    else if (current < 4 || total < 6)
-        //        result.InlineKeyboard[0][0] = new InlineKeyboardButton(" 1 ", "1");
-        //    else
-        //        result.InlineKeyboard[0][0] = new InlineKeyboardButton("«1 ", "1");
-
-        //    if (current == 2)
-        //        result.InlineKeyboard[0][1] = new InlineKeyboardButton("·2·", "2");
-        //    else if (current < 4 || total < 6)
-        //        result.InlineKeyboard[0][1] = new InlineKeyboardButton(" 2 ", "2");
-        //    else if (current > total - 2)
-        //        result.InlineKeyboard[0][1] = new InlineKeyboardButton($"‹{total - 3} ", $"{total - 3}");
-        //    else
-        //        result.InlineKeyboard[0][1] = new InlineKeyboardButton($"‹{current - 1} ", $"{current - 1}");
-
-        //    if (total > 2)
-        //        if (current < 3 || (total < 5 && current != 3))
-        //            result.InlineKeyboard[0][2] = new InlineKeyboardButton(" 3 ", "3");
-        //        else if (current != 3 && current > total - 2)
-        //            result.InlineKeyboard[0][2] = new InlineKeyboardButton($" {total - 2} ", $"{ total - 2 }");
-        //        else
-        //            result.InlineKeyboard[0][2] = new InlineKeyboardButton($"·{current}·", $"{current}");
-
-        //    if (total == 4)
-        //        if (current == 4)
-        //            result.InlineKeyboard[0][3] = new InlineKeyboardButton("·4·", "4");
-        //        else
-        //            result.InlineKeyboard[0][3] = new InlineKeyboardButton(" 4 ", "4");
-        //    else if (total > 3)
-        //        if (current < 3 && total > 5)
-        //            result.InlineKeyboard[0][3] = new InlineKeyboardButton(" 4›", "4");
-        //        else if (current < total - 2 && total > 5)
-        //            result.InlineKeyboard[0][3] = new InlineKeyboardButton($" {current + 1}›", $"{current + 1}");
-        //        else if (current == total - 1)
-        //            result.InlineKeyboard[0][3] = new InlineKeyboardButton($"·{current}·", $"{current}");
-        //        else
-        //            result.InlineKeyboard[0][3] = new InlineKeyboardButton($" {total - 1} ", $"{total - 1}");
-
-        //    if (total > 4)
-        //        if (current == total)
-        //            result.InlineKeyboard[0][4] = new InlineKeyboardButton($"·{current}·", $"{current}");
-        //        else if (current > total - 3 || total < 6)
-        //            result.InlineKeyboard[0][4] = new InlineKeyboardButton($" {total} ", $"{total}");
-        //        else
-        //            result.InlineKeyboard[0][4] = new InlineKeyboardButton($" {total}»", $"{total}");
-
-        //    return result;
-        //}
+       
     }
+
 }
 
