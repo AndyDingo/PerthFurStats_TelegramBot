@@ -1,30 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <events>
   <event>
-    <id>93</id>
-    <url>http://www.perthfurs.net/events/view/93</url>
-    <title>Further Alcohol Required III</title>
-    <location>Court Hotel</location>
-    <start>2016-06-05 14:00:00</start>
-    <end>2016-06-05 17:00:00</end>
-    <status>Host</status>
-    <author>SirAndyOfDingo</author>
-    <created>2016-04-29 07:53:39</created>
-    <lastcomment_date>2016-06-01 03:06:29</lastcomment_date>
-    <lastcomment_author>SirAndyOfDingo</lastcomment_author>
-  </event>
-  <event>
     <id>95</id>
     <url>http://www.perthfurs.net/events/view/95</url>
     <title>FurWag BBQ!</title>
     <location>McCallum Park. South Perth</location>
     <start>2016-06-12 12:00:00</start>
-    <end>2016-06-12 17:00:00</end>
-    <status>Free to join</status>
-    <author>Furwag</author>
-    <created>2016-05-01 18:49:25</created>
-    <lastcomment_date/>
-    <lastcomment_author/>
+    <end></end>
+  </event>
+  <event>
+    <id>99</id>
+    <url>http://www.perthfurs.net/events/view/99</url>
+    <title>Discovfurry. Stage 2: Nerfpocalypse!</title>
+    <location>Port Kennedy</location>
+    <start>2016-06-18 17:00:00</start>
+    <end>2016-06-18 23:55:00</end>
   </event>
   <event>
     <id>96</id>
@@ -33,11 +23,30 @@
     <location>Miss Maud Carillon City Arcade</location>
     <start>2016-06-26 11:30:00</start>
     <end>2016-06-26 14:30:00</end>
-    <status>Host</status>
-    <author>SirAndyOfDingo</author>
-    <created>2016-05-29 13:32:54</created>
-    <lastcomment_date/>
-    <lastcomment_author/>
+  </event>
+  <event>
+    <id>98</id>
+    <url>http://www.perthfurs.net/events/view/98</url>
+    <title>F.A.R. 4: The Drunkening (18+)</title>
+    <location>The Court Hotel, Northbridge</location>
+    <start>2016-07-03 14:00:00</start>
+    <end></end>
+  </event>
+  <event>
+    <id>100</id>
+    <url>http://www.perthfurs.net/events/view/100</url>
+    <title>Perth Furs Interactive Picnic. Mark 2!</title>
+    <location>Port Kennedy</location>
+    <start>2016-07-16 12:00:00</start>
+    <end>2016-07-16 19:00:00</end>
+  </event>
+  <event>
+    <id>97</id>
+    <url>http://www.perthfurs.net/events/view/97</url>
+    <title>South Perth Foreshore Meet</title>
+    <location>South Perth Foreshore</location>
+    <start>2016-08-06 11:00:00</start>
+    <end>2016-08-06 14:00:00</end>
   </event>
   <event>
     <id>90</id>
@@ -46,10 +55,5 @@
     <location>Metro Hotel Perth</location>
     <start>2016-09-30 00:00:00</start>
     <end>2016-10-02 00:00:00</end>
-    <status>Going</status>
-    <author>Furwag</author>
-    <created>2016-04-19 19:25:12</created>
-    <lastcomment_date>2016-04-29 12:08:24</lastcomment_date>
-    <lastcomment_author>Furwag</lastcomment_author>
   </event>
 </events>

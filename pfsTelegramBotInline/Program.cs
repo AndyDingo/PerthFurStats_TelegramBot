@@ -1,4 +1,16 @@
-﻿using System;
+﻿/* 
+ * All contents copyright 2016, Andy Dingo and Contributors
+ * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
+ * Please read docs/gpl.txt for licensing information.
+ * ---------------------------------------------------------------
+ * -- CREATOR INFORMATION --
+ * Created by: Microsoft Visual Studio 2015.
+ * User      : AndyDingoWolf
+ * -- VERSION --
+ * Version   : 1.0.0.55
+ */
+
+using System;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;

@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.52
+ * Version   : 1.0.0.55
  */
 
 using System;
@@ -351,7 +351,7 @@ namespace nwTelegramBot
             {
                 Update[] updates;
                 updates = await Bot.GetUpdatesAsync(offset); // get updates
-                //updates = await Bot.GetUpdates(); // get updates
+                //updates = await Bot.GetUpdatesAsync(); // get updates
 
                 // For each update in the list
                 foreach (Update update in updates)
@@ -609,13 +609,34 @@ namespace nwTelegramBot
 
                     switch (command.ToLowerInvariant())
                     {
+                        case "/mods":
+                        case "/admin":
                         case "/admins":
-                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "The group admins, to whom all must obey, are @Inflatophin and @AndyDingoFolf.";
+
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                            XmlDocument adx = new XmlDocument();
+                            adx.Load(Directory.GetCurrentDirectory() + @"/data/adminlist.xml");
+
+                            // Get our nodes
+                            XmlNodeList adxnodes;
+                            adxnodes = adx.GetElementsByTagName("admin");
+
+                            // Create a new string builder
+                            StringBuilder adxString = new StringBuilder();
+                            adxString.AppendLine("The group admins, to whom all must obey, are:");
+
+                            // Iterate through available events
+                            for (var i1for = 0; i1for < adxnodes.Count; i1for++)
+                            {
+                                adxString.AppendLine(adxnodes.Item(i1for).InnerText);
+                            }
+                            
+                            replyText = adxString.ToString();
+
                             break;
                         case "/alive":
-                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "Hi " + update.Message.From.FirstName + ", I am indeed alive.";
                             break;
@@ -725,7 +746,7 @@ namespace nwTelegramBot
                             break;
                         case "/help":
                         case "/commands":
-                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyTextEvent = "Hi " + update.Message.From.FirstName + ", Here's a list of commands I can respond to: http://www.perthfurstats.net/node/11 Note that it is currently a work in progress.";
                             break;
@@ -835,14 +856,14 @@ namespace nwTelegramBot
                                 //break on empty strings
                                 if (s_target == string.Empty || s_target == " ")
                                 {
-                                    bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
                                     replyText = "No target was selected. Usage: /slap @username";
                                     break;
                                 }
 
                                 if (s_username == string.Empty)
                                 {
-                                    bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
                                     replyText = "I'm sorry, I can't let you do that Dave";
                                     nwSetString("cusage/emote", Convert.ToString(emuse++));
                                     break;
@@ -874,7 +895,7 @@ namespace nwTelegramBot
                                 break;
                             }
 
-                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.UploadVideo);
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadVideo);
                             string s_fname = Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
 
                             if (nwCheckInReplyTimer(dt) != false)
@@ -887,7 +908,7 @@ namespace nwTelegramBot
                                     fts.Content = sr.BaseStream;
                                     fts.Filename = Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
                                     // Send to the channel
-                                    await bot.SendVideo(update.Message.Chat.Id, fts, 0, "", false, update.Message.MessageId);
+                                    await bot.SendVideoAsync(update.Message.Chat.Id, fts, 0, "", false, update.Message.MessageId);
                                 }
                                 break;
                             }
@@ -912,7 +933,7 @@ namespace nwTelegramBot
                                 break;
                             }
 
-                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "I'm sorry " + update.Message.From.FirstName + ", My humor emitter array requires recharging. Please try again another time.";
@@ -921,13 +942,13 @@ namespace nwTelegramBot
                             nwSetUserString(update.Message.From.FirstName + "/cmd_counts/joke", Convert.ToString(jokeuse++));
                             break;
                         case "/link":
-                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "Chat link: https://telegram.me/joinchat/ByYWcALujRjo8iSlWvbYIw";
                             break;
                         case "/oo":
                         case "/optout":
-                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following form to opt-out from stats collection. Bare in mind that your request might not be implemented till the next stats run, as it requires manual intervention. URL: http://www.perthfurstats.net/node/10";
                             break;
@@ -1054,7 +1075,7 @@ namespace nwTelegramBot
 
                             if (body == string.Empty || body == " ")
                             {
-                                bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular usage: /stats -[week|month|year|alltime|archive|commands]";
@@ -1071,7 +1092,7 @@ namespace nwTelegramBot
 
                                 string ms2a = mysplit2[1];
 
-                                bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                                 switch (ms2a)
                                 {
@@ -1347,25 +1368,25 @@ namespace nwTelegramBot
                                 extension = ".bmp";
                             }
                             var photo = new FileToSend("Photo" + extension, stream);
-                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.UploadPhoto);
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
                             if (extension == ".gif")
                             {
-                                await bot.SendDocument(update.Message.Chat.Id, photo);
+                                await bot.SendDocumentAsync(update.Message.Chat.Id, photo);
                             }
                             else
                             {
-                                await bot.SendPhoto(update.Message.Chat.Id, photo, replyImageCaption == string.Empty ? replyImage : replyImageCaption);
+                                await bot.SendPhotoAsync(update.Message.Chat.Id, photo, replyImageCaption == string.Empty ? replyImage : replyImageCaption);
                             }
                         }
                         catch (System.Net.Http.HttpRequestException ex)
                         {
                             nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: Unable to download " + ex.HResult + " " + ex.Message);
-                            await bot.SendTextMessage(update.Message.Chat.Id, replyImage);
+                            await bot.SendTextMessageAsync(update.Message.Chat.Id, replyImage);
                         }
                         catch (System.Net.WebException ex)
                         {
                             nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: Unable to download " + ex.HResult + " " + ex.Message);
-                            await bot.SendTextMessage(update.Message.Chat.Id, replyImage);
+                            await bot.SendTextMessageAsync(update.Message.Chat.Id, replyImage);
                         }
                         catch (NullReferenceException ex)
                         {
@@ -1374,7 +1395,7 @@ namespace nwTelegramBot
                         catch (Exception ex)
                         {
                             nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: " + replyImage + " Threw: " + ex.Message);
-                            await bot.SendTextMessage(update.Message.Chat.Id, replyImage);
+                            await bot.SendTextMessageAsync(update.Message.Chat.Id, replyImage);
                         }
                     }
                 }
