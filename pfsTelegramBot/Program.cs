@@ -10,6 +10,7 @@
  * Version   : 1.0.0.55
  */
 
+using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Text;
@@ -356,11 +357,7 @@ namespace nwTelegramBot
                 // For each update in the list
                 foreach (Update update in updates)
                 {
-                    //remove unsightly characters from first names.
-                    //string ss = update.Message.From.FirstName;
-                    //ss = Regex.Replace(ss, @"[^\u0000-\u007F]", string.Empty);
-                    //ss.Trim(' ');
-
+                    
                     switch (update.Type)
                     {
                         case UpdateType.MessageUpdate:
@@ -368,9 +365,41 @@ namespace nwTelegramBot
                             Message message = update.Message;
                             DateTime m = update.Message.Date.ToLocalTime();
 
+                            //remove unsightly characters from first names.
+                            string ss = update.Message.From.FirstName;
+                            ss = Regex.Replace(ss, @"[^\u0000-\u007F]", string.Empty);
+                            //ss.Trim(' ');
+
                             // Do stuff if we are a text message
                             switch (message.Type)
                             {
+
+                                case MessageType.ContactMessage:
+
+                                    using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    {
+                                        if (nwGrabString("debugmode") == "true")
+                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has shared the contact information of " + update.Message.Contact.FirstName);
+                                        else
+                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has shared the contact information of " + update.Message.Contact.FirstName);
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has shared the contact information of " + update.Message.Contact.FirstName);
+                                    }
+
+                                    break;
+
+                                case MessageType.DocumentMessage:
+
+                                    using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    {
+                                        if (nwGrabString("debugmode") == "true")
+                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has shared a document of type: " + update.Message.Document.MimeType);
+                                        else
+                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has shared a document of type: " + update.Message.Document.MimeType);
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has shared a document of type: " + update.Message.Document.MimeType);
+                                    }
+
+                                    break;
+
                                 case MessageType.TextMessage:
 
                                     //If we have set the bot to be able to respond to our basic commands
@@ -417,7 +446,22 @@ namespace nwTelegramBot
                                     }
 
                                     break;
-                                
+
+                                case MessageType.LocationMessage: // Venue messages. Added in API v2.0
+                                                               // TODO: IMPLEMENT PROPERLY
+
+                                    using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    {
+                                        if (nwGrabString("debugmode") == "true")
+                                            nwPrintSystemMessage("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " posted about a location.");
+                                        else
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " posted about a location.");
+
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted about a location.");
+                                    }
+
+                                    break;
+
                                 case MessageType.VenueMessage: // Venue messages. Added in API v2.0
                                 // TODO: IMPLEMENT PROPERLY
 
@@ -1205,33 +1249,38 @@ namespace nwTelegramBot
                             break;
                         case "/exchange":
                         case "/rate":
+                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+
+                            replyText = nwRandomGreeting() + ". This command is coming soon.";
+
                             //string exo = httpClient.DownloadString("https//www.exchangerate-api.com/AUD/USD?k=" + exchangeKey).Result;
                             //if (nwCheckInReplyTimer(dt) != false)
                             //    replyText = "1 USD = " + exo;
                             break;
                         case "/forecast":
                         case "/weather": // TODO - change to BOM api
-                            //if (body.Length < 2)
-                            //{
-                            //    body = "Perth, Australia";
-                            //}
 
-                            //bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
 
                             ////dynamic dfor = JObject.Parse(httpClient.DownloadString("http://api.wunderground.com/api/" + wundergroundKey + "/forecast/q/" + body + ".json").Result);
-                            //dynamic dfor = JObject.Parse(httpClient.DownloadString("http://www.bom.gov.au/fwo/IDW60801/IDW60801.94608.json").Result);
-                            //if (dfor.forecast == null || dfor.forecast.txt_forecast == null)
-                            //{
-                            //    if (nwCheckInReplyTimer(dt) != false)
-                            //        replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", you have disappointed me.  \"" + body + "\" is sadly, not going to work.  Please try \"City, ST\" or \"City, Country\" next time.";
-                            //    break;
-                            //}
-                            //for (var ifor = 0; ifor < Enumerable.Count(dfor.observations.data.sort_order) - 1; ifor++)
-                            //{
-                            //    if (nwCheckInReplyTimer(dt) != false)
-                            //        stringBuilder.AppendLine(dfor.observations.data.sort_order[ifor].title.ToString() + ": " + dfor.observations.data.sort_order[ifor].fcttext_metric.ToString());
-                            //}
+                            dynamic d_weather = JObject.Parse(httpClient.DownloadString("http://www.bom.gov.au/fwo/IDW60801/IDW60801.94608.json").Result);
 
+                            // Create a new string builder
+                            StringBuilder weatherString = new StringBuilder();
+                            weatherString.AppendLine("Here are the current weather conditions for Perth: ");
+                            weatherString.AppendLine("(" + d_weather.observations.header[0].refresh_message.ToString() + ")");
+
+                            weatherString.AppendLine("Apparent temperature; " + d_weather.observations.data[0].apparent_t.ToString());
+                            weatherString.AppendLine("Air temperature; " + d_weather.observations.data[0].air_temp.ToString());
+                            weatherString.AppendLine("Dew point; " + d_weather.observations.data[0].dewpt.ToString());
+                            weatherString.AppendLine("Humidity; " + d_weather.observations.data[0].rel_hum.ToString());
+                            weatherString.AppendLine("Rain chance; " + d_weather.observations.data[0].rain_trace.ToString());
+                            weatherString.AppendLine("Wind speed; " + d_weather.observations.data[0].wind_spd_kmh.ToString());
+                            weatherString.AppendLine("Wind direction; " + d_weather.observations.data[0].wind_dir.ToString() + "");
+                            weatherString.AppendLine("This data is refreshed every 10 mins.");
+
+                            
+                            replyText = weatherString.ToString();
                             break;
                         case "/user": // TODO : Finish this command
                             // This command returns a users permission level.
@@ -1283,6 +1332,10 @@ namespace nwTelegramBot
                         case "/wrists":
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "(╯°□°）╯︵ ┻━┻";
+                            break;
+                        case "/zalgo":
+                            if (nwCheckInReplyTimer(dt) != false)
+                                replyText = "O҉̢͎̗̯̪̤͍̯͎n̠̖̙͘é͕̜̦͉̤ ̷̷̩͖̹͔̲͕̻̼d͏͖͕͟o͏̼̺̰͘͠e̴̢͖̺̕s̵̵̮͇͈̩͎͢ ̢͓̱̪͇̞̮̦͉͟ͅn̝̪̩͙͘͡ͅò̢̬͈̮̙̘t̴̪̳͉̳͢͡ ̵͍̬͔̝͘ͅͅͅs҉̟͎̖͓į̳͓́m͏̰̼̻͔̩͉̺̙p̶͕̙ͅl̛͓̝̪͘y̟̝͝ ̗̪͜i̷̺͉̹n̷̢͎̮͖̜̤̼̻̙v͙͉̘͉̘͍̳o̧̖͈̩̘͝k͎͖̬̘̣̭͟e͏̟̳͚͈͈́ ̵̜͖͜Ẕ̨͎̖̖̘͟Ḁ̞͚̮̝̻͞L̶͎̙̘͠G҉̴͖̺̹̳̘͕̬͇O̸͔̞͎̻ͅ,̩͉ͅͅ";
                             break;
                         default:
                             if (nwCheckInReplyTimer(dt) != false)
