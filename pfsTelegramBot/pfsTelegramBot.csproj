@@ -82,6 +82,7 @@
     <Compile Include="cDiceBag.cs" />
     <Compile Include="cExtensions.cs" />
     <Compile Include="cSettings.cs" />
+    <Compile Include="cZalgo.cs" />
     <Compile Include="cZipBackup.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProHttpClient.cs" />
@@ -109,6 +110,7 @@
     </Content>
     <Content Include="data\events.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <None Include="data\pfsUserCmdConfig.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

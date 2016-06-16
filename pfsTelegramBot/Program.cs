@@ -7,12 +7,14 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.55
+ * Version   : 1.0.0.59
  */
 
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -385,7 +387,15 @@ namespace nwTelegramBot
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has shared the contact information of " + update.Message.Contact.FirstName);
                                     }
 
-                                    break;
+                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+                                    {
+                                        using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
+                                        {
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Contact information sharing of " + update.Message.Contact.FirstName);
+                                        }
+                                    }
+
+                                        break;
 
                                 case MessageType.DocumentMessage:
 
@@ -396,6 +406,14 @@ namespace nwTelegramBot
                                         else
                                             Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has shared a document of type: " + update.Message.Document.MimeType);
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has shared a document of type: " + update.Message.Document.MimeType);
+                                    }
+
+                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+                                    {
+                                        using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
+                                        {
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Document sharing of type " + update.Message.Document.MimeType);
+                                        }
                                     }
 
                                     break;
@@ -423,6 +441,14 @@ namespace nwTelegramBot
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + update.Message.From.FirstName + "> " + update.Message.Text);
                                     }
 
+                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+                                    {
+                                        using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
+                                        {
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + update.Message.Text);
+                                        }
+                                    }
+
                                     break;
 
                                 case MessageType.UnknownMessage: // UNKNOWN MESSAGES.
@@ -430,10 +456,22 @@ namespace nwTelegramBot
 
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
-                                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: Unknown, please report");
+                                        if (nwGrabString("debugmode") == "true")
+                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * System: Unknown, please report");
+                                        else
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: Unknown, please report");
 
-                                        //sw.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: Unknown, please report");
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: Unknown, please report");
                                     }
+
+                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+                                    {
+                                        using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
+                                        {
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Unknown message");
+                                        }
+                                    }
+
                                     break;
 
                                 case MessageType.ServiceMessage: // Service messages (user leaves or joins)
@@ -443,6 +481,14 @@ namespace nwTelegramBot
                                         nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: A user (" + update.Message.From.FirstName + ") has joined or left the group.");
 
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has joined or left the group!");
+                                    }
+
+                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+                                    {
+                                        using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
+                                        {
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "System message");
+                                        }
                                     }
 
                                     break;
@@ -492,6 +538,17 @@ namespace nwTelegramBot
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a sticker that represents the " + s + " emoticon.");
                                     }
 
+                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+                                    {
+                                        using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
+                                        {
+                                            // download the emoji for the image, if there is one. Added in May API update.
+                                            string s = update.Message.Sticker.Emoji;
+
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Sticker message (" + s + ")");
+                                        }
+                                    }
+
                                     break;
                                 
                                 case MessageType.VoiceMessage: // Do stuff if we are a voice message
@@ -500,9 +557,21 @@ namespace nwTelegramBot
 
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
-                                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a voice message.");
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a voice message.");
+                                        if (nwGrabString("debugmode") == "true")
+                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a voice message.");
+                                        else
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a voice message.");
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a voice message.");
                                     }
+
+                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+                                    {
+                                        using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
+                                        {
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Voice message");
+                                        }
+                                    }
+
                                     break;
 
                                 case MessageType.VideoMessage:
@@ -511,8 +580,19 @@ namespace nwTelegramBot
 
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
-                                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a video message.");
+                                        if (nwGrabString("debugmode") == "true")
+                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a video message.");
+                                        else
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a video message.");
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a video message.");
+                                    }
+
+                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+                                    {
+                                        using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
+                                        {
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Video message");
+                                        }
                                     }
 
                                     break;
@@ -539,6 +619,15 @@ namespace nwTelegramBot
                                             await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a photo with the caption '" + s + "'.");
                                         }
                                     }
+
+                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+                                    {
+                                        using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
+                                        {
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Photo message");
+                                        }
+                                    }
+
                                     break;
                                     
                                 case MessageType.AudioMessage: // Do stuff if we are an audio message
@@ -547,9 +636,21 @@ namespace nwTelegramBot
 
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
-                                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted an audio message.");
+                                        if (nwGrabString("debugmode") == "true")
+                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted an audio message.");
+                                        else
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted an audio message.");
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted an audio message.");
                                     }
+
+                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+                                    {
+                                        using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
+                                        {
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Audio message");
+                                        }
+                                    }
+
                                     break;
 
                                 default:
@@ -610,6 +711,7 @@ namespace nwTelegramBot
                 var text = update.Message.Text;
                 var replyText = string.Empty;
                 var replyText2 = string.Empty;
+                var s_replyToUser = string.Empty;
                 var replyTextEvent = string.Empty;
                 var replyTextMarkdown = string.Empty;
                 var replyImage = string.Empty;
@@ -653,6 +755,27 @@ namespace nwTelegramBot
 
                     switch (command.ToLowerInvariant())
                     {
+                        case "/ball":
+                        case "/8ball":
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+                                if (body == string.Empty || body == " " || body == "@" || body.Contains("?") == false)
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "You haven't given me a question to answer.";
+
+                                    break;
+                                }
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "@" + s_username + " " + nwRandom8Response();
+                                break;
+                            }
+
+                            break;
                         case "/mods":
                         case "/admin":
                         case "/admins":
@@ -675,6 +798,9 @@ namespace nwTelegramBot
                             {
                                 adxString.AppendLine(adxnodes.Item(i1for).InnerText);
                             }
+
+                           // string mew = await bot.GetChatAdministratorsAsync(-1001032131694);
+                          // adxString.AppendLine(mew);
                             
                             replyText = adxString.ToString();
 
@@ -682,7 +808,7 @@ namespace nwTelegramBot
                         case "/alive":
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "Hi " + update.Message.From.FirstName + ", I am indeed alive.";
+                                s_replyToUser = "Hi " + update.Message.From.FirstName + ", I am indeed alive.";
                             break;
                         case "/backup":
                             // check to see if private message
@@ -732,14 +858,18 @@ namespace nwTelegramBot
                             nwSetString("cusage/cat", Convert.ToString(catuse++)); // increment usage
                             //nwSetUserString(update.Message.From.FirstName + "/cmd_counts/cat", Convert.ToString(catuse++));
                             break;
+
                         case "/dog":
                         case "/doge":
                         case "/shiba":
+
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "This command is not yet implemented.";
                             break;
+
                         case "/die":
                         case "/kill":
+
                             if (s_chattype == "Private")
                             {
                                 if (s_username != "AndyDingoFolf")
@@ -759,9 +889,12 @@ namespace nwTelegramBot
                                 break;
                             }
                             break;
+
                         case "/e621":
+
                             if (s_chattype == "Private")
                             {
+
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "You have insufficient permissions to access this command.";
                                 break;
@@ -773,27 +906,48 @@ namespace nwTelegramBot
                                     replyText = "Not happening, outside of private messages that is.";
                             }
                             break;
+
                         case "/dook":
+
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "Dook!";
                             break;
+
                         case "/count":
+
                             if (s_username != "AndyDingoFolf" ||
                                 s_username != "Inflatophin")
                             {
+
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "You have insufficient permissions to access this command.";
                                 break;
+
                             }
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "This command is not yet implemented.";
+                            else
+                            {
+
+                                if (nwCheckInReplyTimer(dt) != false)
+                                {
+
+                                    int meow;
+                                    meow = await bot.GetChatMembersCountAsync(-1001032131694);
+                                    s_replyToUser = "There are currently " + meow + " people in chat.";
+
+                                }
+
+                            }
+
                             break;
+
                         case "/help":
                         case "/commands":
+
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyTextEvent = "Hi " + update.Message.From.FirstName + ", Here's a list of commands I can respond to: http://www.perthfurstats.net/node/11 Note that it is currently a work in progress.";
                             break;
+
                         case "/event":
                         case "/events": // TODO: Finish this command
                             XmlDocument dook = new XmlDocument();
@@ -960,12 +1114,59 @@ namespace nwTelegramBot
                             nwSetString("cusage/sfw", Convert.ToString(n_sfwuse++));
                             //nwSetUserString(update.Message.From.FirstName + "/cmd_counts/sfw", Convert.ToString(n_sfwuse++));
                             break;
+
                         case "/image": // TODO: Finish this command
+
+                            if (body == string.Empty || body == " " || body == "@")
+                            {
+                                bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /image @<image to look for>";
+                                
+                                break;
+                            }
+
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "This command is not yet implemented.";
+                            {
+                                string s_imgstr = body;
+                                string[] s_imgspl = new string[] { "", "" };
+                                s_imgspl = s_imgstr.Split('@');
+
+
+                                //string surl = string.Format("https://www.google.com.au/search?q=" + "{0}" + "&safe=active", s_imgspl[1]);
+
+                                //replyTextEvent = surl.Replace(" ","%20");
+
+
+                                string html = GetHtmlCode(s_imgspl[1]);
+                                List<string> urls = GetUrls(html);
+                                var rnd = new Random();
+
+                                int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                string luckyUrl = urls[randomUrl];
+
+                                //byte[] image = GetImage(luckyUrl);
+                                //using (var ms = new MemoryStream(image))
+                                //{
+
+                                //    FileToSend fts = new FileToSend();
+                                //    fts.Content = ms;
+                                //    //fts.Filename
+                                //    //fts.Filename = Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
+                                //    // Send to the channel
+                                //    await bot.SendPhotoAsync(update.Message.Chat.Id, fts);
+                                //}
+
+                                replyImage = luckyUrl.Replace(" ", "%20"); ;
+
+                                break;
+                            }
                             break;
+
                         case "/humour":
                         case "/joke": // TODO: Fix this command
+
                             int jokeuse = nwGrabInt("cusage/joke");
                             int n_jokemax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/joke");
                             int n_jokemax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/joke");
@@ -973,30 +1174,36 @@ namespace nwTelegramBot
                             if (jokeuse == n_jokemax1 || jokeuse == n_jokemax2)
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "Sorry, the /joke command has been used too many times.";
+                                    s_replyToUser = "Sorry, the /joke command has been used too many times.";
                                 break;
                             }
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "I'm sorry " + update.Message.From.FirstName + ", My humor emitter array requires recharging. Please try again another time.";
+                                s_replyToUser = "I'm sorry " + update.Message.From.FirstName + ", My humor emitter array requires recharging. Please try again another time.";
 
                             nwSetString("cusage/joke", Convert.ToString(jokeuse++));
                             nwSetUserString(update.Message.From.FirstName + "/cmd_counts/joke", Convert.ToString(jokeuse++));
+
                             break;
                         case "/link":
+
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "Chat link: https://telegram.me/joinchat/ByYWcALujRjo8iSlWvbYIw";
+                                s_replyToUser = "Chat link: https://telegram.me/joinchat/ByYWcALujRjo8iSlWvbYIw";
                             break;
+
                         case "/oo":
                         case "/optout":
+
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following form to opt-out from stats collection. Bare in mind that your request might not be implemented till the next stats run, as it requires manual intervention. URL: http://www.perthfurstats.net/node/10";
                             break;
+
                         case "/roll":
+
                             int rolluse = nwGrabInt("cusage/roll");
                             //int n_rollmax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/roll");
                             int n_rollmax2 = nwGrabInt("climits/roll");
@@ -1004,14 +1211,14 @@ namespace nwTelegramBot
                             if (rolluse == n_rollmax2)
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "Sorry, the /roll command has been used too many times.";
+                                    s_replyToUser = "Sorry, the /roll command has been used too many times.";
                                 break;
                             }
 
                             if (body == string.Empty || body == " ")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "Usage: /roll -[number of sides] -[amount of dice]";
+                                    s_replyToUser = "Usage: /roll -[number of sides] -[amount of dice]";
                                 break;
                             }
 
@@ -1030,7 +1237,7 @@ namespace nwTelegramBot
                             {
                                 string tst1 = cDiceBag.Instance.Roll(j, i);
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "You have rolled: " + Environment.NewLine + tst1;
+                                    s_replyToUser = "You have rolled: " + Environment.NewLine + tst1;
                                 nwSetString("cusage/roll", Convert.ToString(rolluse++));
                                 nwSetUserString(update.Message.From.FirstName + "/cmd_counts/roll", Convert.ToString(rolluse++));
                             }
@@ -1038,20 +1245,24 @@ namespace nwTelegramBot
                                 break;
 
                             break;
+
                         case "/rules":
+
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "Group rules: " + Environment.NewLine + "- All content (chat, images, stickers) must be SFW at all hours of the day." + Environment.NewLine + "- No flooding or spamming of ANY kind." + Environment.NewLine + "- Be nice to each other.";
+                                s_replyToUser = "Group rules: " + Environment.NewLine + "- All content (chat, images, stickers) must be SFW at all hours of the day." + Environment.NewLine + "- No flooding or spamming of ANY kind." + Environment.NewLine + "- Be nice to each other.";
                             break;
+
                         case "/test":
                             if (s_chattype == "Private")
                             {
-                                long ltest1 = update.Message.Chat.Id;
-                                nwPrintSystemMessage(ltest1.ToString());
+                                
+                                // WAITING FOR THE NEXT TEST
+
                             }
                             else
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "This command can only be used in private messages.";
+                                    s_replyToUser = "This command can only be used in private messages.";
                                 break;
                             }
                             break;
@@ -1062,15 +1273,15 @@ namespace nwTelegramBot
                             if (s_username != "AndyDingoFolf")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "You have insufficient permissions to access this command.";
+                                    s_replyToUser = "You have insufficient permissions to access this command.";
                                 break;
                             }
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "This command is not yet implemented.";
+                                s_replyToUser = "This command is not yet implemented.";
                             break;
                         case "/eeyup":
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "This command is not yet implemented.";
+                                s_replyToUser = "This command is not yet implemented.";
                             break;
                         case "/say":
                             int sayuse = nwGrabInt("cusage/say");
@@ -1089,7 +1300,7 @@ namespace nwTelegramBot
                                 if (s_username != "AndyDingoFolf")
                                 {
                                     if (nwCheckInReplyTimer(dt) != false)
-                                        replyText = "You have insufficient permissions to access this command.";
+                                        s_replyToUser = "You have insufficient permissions to access this command.";
                                     break;
                                 }
 
@@ -1187,7 +1398,7 @@ namespace nwTelegramBot
                         case "/greeting":
                             if (nwCheckInReplyTimer(dt) != false)
                             {
-                                replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + "!";
+                                s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + "!";
                                 break;
                             }
                             break;
@@ -1207,7 +1418,7 @@ namespace nwTelegramBot
 
                             if (nwCheckInReplyTimer(dt) != false)
                             {
-                                bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                                 if (body == string.Empty || body == " ")
                                 {
@@ -1246,21 +1457,25 @@ namespace nwTelegramBot
 
                             nwSetString("cusage/emote", Convert.ToString(emuse++));
                             nwSetUserString(update.Message.From.FirstName + "/cmd_counts/emote", Convert.ToString(emuse++));
+
                             break;
+
                         case "/exchange":
                         case "/rate":
-                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                             replyText = nwRandomGreeting() + ". This command is coming soon.";
 
-                            //string exo = httpClient.DownloadString("https//www.exchangerate-api.com/AUD/USD?k=" + exchangeKey).Result;
-                            //if (nwCheckInReplyTimer(dt) != false)
-                            //    replyText = "1 USD = " + exo;
+                            string exo = httpClient.DownloadString("https://www.exchangerate-api.com/AUD/USD?k=" + exchangeKey).Result;
+                            if (nwCheckInReplyTimer(dt) != false)
+                                replyText = "1 USD = " + exo + " AUD";
+
                             break;
+
                         case "/forecast":
                         case "/weather": // TODO - change to BOM api
 
-                            bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                             ////dynamic dfor = JObject.Parse(httpClient.DownloadString("http://api.wunderground.com/api/" + wundergroundKey + "/forecast/q/" + body + ".json").Result);
                             dynamic d_weather = JObject.Parse(httpClient.DownloadString("http://www.bom.gov.au/fwo/IDW60801/IDW60801.94608.json").Result);
@@ -1274,17 +1489,19 @@ namespace nwTelegramBot
                             weatherString.AppendLine("Air temperature; " + d_weather.observations.data[0].air_temp.ToString());
                             weatherString.AppendLine("Dew point; " + d_weather.observations.data[0].dewpt.ToString());
                             weatherString.AppendLine("Humidity; " + d_weather.observations.data[0].rel_hum.ToString());
-                            weatherString.AppendLine("Rain chance; " + d_weather.observations.data[0].rain_trace.ToString());
-                            weatherString.AppendLine("Wind speed; " + d_weather.observations.data[0].wind_spd_kmh.ToString());
+                            weatherString.AppendLine("Rain since 9am; " + d_weather.observations.data[0].rain_trace.ToString());
+                            weatherString.AppendLine("Wind speed; " + d_weather.observations.data[0].wind_spd_kmh.ToString() + "kph , Gusting up to " + d_weather.observations.data[0].gust_kmh.ToString()+ "kph");
                             weatherString.AppendLine("Wind direction; " + d_weather.observations.data[0].wind_dir.ToString() + "");
                             weatherString.AppendLine("This data is refreshed every 10 mins.");
-
                             
                             replyText = weatherString.ToString();
+
                             break;
+
                         case "/user": // TODO : Finish this command
                             // This command returns a users permission level.
                             // Defaults to the person who used the command.
+
                             int useruse = nwGrabInt("cusage/user");
                             int n_usermax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/user");
                             int n_usermax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/user");
@@ -1316,34 +1533,47 @@ namespace nwTelegramBot
 
                             nwSetString("cusage/user", Convert.ToString(useruse++));
                             nwSetUserString(update.Message.From.FirstName + "/cmd_counts/user", Convert.ToString(useruse++));
+
                             break;
+
                         case "/version":
+
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "Version " + cExtensions.nwGetFileVersionInfo.FileMajorPart + "." + cExtensions.nwGetFileVersionInfo.FileMinorPart + ", Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart;
+                                s_replyToUser = "Version " + cExtensions.nwGetFileVersionInfo.FileMajorPart + "." + cExtensions.nwGetFileVersionInfo.FileMinorPart + ", Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart;
                             break;
+
                         case "/about":
                         case "/info":
+
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "PerthFurStats is the best bot" + Environment.NewLine + "Version " + cExtensions.nwGetFileVersionInfo.FileMajorPart + "." + cExtensions.nwGetFileVersionInfo.FileMinorPart + ", Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart + Environment.NewLine + "By @AndyDingoWolf" + Environment.NewLine + "This bot uses open source software.";
+                                s_replyToUser = "PerthFurStats is the best bot" + Environment.NewLine + "Version " + cExtensions.nwGetFileVersionInfo.FileMajorPart + "." + cExtensions.nwGetFileVersionInfo.FileMinorPart + ", Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart + Environment.NewLine + "By @AndyDingoWolf" + Environment.NewLine + "This bot uses open source software.";
 
                             nwSetString("cusage/about", Convert.ToString(1));
                             break;
+
                         case "/wrist":
                         case "/wrists":
+
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "(╯°□°）╯︵ ┻━┻";
+                                s_replyToUser = "(╯°□°）╯︵ ┻━┻";
                             break;
+
                         case "/zalgo":
+
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "O҉̢͎̗̯̪̤͍̯͎n̠̖̙͘é͕̜̦͉̤ ̷̷̩͖̹͔̲͕̻̼d͏͖͕͟o͏̼̺̰͘͠e̴̢͖̺̕s̵̵̮͇͈̩͎͢ ̢͓̱̪͇̞̮̦͉͟ͅn̝̪̩͙͘͡ͅò̢̬͈̮̙̘t̴̪̳͉̳͢͡ ̵͍̬͔̝͘ͅͅͅs҉̟͎̖͓į̳͓́m͏̰̼̻͔̩͉̺̙p̶͕̙ͅl̛͓̝̪͘y̟̝͝ ̗̪͜i̷̺͉̹n̷̢͎̮͖̜̤̼̻̙v͙͉̘͉̘͍̳o̧̖͈̩̘͝k͎͖̬̘̣̭͟e͏̟̳͚͈͈́ ̵̜͖͜Ẕ̨͎̖̖̘͟Ḁ̞͚̮̝̻͞L̶͎̙̘͠G҉̴͖̺̹̳̘͕̬͇O̸͔̞͎̻ͅ,̩͉ͅͅ";
+                                s_replyToUser = "O҉̢͎̗̯̪̤͍̯͎n̠̖̙͘é͕̜̦͉̤ ̷̷̩͖̹͔̲͕̻̼d͏͖͕͟o͏̼̺̰͘͠e̴̢͖̺̕s̵̵̮͇͈̩͎͢ ̢͓̱̪͇̞̮̦͉͟ͅn̝̪̩͙͘͡ͅò̢̬͈̮̙̘t̴̪̳͉̳͢͡ ̵͍̬͔̝͘ͅͅͅs҉̟͎̖͓į̳͓́m͏̰̼̻͔̩͉̺̙p̶͕̙ͅl̛͓̝̪͘y̟̝͝ ̗̪͜i̷̺͉̹n̷̢͎̮͖̜̤̼̻̙v͙͉̘͉̘͍̳o̧̖͈̩̘͝k͎͖̬̘̣̭͟e͏̟̳͚͈͈́ ̵̜͖͜Ẕ̨͎̖̖̘͟Ḁ̞͚̮̝̻͞L̶͎̙̘͠G҉̴͖̺̹̳̘͕̬͇O̸͔̞͎̻ͅ,̩͉ͅͅ";
                             break;
+
                         default:
+
                             if (nwCheckInReplyTimer(dt) != false)
                             {
-                                replyText = "The command '" + update.Message.Text + "' was not found in my command database.";
+                                s_replyToUser = "The command '" + update.Message.Text + "' was not found in my command database.";
                                 nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: " + replyText);
                             }
+
                             break;
+
                     }
 
                     // Add to total command use
@@ -1364,6 +1594,20 @@ namespace nwTelegramBot
                             await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyText);
                         }
                     }
+
+
+                    if (!string.IsNullOrEmpty(s_replyToUser))
+                    {
+                        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + s_replyToUser);
+                        await bot.SendTextMessageAsync(update.Message.Chat.Id, s_replyToUser, false,false, update.Message.MessageId);
+
+                        using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
+                        {
+                            await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + s_replyToUser);
+                        }
+                    }
+
+
                     replyText2 += stringBuilder.ToString();
                     if (!string.IsNullOrEmpty(replyText2))
                     {
@@ -1469,6 +1713,93 @@ namespace nwTelegramBot
             {
                 nwErrorCatcher(ex);
             }
+        }
+
+        private static string nwRandom8Response()
+        {
+            int i = cDiceBag.Instance.d8(1);
+            switch (i)
+            {
+                case 1:
+                    return "Outcome is as likely as my not caring about it";
+                case 2:
+                    return "Chances are good.... if you're a betting person";
+                case 3:
+                    return "Pfft, You wish.";
+                case 4:
+                    return "You've got to be kidding.";
+                case 5:
+                    return "Ask me if I care";
+                case 6:
+                    return "Dear god no.";
+                case 7:
+                    return "Not in a million years.";
+                case 8:
+                    return "Can't decide.";
+                default:
+                    return "Yes, now give the screen a little kiss.";
+            }
+        }
+
+        private static string GetHtmlCode(string s_topic)
+        {
+            string url = "https://www.google.com/search?q=" + s_topic + "&safe=active&tbm=isch";
+            string data = "";
+
+            var request = (HttpWebRequest)WebRequest.Create(url);
+            request.Accept = "text/html, application/xhtml+xml, */*";
+            request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko";
+
+            var response = (HttpWebResponse)request.GetResponse();
+
+            using (Stream dataStream = response.GetResponseStream())
+            {
+                if (dataStream == null)
+                    return "";
+                using (var sr = new StreamReader(dataStream))
+                {
+                    data = sr.ReadToEnd();
+                }
+            }
+            return data;
+        }
+
+        private static List<string> GetUrls(string html)
+        {
+            var urls = new List<string>();
+
+            int ndx = html.IndexOf("\"ou\"", StringComparison.Ordinal);
+
+            while (ndx >= 0)
+            {
+                ndx = html.IndexOf("\"", ndx + 4, StringComparison.Ordinal);
+                ndx++;
+                int ndx2 = html.IndexOf("\"", ndx, StringComparison.Ordinal);
+                string url = html.Substring(ndx, ndx2 - ndx);
+                urls.Add(url);
+                ndx = html.IndexOf("\"ou\"", ndx2, StringComparison.Ordinal);
+            }
+            return urls;
+        }
+
+        private static byte[] GetImage(string url)
+        {
+            var request = (HttpWebRequest)WebRequest.Create(url);
+            var response = (HttpWebResponse)request.GetResponse();
+
+            using (Stream dataStream = response.GetResponseStream())
+            {
+                if (dataStream == null)
+                    return null;
+                using (var sr = new BinaryReader(dataStream))
+                {
+                    byte[] bytes = sr.ReadBytes(100000000);
+
+                    return bytes;
+                }
+            }
+
+            return null;
         }
 
         private static void nwSetUserString(string key, string value)

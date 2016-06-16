@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <events>
   <event>
-    <id>95</id>
-    <url>http://www.perthfurs.net/events/view/95</url>
-    <title>FurWag BBQ!</title>
-    <location>McCallum Park. South Perth</location>
-    <start>2016-06-12 12:00:00</start>
-    <end></end>
-  </event>
-  <event>
     <id>99</id>
     <url>http://www.perthfurs.net/events/view/99</url>
     <title>Discovfurry. Stage 2: Nerfpocalypse!</title>
