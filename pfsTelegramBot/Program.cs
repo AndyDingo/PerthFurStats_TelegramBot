@@ -20,6 +20,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using Telegram.Bot;
+using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -81,10 +82,14 @@ namespace nwTelegramBot
             {
                 nwErrorCatcher(ex);
             }
-            //catch (NullReferenceException ex)
-            //{
-            //    nwErrorCatcher(ex);
-            //}
+            catch (NullReferenceException ex)
+            {
+                nwErrorCatcher(ex);
+            }
+            catch (ApiRequestException ex)
+            {
+                nwErrorCatcher(ex);
+            }
             catch (AggregateException ex)
             {
                 nwErrorCatcher(ex);
@@ -819,26 +824,26 @@ namespace nwTelegramBot
                                 if (s_username != "AndyDingoFolf")
                                 {
                                     if (nwCheckInReplyTimer(dt) != false)
-                                        replyText = "You have insufficient permissions to access this command.";
+                                        s_replyToUser = "You have insufficient permissions to access this command.";
                                     break;
                                 }
                                 // if it is okay to reply, do so.
                                 if (nwCheckInReplyTimer(dt) != false)
                                 {
-                                    replyText = "Starting backup...";
+                                    s_replyToUser = "Starting backup...";
                                     cZipBackup.Instance.CreateSample(dt.ToString(nwGrabString("dateformat")) + "_backup.zip", null, Environment.CurrentDirectory + @"\logs_tg\");
                                     b_kat = true;
                                 }
 
                                 if (b_kat == true)
                                 {
-                                    replyText = "Backup complete";
+                                    s_replyToUser = "Backup complete";
                                 }
                             }
                             else
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "This command can only be used in private messages.";
+                                    s_replyToUser = "This command can only be used in private messages.";
                                 break;
                             }
                             break;
@@ -850,7 +855,7 @@ namespace nwTelegramBot
                             if (catuse == n_catmax2)
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "Sorry, the /cat command has been used too many times.";
+                                    s_replyToUser = "Sorry, the /cat command has been used too many times.";
                                 break;
                             }
 
@@ -864,7 +869,7 @@ namespace nwTelegramBot
                         case "/shiba":
 
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "This command is not yet implemented.";
+                                s_replyToUser = "This command is not yet implemented.";
                             break;
 
                         case "/die":
@@ -875,17 +880,17 @@ namespace nwTelegramBot
                                 if (s_username != "AndyDingoFolf")
                                 {
                                     if (nwCheckInReplyTimer(dt) != false)
-                                        replyText = "You have insufficient permissions to access this command.";
+                                        s_replyToUser = "You have insufficient permissions to access this command.";
                                     break;
                                 }
 
-                                replyText = "Goodbye.";
+                                s_replyToUser = "Goodbye.";
                                 Environment.Exit(0);
                             }
                             else
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "This command can only be used in private messages.";
+                                    s_replyToUser = "This command can only be used in private messages.";
                                 break;
                             }
                             break;
@@ -896,21 +901,21 @@ namespace nwTelegramBot
                             {
 
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "You have insufficient permissions to access this command.";
+                                    s_replyToUser = "You have insufficient permissions to access this command.";
                                 break;
 
                             }
                             else
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "Not happening, outside of private messages that is.";
+                                    s_replyToUser = "Not happening, outside of private messages that is.";
                             }
                             break;
 
                         case "/dook":
 
                             if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "Dook!";
+                                s_replyToUser = "Dook!";
                             break;
 
                         case "/count":
@@ -1009,7 +1014,7 @@ namespace nwTelegramBot
                             else
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "This command can only be used in private messages.";
+                                    s_replyToUser = "This command can only be used in private messages.";
                                 break;
                             }
                             break;
@@ -1036,9 +1041,9 @@ namespace nwTelegramBot
                             {
                                 if (body == string.Empty || body == " " || body == "@")
                                 {
-                                    bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    replyText = "*@PFStats_bot slaps @" + s_username + " around a bit with a large trout!*";
+                                    s_replyToUser = "*@PFStats_bot slaps @" + s_username + " around a bit with a large trout!*";
 
                                     nwSetString("cusage/emote", Convert.ToString(emuse++));
                                     break;
@@ -1055,25 +1060,25 @@ namespace nwTelegramBot
                                 if (s_target == string.Empty || s_target == " ")
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-                                    replyText = "No target was selected. Usage: /slap @username";
+                                    s_replyToUser = "No target was selected. Usage: /slap @username";
                                     break;
                                 }
 
                                 if (s_username == string.Empty)
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-                                    replyText = "I'm sorry, I can't let you do that Dave";
+                                    s_replyToUser = "I'm sorry, I can't let you do that Dave";
                                     nwSetString("cusage/emote", Convert.ToString(emuse++));
                                     break;
                                 }
 
                                 if (s_target != string.Empty)
                                 {
-                                    replyText = "*@" + s_username + " slaps @" + s_target + " around a bit with a large sea trout!*";
+                                    s_replyToUser = "*@" + s_username + " slaps @" + s_target + " around a bit with a large sea trout!*";
                                 }
                                 else
                                 {
-                                    replyText = "*@PFStats_bot slaps @" + s_username + " around a bit with a large sea trout!*";
+                                    s_replyToUser = "*@PFStats_bot slaps @" + s_username + " around a bit with a large sea trout!*";
                                 }
                             }
 
@@ -1089,7 +1094,7 @@ namespace nwTelegramBot
                             if (n_sfwuse == n_sfwmax1 || n_sfwuse == n_sfwmax2)
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "Sorry, the /sfw command has been used too many times.";
+                                    s_replyToUser = "Sorry, the /sfw command has been used too many times.";
                                 break;
                             }
 
@@ -1119,7 +1124,7 @@ namespace nwTelegramBot
 
                             if (body == string.Empty || body == " " || body == "@")
                             {
-                                bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                                 s_replyToUser = "Usage: /image @<image to look for>";
                                 
