@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+  <!--PerthFurStats Command configuration File-->
+  <!--This file is generated (mostly) automatically, please don't edit manually-->
+<commands version="0.1" botver="1.0.0.62">
+  <cmd_usage>
+    <img>0</img>
+    <cat>0</cat>
+    <joke>0</joke>
+    <roll>0</roll>
+    <echo>0</echo>
+    <say>0</say>
+    <stats>0</stats>
+    <user>0</user>
+    <about>0</about>
+    <emote>0</emote>
+    <sfw>0</sfw>
+    <total>1069</total>
+  </cmd_usage>
+  <cmd_max_global>
+    <img>20</img>
+    <cat>20</cat>
+    <joke>5</joke>
+    <roll>20</roll>
+    <echo>50</echo>
+    <say>150</say>
+    <stats>10</stats>
+    <user>10</user>
+    <about>10</about>
+    <emote>50</emote>
+    <sfw>20</sfw>
+  </cmd_max_global>
+  <cmd_max_peruser>
+    <img>5</img>
+    <cat>5</cat>
+    <sfw>0</sfw>
+    <joke>4</joke>
+    <echo>5</echo>
+    <roll>5</roll>
+    <say>50</say>
+    <stats>2</stats>
+    <user>5</user>
+    <about>5</about>
+    <sfw>5</sfw>
+    <emote>5</emote>
+</cmd_max_peruser>
+</commands>
