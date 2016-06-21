@@ -13,8 +13,9 @@ Note: All changes go in this log file under the version those
 changes were made for. Newest Changes generally go first.
 +==================================+
 
-Version 0.63 ALPHA
+Version 0.64 ALPHA
 ------------------------------------
+- Improvements to joke command. [AndyDingo]
 - Fixed /roll command again. [AndyDingo]
 - Removed /dog, /em and /me commands. [AndyDingo]
 - Fixed /image command. [AndyDingo]

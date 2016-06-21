@@ -950,6 +950,7 @@ namespace nwTelegramBot
                             }
 
                             break;
+
                         case "/alive":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
@@ -1441,7 +1442,15 @@ namespace nwTelegramBot
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                             if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "I'm sorry " + update.Message.From.FirstName + ", My humor emitter array requires recharging. Please try again another time.";
+                            {
+                                string textomatic = nwRandomJokeLine();
+
+                                replyText = textomatic.Replace("\r\n", Environment.NewLine);
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
 
                             nwSetGlobalUsage("joke", n_jokeuse++); // set global usage incrementally
                             nwSetUserUsage(s_username, "joke", n_joke_uuse++); // set this users usage incrementally
@@ -2002,6 +2011,27 @@ namespace nwTelegramBot
             {
                 //nwErrorCatcher(ex);
             }
+        }
+
+        private static string nwRandomJokeLine()
+        {
+            string chosen = null;
+            var rng = new Random();
+            int indicator = 0;
+
+            using (var reader = File.OpenText(Environment.CurrentDirectory + @"\data\jokelist.txt"))
+            {
+                while (reader.ReadLine() != null)
+                {
+                    if (rng.Next(++indicator) == 0)
+                    {
+                        chosen = reader.ReadLine();
+                    }
+                    indicator++;
+                }
+            }
+            return chosen;
+
         }
 
         /// <summary>
