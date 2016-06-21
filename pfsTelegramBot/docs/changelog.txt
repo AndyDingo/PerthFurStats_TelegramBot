@@ -13,6 +13,14 @@ Note: All changes go in this log file under the version those
 changes were made for. Newest Changes generally go first.
 +==================================+
 
+Version 0.63 ALPHA
+------------------------------------
+- Fixed /roll command again. [AndyDingo]
+- Removed /dog, /em and /me commands. [AndyDingo]
+- Fixed /image command. [AndyDingo]
+- Added /edit command. [AndyDingo]
+- added /8ball command. [AndyDingo]
+
 Version 0.56 ALPHA
 ------------------------------------
 - Improve flood protection system. [AndyDingo]

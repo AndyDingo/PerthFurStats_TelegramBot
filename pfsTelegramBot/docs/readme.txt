@@ -14,9 +14,10 @@ TABLE OF CONTENTS
 
 1. INTRODUCTION
 2. REQUIREMENTS
-3. DISTRIBUTION
-4. LEGAL INFORMATION
-5. CREDITS
+3. CHANGES
+4. DISTRIBUTION
+5. LEGAL INFORMATION
+6. CREDITS
 
 +==================================+
 1. INTRODUCTION
@@ -34,15 +35,21 @@ Binaries require Microsoft .NET Fraamework 4.5.2 to be installed, on Windows 8.1
 
 Bot has been tested on Mono and has been determined to be incompatible.
 
-+==============================+
-3. DISTRIBUTION
-+==============================+
++==================================+
+3. CHANGES
++==================================+
+
+See changelog.txt instead of this file.
+
++==================================+
+4. DISTRIBUTION
++==================================+
 
 This program and it's associated source files may be distributed freely in accordance with the GPL. Please view gpl.txt for more information.
 
-+==============================+
-4. LEGAL INFORMATION
-+==============================+
++==================================+
+5. LEGAL INFORMATION
++==================================+
 
 © COPYRIGHT 2016 NYTEWOLF CREATIONS, ALL RIGHTS RESERVED.
 
@@ -53,7 +60,7 @@ This program is licensed in accordance with the GPL. a copy of the GPL is includ
 Uses the Telegram.Bot C# Library by MrRoundRobin.
 
 +==================================+
-5. CREDITS
+6. CREDITS
 +==================================+
 
 Project Manager: AndyDingo

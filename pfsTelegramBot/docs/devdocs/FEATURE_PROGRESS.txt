@@ -10,10 +10,11 @@ Please use "Word Wrap" if using notepad or wordpad to view this file.
 
 +==================================+
 
-* Overall (75%)
+* Overall (78%)
+* External stats generation (1%)
 * Log text (100%)
 * Timestamps (99%)
-* Stickers (75%)
+* Stickers (100%)
 * Photos (75%)
 * Audio (100%)
 * Split on day end (100%)
