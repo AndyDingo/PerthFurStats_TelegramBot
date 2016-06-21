@@ -1,20 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <events>
   <event>
-    <id>99</id>
-    <url>http://www.perthfurs.net/events/view/99</url>
-    <title>Discovfurry. Stage 2: Nerfpocalypse!</title>
-    <location>Port Kennedy</location>
-    <start>2016-06-18 17:00:00</start>
-    <end>2016-06-18 23:55:00</end>
-  </event>
-  <event>
     <id>96</id>
     <url>http://www.perthfurs.net/events/view/96</url>
     <title>CaFURnated XIV: Final Fantasy CaFURnation</title>
     <location>Miss Maud Carillon City Arcade</location>
     <start>2016-06-26 11:30:00</start>
-    <end>2016-06-26 14:30:00</end>
   </event>
   <event>
     <id>98</id>
@@ -22,7 +13,6 @@
     <title>F.A.R. 4: The Drunkening (18+)</title>
     <location>The Court Hotel, Northbridge</location>
     <start>2016-07-03 14:00:00</start>
-    <end></end>
   </event>
   <event>
     <id>100</id>
@@ -30,7 +20,13 @@
     <title>Perth Furs Interactive Picnic. Mark 2!</title>
     <location>Port Kennedy</location>
     <start>2016-07-16 12:00:00</start>
-    <end>2016-07-16 19:00:00</end>
+  </event>
+  <event>
+    <id>102</id>
+    <url>http://www.perthfurs.net/events/view/102</url>
+    <title>CaFURnated XV: CaFURnation Overwhelming</title>
+    <location>Miss Maud Carillon City Arcade</location>
+    <start>2016-07-31 11:30:00</start>
   </event>
   <event>
     <id>97</id>
@@ -38,7 +34,13 @@
     <title>South Perth Foreshore Meet</title>
     <location>South Perth Foreshore</location>
     <start>2016-08-06 11:00:00</start>
-    <end>2016-08-06 14:00:00</end>
+  </event>
+  <event>
+    <id>95</id>
+    <url>http://www.perthfurs.net/events/view/95</url>
+    <title>FurWag BBQ!</title>
+    <location>McCallum Park. South Perth</location>
+    <start>2016-09-29 17:00:00</start>
   </event>
   <event>
     <id>90</id>
@@ -46,6 +48,5 @@
     <title>Furwag 2016!</title>
     <location>Metro Hotel Perth</location>
     <start>2016-09-30 00:00:00</start>
-    <end>2016-10-02 00:00:00</end>
   </event>
 </events>

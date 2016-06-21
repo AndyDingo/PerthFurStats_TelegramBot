@@ -328,13 +328,18 @@ namespace nwTelegramBot
             }
 
         }
-
+        
+        /// <summary>
+        /// Grab the per-user maximum for a given command
+        /// </summary>
+        /// <param name="key">The command that we need to lookup</param>
+        /// <returns>The per user maximum for the command.</returns>
         private static int nwGrabUserMax(string key)
         {
             XmlDocument doc = new XmlDocument();
             int s = 0;
 
-            doc.Load(Environment.CurrentDirectory + @"\data\commandlist.xml");
+            doc.Load(s_commandcfg);
 
             if (doc.SelectSingleNode("commands/cmd_max_peruser/" + key) != null)
             {
@@ -345,13 +350,19 @@ namespace nwTelegramBot
             }
             else { return -1; }
         }
-
+        
+        /// <summary>
+        /// Grab the amount of times a user has used a given command.
+        /// </summary>
+        /// <param name="s_username">A username</param>
+        /// <param name="key">The key</param>
+        /// <returns>An int.</returns>
         private static int nwGrabUserUsage(string s_username, string key)
         {
             XmlDocument doc = new XmlDocument();
             int s = 0;
 
-            doc.Load(Environment.CurrentDirectory + @"\data\commandlist.xml");
+            doc.Load(s_commandcfg);
 
             XmlElement root = doc.DocumentElement;
 
@@ -380,7 +391,7 @@ namespace nwTelegramBot
             XmlDocument doc = new XmlDocument();
             int s = 0;
 
-            doc.Load(Environment.CurrentDirectory + @"\data\commandlist.xml");
+            doc.Load(s_commandcfg);
 
             if (doc.SelectSingleNode("commands/cmd_max_global/" + key) != null)
             {
@@ -403,7 +414,7 @@ namespace nwTelegramBot
             XmlDocument doc = new XmlDocument();
             int s = 0;
 
-            doc.Load(Environment.CurrentDirectory + @"\data\commandlist.xml");
+            doc.Load(s_commandcfg);
 
             if (doc.SelectSingleNode("commands/cmd_usage/" + key) != null)
             {
@@ -818,7 +829,7 @@ namespace nwTelegramBot
         /// <param name="me">The user, or bot.</param>
         /// <param name="dt">The date/time component.</param>
         /// <remarks>Only designed to work if regular commands are enabled.</remarks>
-        private static async void nwProcessSlashCommands(TelegramBotClient bot, Update update, User me, DateTime dt)
+        private static async Task nwProcessSlashCommands(TelegramBotClient bot, Update update, User me, DateTime dt)
         {
             // read configuration and extract api keys
             var wundergroundKey = nwGrabString("weatherapi");
@@ -904,7 +915,7 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = nwRandom8Response();
+                                s_replyToUser = nwRandom8BallResponse();
                                 break;
                             }
 
@@ -983,7 +994,10 @@ namespace nwTelegramBot
 
                         case "/cat":
 
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
                             int n_catuse = nwGrabGlobalUsage("cat");
+                            int n_cat_uuse = nwGrabUserUsage(s_username, "cat");
                             int n_cat_gmax = nwGrabGlobalMax("cat");
                             int n_cat_umax = nwGrabUserMax("cat");
 
@@ -1001,9 +1015,8 @@ namespace nwTelegramBot
                             }
 
                             nwSetGlobalUsage("cat", n_catuse++); // set global usage incrementally
-                            nwSetUserUsage(s_username, "cat", n_catuse++); // set this users usage incrementally
-
-                            //nwSetUserString(update.Message.From.FirstName + "/cmd_counts/cat", Convert.ToString(catuse++));
+                            nwSetUserUsage(s_username, "cat", n_cat_uuse++); // set this users usage incrementally
+                            
                             break;
 
                         case "/die":
@@ -1032,6 +1045,8 @@ namespace nwTelegramBot
 
                         case "/e621":
 
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
                             if (s_chattype == "Private")
                             {
 
@@ -1055,6 +1070,8 @@ namespace nwTelegramBot
                             break;
 
                         case "/count":
+
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                             if (s_username != "AndyDingoFolf" ||
                                 s_username != "Inflatophin")
@@ -1085,6 +1102,7 @@ namespace nwTelegramBot
                         case "/commands":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyTextEvent = "Hi " + update.Message.From.FirstName + ", Here's a list of commands I can respond to: http://www.perthfurstats.net/node/11 Note that it is currently a work in progress.";
 
@@ -1092,6 +1110,8 @@ namespace nwTelegramBot
 
                         case "/event":
                         case "/events": // TODO: Finish this command
+
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                             XmlDocument dook = new XmlDocument();
                             dook.Load(Directory.GetCurrentDirectory() + @"/data/events.xml");
@@ -1148,6 +1168,23 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "/edit":
+
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                            if (s_username != "AndyDingoFolf")
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    s_replyToUser = "You have insufficient permissions to access this command.";
+
+                                break;
+                            }
+
+                            // Roll our dice.
+                            nwEditBotMessage(dt, bot, update.Message.Chat.Id, body);
+
+                            break;
+
                         case "/echo":
                             
                             if (s_chattype == "Private")
@@ -1171,7 +1208,9 @@ namespace nwTelegramBot
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     s_replyToUser = "This command can only be used in private messages.";
+
                                 break;
+
                             }
 
                             break;
@@ -1190,15 +1229,17 @@ namespace nwTelegramBot
                             // will return "yournickname slaps targetnickname around with [randomobject]
 
                             int n_emouse = nwGrabGlobalUsage("emote");
+                            int n_emo_uuse = nwGrabUserUsage(s_username, "emote");
                             int n_emo_gmax = nwGrabGlobalMax("emote");
                             int n_emo_umax = nwGrabUserMax("emote");
 
-                            if (n_emouse == n_emo_gmax || n_emouse == n_emo_umax)
+                            if (n_emouse == n_emo_gmax || n_emo_uuse == n_emo_umax)
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     s_replyToUser = "Sorry, the /slap command has been used too many times.";
 
                                 break;
+
                             }
 
                             if (nwCheckInReplyTimer(dt) != false)
@@ -1213,11 +1254,8 @@ namespace nwTelegramBot
                                     nwSetUserUsage(s_username, "emote", n_emouse++); // set this users usage incrementally
 
                                     break;
-                                }
 
-                                //string basestr1 = body;
-                                //string[] mysplit1 = new string[] { "", "" };
-                                //mysplit1 = basestr1.Split('@');
+                                }
 
                                 // Sanitise target string.
                                 string s_target = body;
@@ -1252,8 +1290,7 @@ namespace nwTelegramBot
                             }
 
                             nwSetGlobalUsage("emote", n_emouse++); // Write new value. // set global usage incrementally
-                            nwSetUserUsage(s_username, "emote", n_emouse++); // set this users usage incrementally
-                            //nwSetUserString(update.Message.From.FirstName + "/cmd_counts/emote", Convert.ToString(emuse++));
+                            nwSetUserUsage(s_username, "emote", n_emo_uuse++); // set this users usage incrementally
 
                             break;
 
@@ -1297,10 +1334,11 @@ namespace nwTelegramBot
                         case "/image": // TODO: Finish this command
 
                             int n_imguse = nwGrabGlobalUsage("img"); // GLOBAL USAGE
+                            int n_img_uuse = nwGrabUserUsage(s_username, "img");
                             int n_img_gmax = nwGrabGlobalMax("img"); // GLOBAL MAXIMUM
                             int n_img_umax = nwGrabUserMax("img"); // USER MAXIMUM
 
-                            if (n_imguse == n_img_gmax || n_imguse == n_img_umax)
+                            if (n_imguse == n_img_gmax || n_img_uuse == n_img_umax)
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     s_replyToUser = "Sorry, the /image command has been used too many times.";
@@ -1319,6 +1357,7 @@ namespace nwTelegramBot
 
                             if (nwCheckInReplyTimer(dt) != false)
                             {
+
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
                                 string html = GetHtmlCode(body);
@@ -1335,7 +1374,7 @@ namespace nwTelegramBot
                                 replyImage = luckyUrl;
 
                                 nwSetGlobalUsage("img", n_imguse++); // set global usage incrementally
-                                nwSetUserUsage(s_username, "img", n_imguse++); // set this users usage incrementally
+                                nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
 
                                 break;
 
@@ -1347,10 +1386,11 @@ namespace nwTelegramBot
                         case "/joke": // TODO: Fix this command
 
                             int n_jokeuse = nwGrabGlobalUsage("joke");
+                            int n_joke_uuse = nwGrabUserUsage(s_username, "joke");
                             int n_joke_gmax = nwGrabGlobalMax("joke");
                             int n_joke_umax = nwGrabUserMax("joke");
 
-                            if (n_jokeuse == n_joke_gmax || n_jokeuse == n_joke_umax)
+                            if (n_jokeuse == n_joke_gmax || n_joke_uuse == n_joke_umax)
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     s_replyToUser = "Sorry, the /joke command has been used too many times.";
@@ -1363,72 +1403,38 @@ namespace nwTelegramBot
                                 s_replyToUser = "I'm sorry " + update.Message.From.FirstName + ", My humor emitter array requires recharging. Please try again another time.";
 
                             nwSetGlobalUsage("joke", n_jokeuse++); // set global usage incrementally
-                            nwSetUserUsage(s_username, "joke", n_jokeuse++); // set this users usage incrementally
-                            //nwSetUserString(update.Message.From.FirstName + "/cmd_counts/joke", Convert.ToString(n_jokeuse++));
+                            nwSetUserUsage(s_username, "joke", n_joke_uuse++); // set this users usage incrementally
 
                             break;
                         case "/link":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
                             if (nwCheckInReplyTimer(dt) != false)
                                 s_replyToUser = "Chat link: https://telegram.me/joinchat/ByYWcALujRjo8iSlWvbYIw";
+
                             break;
 
                         case "/oo":
                         case "/optout":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
                             if (nwCheckInReplyTimer(dt) != false)
                                 s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following form to opt-out from stats collection. Bare in mind that your request might not be implemented till the next stats run, as it requires manual intervention. URL: http://www.perthfurstats.net/node/10";
+
                             break;
 
                         case "/roll":
+                        case "/diceroll":
 
-                            int n_rolluse = nwGrabGlobalUsage("roll");
-                            int n_roll_gmax = nwGrabGlobalMax("roll");
-                            int n_roll_umax = nwGrabUserMax("roll");
+                            string s = "";
 
-                            if (n_rolluse == n_roll_gmax || n_rolluse == n_roll_umax)
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "Sorry, the /roll command has been used too many times.";
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                break;
-                            }
-
-                            if (body == string.Empty || body == " ")
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "Usage: /roll [number of sides] [amount of dice]";
-
-                                break;
-                            }
-
-                            string basestr = body;
-                            string[] mysplit = new string[] { "", "", "" };
-                            mysplit = basestr.Split(' ');
-
-                            string ms1 = mysplit[1];
-                            string ms2 = mysplit[2];
-
-                            int i, j;
-                            i = Convert.ToInt32(ms1);
-                            j = Convert.ToInt32(ms2);
-
-                            if (j <= 5)
-                            {
-                                string tst1 = cDiceBag.Instance.Roll(j, i);
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "You have rolled: " + Environment.NewLine + tst1;
-
-                                nwSetGlobalUsage("roll", n_rolluse++); // set global usage incrementally
-                                nwSetUserUsage(s_username, "roll", n_rolluse++); // set this users usage incrementally
-                                //nwSetUserString(update.Message.From.FirstName + "/cmd_counts/roll", Convert.ToString(rolluse++));
-                            }
-                            else
-                            {
-                                break;
-                            }
+                            // Roll our dice.
+                            s = nwRollDice(s_username, dt, body);
+                            replyText = s;
 
                             break;
 
@@ -1484,7 +1490,6 @@ namespace nwTelegramBot
 
                             int n_sayuse = nwGrabGlobalUsage("say");
                             int n_say_gmax = nwGrabGlobalMax("say");
-                            //int n_saymax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/say");
 
                             if (n_sayuse == n_say_gmax)
                             {
@@ -1512,8 +1517,7 @@ namespace nwTelegramBot
                             }
 
                             nwSetGlobalUsage("say", n_sayuse++); // Write new value. // set global usage incrementally
-                            nwSetUserUsage(s_username, "say", n_sayuse++); // set this users usage incrementally
-                            //nwSetUserString(update.Message.From.FirstName + "/cmd_counts/say", Convert.ToString(sayuse++));
+
                             break;
 
                         case "/stats": // change to /stats [week|month|year|alltime]
@@ -1540,12 +1544,10 @@ namespace nwTelegramBot
                                 nwSetUserUsage(s_username, "stats", n_statuse++); // set this users usage incrementally
 
                                 break;
+
                             }
                             else
                             {
-                                //string basestr2 = body;
-                                //string[] mysplit2 = new string[] { "", "" };
-                                //mysplit2 = basestr2.Split('-');
 
                                 string ms2a = body;
 
@@ -1743,7 +1745,6 @@ namespace nwTelegramBot
 
                             nwSetGlobalUsage("user", n_useruse++); // set global usage incrementally
                             nwSetUserUsage(s_username, "user", n_useruse++); // set this users usage incrementally
-                            //nwSetUserString(update.Message.From.FirstName + "/cmd_counts/user", Convert.ToString(useruse++));
 
                             break;
 
@@ -1829,7 +1830,7 @@ namespace nwTelegramBot
                     if (!string.IsNullOrEmpty(replyText2))
                     {
                         nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyText2);
-                        await bot.SendTextMessage(-1001032131694, replyText2);
+                        await bot.SendTextMessageAsync(-1001032131694, replyText2);
 
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
@@ -1839,7 +1840,8 @@ namespace nwTelegramBot
                     // replyText3 For text containing urls
                     if (!string.IsNullOrEmpty(replyTextEvent))
                     {
-                        await bot.SendTextMessage(update.Message.Chat.Id, replyTextEvent, true);
+                        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyTextEvent);
+                        await bot.SendTextMessageAsync(update.Message.Chat.Id, replyTextEvent, true);
 
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
@@ -1849,7 +1851,7 @@ namespace nwTelegramBot
                     if (!string.IsNullOrEmpty(replyTextMarkdown))
                     {
                         nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyTextMarkdown);
-                        await bot.SendTextMessage(update.Message.Chat.Id, replyTextMarkdown, false, false, 0, null, ParseMode.Markdown);
+                        await bot.SendTextMessageAsync(update.Message.Chat.Id, replyTextMarkdown, false, false, 0, null, ParseMode.Markdown);
 
                         using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
@@ -1860,7 +1862,9 @@ namespace nwTelegramBot
                     if (!string.IsNullOrEmpty(replyImage) && replyImage.Length > 5)
                     {
                         nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyImage);
-                        bot.SendChatAction(update.Message.Chat.Id, ChatAction.Typing);
+
+                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
                         try
                         {
                             var stream = httpClient.DownloadData(replyImage).Result;
@@ -1932,6 +1936,81 @@ namespace nwTelegramBot
             }
         }
 
+        /// <summary>
+        /// Edit a message posted by the bot.
+        /// </summary>
+        /// <param name="dt">Time</param>
+        /// <param name="boto">The bot.</param>
+        /// <param name="n_chatid">The chat ID that the message was posted in.</param>
+        /// <param name="body">The chat id and message.</param>
+        private static void nwEditBotMessage(DateTime dt, TelegramBotClient boto, long n_chatid, string body)
+        {
+            if (body == string.Empty || body == " ")
+            {
+
+                if (nwCheckInReplyTimer(dt) != false)
+                    boto.SendTextMessageAsync(n_chatid, "Usage: /edit [messageid] [the text to change]");
+
+            }
+            else
+            {
+
+                if (nwCheckInReplyTimer(dt) != false)
+                {
+
+                    string[] mysplit = new string[] { "", "", "" };
+                    mysplit = body.Split('~');
+
+                    string ms1 = mysplit[0];
+                    string ms2 = mysplit[1];
+
+                    int msg = Convert.ToInt32(ms1);
+
+                    boto.EditMessageTextAsync(n_chatid, msg, ms2);
+
+                }
+
+            }
+
+        }
+
+        private static string nwRollDice(string s_username, DateTime dt, string body)
+        {
+            string tst1 = "";
+
+            if (body == string.Empty || body == " ")
+            {
+                if (nwCheckInReplyTimer(dt) != false)
+                    return "Usage: /roll [number of sides] [amount of dice]";
+            }
+            
+            string[] mysplit = new string[] { "", "", "" };
+            mysplit = body.Split(' ');
+
+            string ms1 = mysplit[0];
+            string ms2 = mysplit[1];
+
+            int i, j;
+            i = Convert.ToInt32(ms1);
+            j = Convert.ToInt32(ms2);
+
+            if (j <= 5)
+            {
+                tst1 = cDiceBag.Instance.Roll(j, i);
+                return "You have rolled: " + Environment.NewLine + tst1;
+            }
+            else
+            {
+                return "Dice can't exceed 5.";
+            }
+        }
+
+        /// <summary>
+        /// Set a string within settings.
+        /// </summary>
+        /// <param name="key">the setting key to grab.</param>
+        /// <param name="value">The value to write.</param>
+        /// <remarks>Under construction.</remarks>
         private static void nwSetUserUsage(string s_username, string key, int value)
         {
             XmlDocument doc = new XmlDocument();
@@ -1963,9 +2042,78 @@ namespace nwTelegramBot
             doc.Save(s_commandcfg);
         }
 
-        private static string nwRandom8Response()
+        /// <summary>
+        /// Set a string within settings.
+        /// </summary>
+        /// <param name="key">the setting key to grab.</param>
+        /// <param name="value">The value to write.</param>
+        /// <remarks>Under construction.</remarks>
+        private static void nwSetGlobalUsage(string key, string value)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(s_commandcfg);
+            doc.SelectSingleNode("commands/cmd_usage/" + key).InnerText = value;
+            doc.Save(s_commandcfg);
+        }
+
+        private static string nwRandom8BallResponse()
+        {
+            int i = cDiceBag.Instance.d20(1);
+            switch (i)
+            {
+                case 1:
+                    return "Outcome is as likely as my not caring about it.";
+                case 2:
+                    return "Chances are good.... if you're a betting person.";
+                case 3:
+                    return "Pfft, You wish.";
+                case 4:
+                    return "You've got to be kidding.";
+                case 5:
+                    return "Ask me if I care.";
+                case 6:
+                    return "Dear god no.";
+                case 7:
+                    return "Not in a million years. Maybe in fewer.";
+                case 8:
+                    return "Can't decide.";
+                case 9:
+                    return "Maybe, In  a few weeks, if you're lucky.";
+                case 10:
+                    return "If your mommy says it is OK.";
+                case 11:
+                    return "Have you considered going to a psychologist?";
+                case 12:
+                    return "If you accentuate the positive.";
+                case 13:
+                    return "Between a rock and a hard place.";
+                case 14:
+                    return "Be careful, you might get a slap in your face!";
+                case 15:
+                    return "Listen to your heart. If it's beating you're alive.";
+                case 16:
+                    return "One is the loneliest number that you will ever do.";
+                case 17:
+                    return "It smells like it.";
+                case 18:
+                    return "Some say 1+1 does not equal two...";
+                case 19:
+                    return "Check the glove compartment of your car.";
+                case 20:
+                    return "If you grease a few palms.";
+                default:
+                    return "Yes, now give the screen a little kiss.";
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private static string nwRandom8BallResponse2()
         {
             int i = cDiceBag.Instance.d8(1);
+
             switch (i)
             {
                 case 1:
@@ -1988,6 +2136,7 @@ namespace nwTelegramBot
                     return "Yes, now give the screen a little kiss.";
             }
         }
+
 
         private static string GetHtmlCode(string s_topic)
         {

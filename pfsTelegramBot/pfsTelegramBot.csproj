@@ -92,6 +92,7 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="data\jokelist.txt" />
     <None Include="data\pfsGlobalCmdConfig.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
