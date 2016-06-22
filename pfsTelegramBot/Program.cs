@@ -1662,7 +1662,12 @@ namespace nwTelegramBot
                             }
 
                             break;
+                        case "/meme":
 
+
+
+
+                            break;
                         //case "/em": // TODO: Finish this command
                         //    // usage /em -[action (see list of actions)] -[@username of target]
                         //    // performs an action on a target
@@ -1760,6 +1765,8 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "/wiki":
+                            break;
                         case "/user": // TODO : Finish this command
                             // This command returns a users permission level.
                             // Defaults to the person who used the command.
