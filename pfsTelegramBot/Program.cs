@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.62
+ * Version   : 1.0.0.65
  */
 
 using Newtonsoft.Json.Linq;
@@ -1664,8 +1664,34 @@ namespace nwTelegramBot
                             break;
                         case "/meme":
 
+                            if (body == string.Empty || body == " " || body == "@" || body == null)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
+                                s_replyToUser = "Usage: /meme [image to look for]";
 
+                                break;
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                string html1 = GetHtmlCode(body);
+                                List<string> urls1 = GetUrls(html1);
+
+                                int memecount = urls1.Count;
+                                
+                                    string s_luckyUrl = urls1[0];
+
+                                    if (s_luckyUrl.Contains(" ") == true)
+                                        s_luckyUrl.Replace(" ", "%20");
+
+                                    replyImage = s_luckyUrl;
+                                    break;
+                                
+                            }
 
                             break;
                         //case "/em": // TODO: Finish this command
