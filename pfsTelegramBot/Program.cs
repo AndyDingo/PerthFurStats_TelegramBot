@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.65
+ * Version   : 1.0.0.66
  */
 
 using Newtonsoft.Json.Linq;
@@ -1445,7 +1445,18 @@ namespace nwTelegramBot
                             {
                                 string textomatic = nwRandomJokeLine();
 
-                                replyText = textomatic.Replace("\r\n", Environment.NewLine);
+                                string[] s_mysplit = new string[] { "", "", "" };
+                                string[] s_mysep = new string[] { "\\r", "\\n" };
+                                s_mysplit = textomatic.Split(s_mysep, StringSplitOptions.RemoveEmptyEntries);
+
+                                StringBuilder jokesb = new StringBuilder();
+
+                                foreach(string s_meow in s_mysplit)
+                                {
+                                    jokesb.AppendLine(s_meow);
+                                }
+
+                                replyText = jokesb.ToString();
                             }
                             else
                             {
