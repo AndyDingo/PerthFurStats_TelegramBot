@@ -1,20 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <events>
   <event>
-    <id>96</id>
-    <url>http://www.perthfurs.net/events/view/96</url>
-    <title>CaFURnated XIV: Final Fantasy CaFURnation</title>
-    <location>Miss Maud Carillon City Arcade</location>
-    <start>2016-06-26 11:30:00</start>
-  </event>
-  <event>
-    <id>98</id>
-    <url>http://www.perthfurs.net/events/view/98</url>
-    <title>F.A.R. 4: The Drunkening (18+)</title>
-    <location>The Court Hotel, Northbridge</location>
-    <start>2016-07-03 14:00:00</start>
-  </event>
-  <event>
     <id>100</id>
     <url>http://www.perthfurs.net/events/view/100</url>
     <title>Perth Furs Interactive Picnic. Mark 2!</title>
@@ -36,11 +22,26 @@
     <start>2016-08-06 11:00:00</start>
   </event>
   <event>
+    <id>103</id>
+    <url>http://www.perthfurs.net/events/view/103</url>
+    <title>F.A.R 5: Further Phones Required (18+)</title>
+    <location>Court Hotel</location>
+    <start>2016-08-07 14:00:00</start>
+  </event>
+  <event>
+    <id>104</id>
+    <url>http://www.perthfurs.net/events/view/104</url>
+    <title>Quay Furs: Elizabeth Quay Perth Fur Meet</title>
+    <location>Elizabeth Quay</location>
+    <start>2016-09-06 18:00:00</start>
+  </event>
+  <event>
     <id>95</id>
     <url>http://www.perthfurs.net/events/view/95</url>
     <title>FurWag BBQ!</title>
     <location>McCallum Park. South Perth</location>
     <start>2016-09-29 17:00:00</start>
+    <end>2016-09-29 20:00:00</end>
   </event>
   <event>
     <id>90</id>

@@ -7,13 +7,15 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.66
+ * Version   : 1.0.0.68
  */
 
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -25,6 +27,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using File = System.IO.File;
+using Mew = System.Data.SQLite;
 
 namespace nwTelegramBot
 {
@@ -38,8 +41,7 @@ namespace nwTelegramBot
         public static string s_logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log"; // error log
         public static string s_cfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.cfg"; // Main config
         public static string s_ucfgfile = Environment.CurrentDirectory + @"\pfsPermConfig.cfg"; // User config
-        public static string s_ucmd_cfgfile = Environment.CurrentDirectory + @"\data\pfsUserCmdConfig.cfg"; // User config
-        public static string s_gcmd_cfgfile = Environment.CurrentDirectory + @"\data\pfsGlobalCmdConfig.cfg"; // User config
+        public static string s_botdb = Environment.CurrentDirectory + @"\data\pfs_tgbot.db"; // User config
         public static string s_offsetcfg = Environment.CurrentDirectory + @"\data\offset.xml"; // User config
         public static string s_commandcfg = Environment.CurrentDirectory + @"\data\commandlist.xml"; // User config
         #endregion
@@ -285,6 +287,59 @@ namespace nwTelegramBot
             else { return -1; }
         }
 
+        private static int nwGrabGlobalUsageDB(string command)
+        {
+            var output = 0;
+
+            Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
+            //Mew.SQLiteCommand cmd = new Mew.SQLiteCommand(conn);
+            //Mew.SQLiteDataAdapter da = new Mew.SQLiteDataAdapter("SELECT [count] FROM [tbl_cmduse_global] WHERE [command]==" + command + ";", conn);
+            //DataSet ds = new DataSet("mew");
+            //da.Fill(ds);
+            //Console.WriteLine(ds.Tables[0].Rows[0].ToString());
+
+            conn.Open();
+
+            using (var cmd_contents = conn.CreateCommand())
+            {
+                cmd_contents.CommandText = "SELECT [count] FROM [tbl_cmduse_global] WHERE [command]==\"" + command + "\";";
+                var r = cmd_contents.ExecuteReader();
+
+                while (r.Read())
+                {
+                    output = Convert.ToInt32(r["count"]);
+                }
+                return output;
+            }
+        }
+
+        private static void nwSetGlobalUsageDB(string command, int value)
+        {
+            var output = 0;
+
+            Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
+            //Mew.SQLiteCommand cmd = new Mew.SQLiteCommand(conn);
+            //Mew.SQLiteDataAdapter da = new Mew.SQLiteDataAdapter("SELECT [count] FROM [tbl_cmduse_global] WHERE [command]==" + command + ";", conn);
+            //DataSet ds = new DataSet("mew");
+            //da.Fill(ds);
+            //Console.WriteLine(ds.Tables[0].Rows[0].ToString());
+
+            conn.Open();
+
+            using (var cmd_contents = conn.CreateCommand())
+            {
+                cmd_contents.CommandText = "UPDATE [tbl_cmduse_global] SET [count]==\"" + value + "\" WHERE [command]==\"" + command + "\";";
+                var r = cmd_contents.ExecuteReader();
+
+                while (r.Read())
+                {
+                    output = Convert.ToInt32(r["count"]);
+                    Console.WriteLine(output);
+                }
+            }
+        }
+
+
         /// <summary>
         /// Set a string within settings.
         /// </summary>
@@ -297,37 +352,6 @@ namespace nwTelegramBot
             doc.Load(s_cfgfile);
             doc.SelectSingleNode("config/" + key).InnerText = value;
             doc.Save(s_cfgfile);
-        }
-
-        /// <summary>
-        /// Set a string within settings.
-        /// </summary>
-        /// <param name="key">the setting key to grab.</param>
-        /// <param name="value">The value to write.</param>
-        /// <param name="b_usecmdcfg">Are we using the command config file instead?</param>
-        /// <remarks>Under construction.</remarks>
-        private static void nwSetString(string key, string value, bool b_usecmdcfg = false)
-        {
-
-            XmlDocument doc = new XmlDocument();
-
-            if (b_usecmdcfg == false)
-            {
-
-                doc.Load(s_cfgfile);
-                doc.SelectSingleNode("config/" + key).InnerText = value;
-                doc.Save(s_cfgfile);
-
-            }
-            else
-            {
-
-                doc.Load(s_ucmd_cfgfile);
-                doc.SelectSingleNode("config/" + key).InnerText = value;
-                doc.Save(s_ucmd_cfgfile);
-
-            }
-
         }
         
         /// <summary>
@@ -421,6 +445,9 @@ namespace nwTelegramBot
             {
 
                 s = Convert.ToInt32(doc.SelectSingleNode("commands/cmd_usage/" + key).InnerText);
+
+                Console.WriteLine("This command has been used " + s + " times.");
+
                 return s;
 
             }
@@ -507,7 +534,9 @@ namespace nwTelegramBot
                             //remove unsightly characters from first names.
                             string ss = update.Message.From.FirstName;
                             ss = Regex.Replace(ss, @"[^\u0000-\u007F]", string.Empty);
-                            //ss.Trim(' ');
+
+                            if (ss.Contains(" ") == true)
+                                ss.Replace(" ", string.Empty);
 
                             // Do stuff if we are a text message
                             switch (message.Type)
@@ -526,7 +555,7 @@ namespace nwTelegramBot
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
-                                        using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
+                                        using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id.ToString() + ".csv", true))
                                         {
                                             await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Contact information sharing of " + update.Message.Contact.FirstName);
                                         }
@@ -556,17 +585,58 @@ namespace nwTelegramBot
                                     break;
 
                                 case MessageType.TextMessage:
+                                    
+                                        string umt = update.Message.Text;
 
                                     //If we have set the bot to be able to respond to our basic commands
-                                    if (nwGrabString("botresponds") == "true" && update.Message.Text.StartsWith("/") == true)
+                                    if (nwGrabString("botresponds") == "true" && umt.StartsWith("/") == true)
                                     {
-                                        // TODO: MOVE ALL COMMANDS TO pfsCommandBot
-                                        nwProcessSlashCommands(Bot, update, me, m);
+                                        // Fix for work item #13
+                                        if (umt.Contains(me.Username) == true)
+                                        {
+                                            // TODO: MOVE ALL COMMANDS TO pfsCommandBot
+                                            nwProcessSlashCommands(Bot, update, me, m).Wait(-1);
+                                        }
+                                        else
+                                        {
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: This command isn't intended for me, ignoring.");
+                                        }
                                     }
-                                    else
+
+                                    if (umt.Contains("Mow") == true || umt.Contains("mow") == true || umt.Contains("mrew") == true || umt.Contains("mjau") == true || umt.Contains("maow") == true || umt.Contains("meow") == true)
+                                    {
+
+                                        int n_cat = nwCountCatNoises();
+                                        nwSetCatNoiseCount(n_cat++, ss);
+
+                                        if (nwGrabString("debugmode") == "true")
+                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has mowed, increase mow count.");
+
+                                    }
+
+                                    if (umt.Contains("aroo") == true || umt.Contains("awoo") == true || umt.Contains("aruu") == true || umt.Contains("awuu") == true || umt.Contains("bark") == true || umt.Contains("bork") == true)
+                                    {
+
+                                        int n_dog = nwCountDogNoises();
+                                        nwSetDogNoiseCount(n_dog++, ss);
+
+                                        if (nwGrabString("debugmode") == "true")
+                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has barked, increase bark count.");
+
+                                    }
+
+                                        if (update.Message.Text.Contains("Eeyup") == true || update.Message.Text.Contains("eeyup") == true)
+                                        {
+                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "Eeyup", false, false, update.Message.MessageId);
+                                        }
+
+
+                                    if (nwGrabString("botresponds") == "false" && update.Message.Text.StartsWith("/") == true)
                                     {
                                         if (nwGrabString("debugMode") == "true")
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has attempted to use a command, but they were disabled.");
+                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has attempted to use a command, but they were disabled.");
+                                        else
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has attempted to use a command, but they were disabled, along with debug mode.");
                                     }
 
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
@@ -747,12 +817,18 @@ namespace nwTelegramBot
                                         // check to see if the caption string is empty or not
                                         if (s == string.Empty || s == null || s == "" || s == "/n")
                                         {
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a photo with no caption.");
+                                            if (nwGrabString("debugmode") == "true")
+                                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a photo with no caption.");
+                                            else
+                                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a photo with no caption.");
                                             await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a photo with no caption.");
                                         }
                                         else
                                         {
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a photo with the caption '" + s + "'.");
+                                            if (nwGrabString("debugmode") == "true")
+                                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a photo with the caption '" + s + "'.");
+                                            else
+                                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a photo with the caption '" + s + "'.");
                                             await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a photo with the caption '" + s + "'.");
                                         }
                                     }
@@ -814,6 +890,90 @@ namespace nwTelegramBot
 
         }
 
+        private static void nwSetDogNoiseCount(int value, string lastuser)
+        {
+
+
+
+
+
+
+
+            Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
+
+            conn.Open();
+
+            using (var cmd_contents = conn.CreateCommand())
+            {
+                cmd_contents.CommandText = "UPDATE [tbl_miscstats] SET [count]=\"" + value + "\" WHERE [name]==\"awoo\";";
+                var r = cmd_contents.ExecuteNonQuery();
+
+                Console.WriteLine(r.ToString());
+            }
+
+        }
+
+        private static void nwSetCatNoiseCount(int value, string lastuser)
+        {
+
+            Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
+
+            conn.Open();
+
+            using (var cmd_contents = conn.CreateCommand())
+            {
+                cmd_contents.CommandText = "UPDATE [tbl_miscstats] SET [count]=\"" + value + "\" WHERE [name]==\"mow\";";
+                var r = cmd_contents.ExecuteNonQuery();
+                
+                    Console.WriteLine(r.ToString());
+            }
+
+        }
+
+        private static int nwCountDogNoises()
+        {
+            Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
+
+            conn.Open();
+
+            int catnoisecount=0;
+
+            using (var cmd_contents = conn.CreateCommand())
+            {
+                cmd_contents.CommandText = "SELECT [count] FROM [tbl_miscstats] WHERE [name]==\"awoo\";";
+                var r = cmd_contents.ExecuteReader();
+
+                while (r.Read())
+                {
+                    catnoisecount = Convert.ToInt32(r["count"]);
+                }
+            }
+
+            return catnoisecount;
+        }
+
+        private static int nwCountCatNoises()
+        {
+            Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
+
+            conn.Open();
+
+            int catnoisecount=0;
+
+            using (var cmd_contents = conn.CreateCommand())
+            {
+                cmd_contents.CommandText = "SELECT [count] FROM [tbl_miscstats] WHERE [name]==\"mow\";";
+                var r = cmd_contents.ExecuteReader();
+
+                while (r.Read())
+                {
+                    catnoisecount = Convert.ToInt32(r["count"]);
+                }
+            }
+
+            return catnoisecount;
+        }
+
         private static void nwSetOffset(string value)
         {
             XmlDocument doc = new XmlDocument();
@@ -835,6 +995,7 @@ namespace nwTelegramBot
             // read configuration and extract api keys
             var wundergroundKey = nwGrabString("weatherapi");
             var exchangeKey = nwGrabString("exchangeapi");
+
             // Apparently Telegram sends usernames with extra characters on either side, that the bot hates
             // This should remove them.
             string s_username;
@@ -846,8 +1007,9 @@ namespace nwTelegramBot
             {
                 s_username = update.Message.From.FirstName; // Use firstname if username is null
             }
+
             // This one is to get the group type.
-            string s_chattype = update.Message.Chat.Type.ToString().Trim(' ').Trim('\r').Trim('\n');
+            ChatType ct = update.Message.Chat.Type;
 
             // Process request
             try
@@ -897,6 +1059,8 @@ namespace nwTelegramBot
                     }
 
                     var stringBuilder = new StringBuilder();
+
+                    //
 
                     switch (command.ToLowerInvariant())
                     {
@@ -967,9 +1131,10 @@ namespace nwTelegramBot
                         case "/backup":
 
                             // check to see if private message
-                            if (s_chattype == "Private")
+                            if (ct == ChatType.Private)
                             {
                                 bool b_kat = false;
+
                                 // check the username
                                 if (s_username != "AndyDingoFolf")
                                 {
@@ -1003,17 +1168,17 @@ namespace nwTelegramBot
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                            int n_catuse = nwGrabGlobalUsage("cat");
-                            int n_cat_uuse = nwGrabUserUsage(s_username, "cat");
-                            int n_cat_gmax = nwGrabGlobalMax("cat");
-                            int n_cat_umax = nwGrabUserMax("cat");
+                            int n_catuse = nwGrabGlobalUsageDB("cat");
+                            //int n_cat_uuse = nwGrabUserUsage(s_username, "cat");
+                            //int n_cat_gmax = nwGrabGlobalMax("cat");
+                            //int n_cat_umax = nwGrabUserMax("cat");
 
-                            if (n_catuse == n_cat_gmax || n_catuse == n_cat_umax)
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "Sorry, the /cat command has been used too many times.";
-                                break;
-                            }
+                            //if (n_catuse == n_cat_gmax || n_catuse == n_cat_umax)
+                            //{
+                            //    if (nwCheckInReplyTimer(dt) != false)
+                            //        s_replyToUser = "Sorry, the /cat command has been used too many times.";
+                            //    break;
+                            //}
 
                             // if it is okay to reply, do so.
                             if (nwCheckInReplyTimer(dt) != false)
@@ -1025,15 +1190,15 @@ namespace nwTelegramBot
                                 Console.WriteLine("The " + command + " failed as it took too long to process.");
                             }
 
-                            nwSetGlobalUsage("cat", n_catuse++); // set global usage incrementally
-                            nwSetUserUsage(s_username, "cat", n_cat_uuse++); // set this users usage incrementally
+                            nwSetGlobalUsageDB("cat", n_catuse++); // set global usage incrementally
+                            //nwSetUserUsage(s_username, "cat", n_cat_uuse++); // set this users usage incrementally
                             
                             break;
 
                         case "/die":
                         case "/kill":
 
-                            if (s_chattype == "Private")
+                            if (ct == ChatType.Private)
                             {
                                 if (s_username != "AndyDingoFolf")
                                 {
@@ -1061,7 +1226,7 @@ namespace nwTelegramBot
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (s_chattype == "Private")
+                            if (ct == ChatType.Private)
                             {
 
                                 if (nwCheckInReplyTimer(dt) != false)
@@ -1087,37 +1252,43 @@ namespace nwTelegramBot
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (s_username != "AndyDingoFolf" ||
-                                s_username != "Inflatophin")
+                            ChatMember[] cm_admin = await bot.GetChatAdministratorsAsync(update.Message.Chat.Id);
+
+                            foreach (ChatMember x in cm_admin)
                             {
 
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "You have insufficient permissions to access this command.";
-                                break;
-
-                            }
-                            else
-                            {
-
-                                if (nwCheckInReplyTimer(dt) != false)
+                                if (x.User.Username.Contains(s_username) != true)
                                 {
 
-                                    int meow;
-                                    meow = await bot.GetChatMembersCountAsync(-1001032131694);
-                                    s_replyToUser = "There are currently " + meow + " people in chat.";
+                                    if (nwCheckInReplyTimer(dt) != false)
+                                        replyText = "You have insufficient permissions to access this command.";
+                                    break;
 
                                 }
                                 else
                                 {
 
-                                    Console.WriteLine(" The " + command + " failed as it took too long to process.");
+                                    if (nwCheckInReplyTimer(dt) != false)
+                                    {
 
+                                        int meow;
+                                        meow = await bot.GetChatMembersCountAsync(-1001032131694);
+                                        s_replyToUser = "There are currently " + meow + " people in chat.";
+
+                                    }
+                                    else
+                                    {
+
+                                        Console.WriteLine(" The " + command + " failed as it took too long to process.");
+
+                                    }
+
+                                    break;
                                 }
 
                             }
 
                             break;
-
                         case "/help":
                         case "/commands":
 
@@ -1173,7 +1344,7 @@ namespace nwTelegramBot
 
                         case "/debug":
 
-                            if (s_chattype == "Private")
+                            if (ct == ChatType.Private)
                             {
                                 if (s_username != "AndyDingoFolf" || s_username != "Inflatophin")
                                 {
@@ -1202,6 +1373,13 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "/eeyup":
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                                s_replyToUser = "This command is not yet implemented.";
+
+                            break;
+
                         case "/edit":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
@@ -1224,8 +1402,8 @@ namespace nwTelegramBot
                             break;
 
                         case "/echo":
-                            
-                            if (s_chattype == "Private")
+
+                            if (ct == ChatType.Private)
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                 {
@@ -1257,6 +1435,11 @@ namespace nwTelegramBot
 
                             break;
 
+
+                        case "/fursona":
+
+                            break;
+
                         case "/jelly": // TODO: Finish this command
 
                             // usage /jelly [yes|no] leave blank and bot will repeat query.
@@ -1265,128 +1448,26 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/slap": // TODO: Finish this command
+                        case "/genstats":
 
-                            // usage /slap [nickname] bot will slap the person matching the nickname.
-                            // will return "yournickname slaps targetnickname around with [randomobject]
+                            nwGenerateStatsPage(update.Message.Chat.Id);
 
-                            int n_emouse = nwGrabGlobalUsage("emote");
-                            int n_emo_uuse = nwGrabUserUsage(s_username, "emote");
-                            int n_emo_gmax = nwGrabGlobalMax("emote");
-                            int n_emo_umax = nwGrabUserMax("emote");
-
-                            if (n_emouse == n_emo_gmax || n_emo_uuse == n_emo_umax)
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "Sorry, the /slap command has been used too many times.";
-
-                                break;
-
-                            }
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-                                if (body == string.Empty || body == " " || body == "@" || body == null)
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    replyText = "*@PFStats_bot slaps @" + s_username + " around a bit with a large trout!*";
-
-                                    nwSetGlobalUsage("emote", n_emouse++); // set global usage incrementally
-                                    nwSetUserUsage(s_username, "emote", n_emouse++); // set this users usage incrementally
-
-                                    break;
-
-                                }
-
-                                // Sanitise target string.
-                                string s_target = body;
-
-                                //break on empty strings
-                                if (s_target == string.Empty || s_target == " " || s_target == null)
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-                                    s_replyToUser = "No target was selected. Usage: /slap @username";
-                                    break;
-                                }
-
-                                if (s_username == string.Empty)
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-                                    s_replyToUser = "I'm sorry, I can't let you do that Dave";
-
-                                    nwSetGlobalUsage("emote", n_emouse++); // Write new value. // set global usage incrementally
-                                    nwSetUserUsage(s_username, "emote", n_emouse++); // set this users usage incrementally
-
-                                    break;
-                                }
-
-                                if (s_target != string.Empty)
-                                {
-                                    replyText = "*@" + s_username + " slaps @" + s_target + " around a bit with a large sea trout!*";
-                                }
-                                else
-                                {
-                                    replyText = "*@PFStats_bot slaps @" + s_username + " around a bit with a large sea trout!*";
-                                }
-                            }
-
-                            nwSetGlobalUsage("emote", n_emouse++); // Write new value. // set global usage incrementally
-                            nwSetUserUsage(s_username, "emote", n_emo_uuse++); // set this users usage incrementally
-
-                            break;
-
-                        case "/sfw":
-                        case "/safeforwork":
-
-                            int n_sfwuse = nwGrabGlobalUsage("sfw");
-                            int n_sfwmax1 = nwGrabGlobalMax("sfw");
-                            int n_sfwmax2 = nwGrabUserMax("sfw");
-
-                            if (n_sfwuse == n_sfwmax1 || n_sfwuse == n_sfwmax2)
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "Sorry, the /sfw command has been used too many times.";
-                                break;
-                            }
-
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadVideo);
-                            string s_fname = Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-                                // Create an instance of StreamReader to read from a file.
-                                // The using statement also closes the StreamReader.
-                                using (StreamReader sr = new StreamReader(s_fname))
-                                {
-                                    FileToSend fts = new FileToSend();
-                                    fts.Content = sr.BaseStream;
-                                    fts.Filename = Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
-                                    // Send to the channel
-                                    await bot.SendVideoAsync(update.Message.Chat.Id, fts, 0, "", false, update.Message.MessageId);
-                                }
-                                break;
-                            }
-
-                            nwSetGlobalUsage("sfw", n_sfwuse++); // Write new value. // set global usage incrementally
-                            nwSetUserUsage(s_username, "sfw", n_sfwuse++); // set this users usage incrementally
-                            
                             break;
 
                         case "/image": // TODO: Finish this command
 
-                            int n_imguse = nwGrabGlobalUsage("img"); // GLOBAL USAGE
-                            int n_img_uuse = nwGrabUserUsage(s_username, "img");
-                            int n_img_gmax = nwGrabGlobalMax("img"); // GLOBAL MAXIMUM
-                            int n_img_umax = nwGrabUserMax("img"); // USER MAXIMUM
+                            int n_imguse = nwGrabGlobalUsageDB("img"); // GLOBAL USAGE
+                            //int n_img_uuse = nwGrabUserUsage(s_username, "img");
+                            //int n_img_gmax = nwGrabGlobalMax("img"); // GLOBAL MAXIMUM
+                            //int n_img_umax = nwGrabUserMax("img"); // USER MAXIMUM
 
-                            if (n_imguse == n_img_gmax || n_img_uuse == n_img_umax)
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "Sorry, the /image command has been used too many times.";
+                            //if (n_imguse == n_img_gmax || n_img_uuse == n_img_umax)
+                            //{
+                            //    if (nwCheckInReplyTimer(dt) != false)
+                            //        s_replyToUser = "Sorry, the /image command has been used too many times.";
 
-                                break;
-                            }
+                            //    break;
+                            //}
 
                             if (body == string.Empty || body == " " || body == "@" || body == null)
                             {
@@ -1415,8 +1496,8 @@ namespace nwTelegramBot
 
                                 replyImage = luckyUrl;
 
-                                nwSetGlobalUsage("img", n_imguse++); // set global usage incrementally
-                                nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
+                                nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
+                                //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
 
                                 break;
 
@@ -1427,12 +1508,12 @@ namespace nwTelegramBot
                         case "/humour":
                         case "/joke": // TODO: Fix this command
 
-                            int n_jokeuse = nwGrabGlobalUsage("joke");
-                            int n_joke_uuse = nwGrabUserUsage(s_username, "joke");
+                            int n_jokeuse = nwGrabGlobalUsageDB("joke");
+                            //int n_joke_uuse = nwGrabUserUsage(s_username, "joke");
                             int n_joke_gmax = nwGrabGlobalMax("joke");
-                            int n_joke_umax = nwGrabUserMax("joke");
+                            //int n_joke_umax = nwGrabUserMax("joke");
 
-                            if (n_jokeuse == n_joke_gmax || n_joke_uuse == n_joke_umax)
+                            if (n_jokeuse == n_joke_gmax )//|| n_joke_uuse == n_joke_umax)
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     s_replyToUser = "Sorry, the /joke command has been used too many times.";
@@ -1463,19 +1544,26 @@ namespace nwTelegramBot
                                 Console.WriteLine("The " + command + " failed as it took too long to process.");
                             }
 
-                            nwSetGlobalUsage("joke", n_jokeuse++); // set global usage incrementally
-                            nwSetUserUsage(s_username, "joke", n_joke_uuse++); // set this users usage incrementally
+                            nwSetGlobalUsageDB("joke", n_jokeuse++); // set global usage incrementally
+                            //nwSetUserUsage(s_username, "joke", n_joke_uuse++); // set this users usage incrementally
+
+                            Task.Delay(150000);
+
+                            //using (Task mle=Task.Delay () { }
+
+                            bot.SendTextMessageAsync(update.Message.Chat.Id, "That was a joke, Shepherd.", false, false);
 
                             break;
+
                         case "/link":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                             if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "Chat link: https://telegram.me/joinchat/ByYWcALujRjo8iSlWvbYIw";
+                                s_replyToUser = "Chat link: https://telegram.me/joinchat/ByYWcD2FFG72gZK04d6lLg";
 
                             break;
-
+                            
                         case "/oo":
                         case "/optout":
 
@@ -1505,11 +1593,155 @@ namespace nwTelegramBot
                                 s_replyToUser = "Group rules: " + Environment.NewLine + "- All content (chat, images, stickers) must be SFW at all hours of the day." + Environment.NewLine + "- No flooding or spamming of ANY kind." + Environment.NewLine + "- Be nice to each other.";
                             break;
 
+                        case "/slap": // TODO: Finish this command
+
+                            // usage /slap [nickname] bot will slap the person matching the nickname.
+                            // will return "yournickname slaps targetnickname around with [randomobject]
+
+                            int n_emouse = nwGrabGlobalUsageDB("emote");
+                            int n_emo_uuse = nwGrabUserUsage(s_username, "emote");
+                            int n_emo_gmax = nwGrabGlobalMax("emote");
+                            int n_emo_umax = nwGrabUserMax("emote");
+
+                            if (n_emouse == n_emo_gmax || n_emo_uuse == n_emo_umax)
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    s_replyToUser = "Sorry, the /slap command has been used too many times.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+                                if (body == string.Empty || body == " " || body == "@" || body == null)
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    replyText = "*@PFStats_bot slaps @" + s_username + " around a bit with a large trout!*";
+
+                                    nwSetGlobalUsageDB("emote", n_emouse++); // set global usage incrementally
+                                    nwSetUserUsage(s_username, "emote", n_emouse++); // set this users usage incrementally
+
+                                    break;
+
+                                }
+
+                                // Sanitise target string.
+                                string s_target = body;
+
+                                //break on empty strings
+                                if (s_target == string.Empty || s_target == " " || s_target == null)
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+                                    s_replyToUser = "No target was selected. Usage: /slap @username";
+                                    break;
+                                }
+
+                                if (s_username == string.Empty)
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+                                    s_replyToUser = "I'm sorry, I can't let you do that Dave";
+
+                                    nwSetGlobalUsageDB("emote", n_emouse++); // Write new value. // set global usage incrementally
+                                    nwSetUserUsage(s_username, "emote", n_emouse++); // set this users usage incrementally
+
+                                    break;
+                                }
+
+                                if (s_target != string.Empty)
+                                {
+                                    replyText = "*@" + s_username + " slaps @" + s_target + " around a bit with a large sea trout!*";
+                                }
+                                else
+                                {
+                                    replyText = "*@PFStats_bot slaps @" + s_username + " around a bit with a large sea trout!*";
+                                }
+                            }
+
+                            nwSetGlobalUsageDB("emote", n_emouse++); // Write new value. // set global usage incrementally
+                            nwSetUserUsage(s_username, "emote", n_emo_uuse++); // set this users usage incrementally
+
+                            break;
+
+                        case "/sfw":
+                        case "/safeforwork":
+
+                            int n_sfwuse = nwGrabGlobalUsageDB("sfw");
+                            int n_sfwmax1 = nwGrabGlobalMax("sfw");
+                            int n_sfwmax2 = nwGrabUserMax("sfw");
+
+                            if (n_sfwuse == n_sfwmax1 || n_sfwuse == n_sfwmax2)
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    s_replyToUser = "Sorry, the /sfw command has been used too many times.";
+                                break;
+                            }
+
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadVideo);
+                            string s_fname = Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+                                // Create an instance of StreamReader to read from a file.
+                                // The using statement also closes the StreamReader.
+                                using (StreamReader sr = new StreamReader(s_fname))
+                                {
+                                    FileToSend fts = new FileToSend();
+                                    fts.Content = sr.BaseStream;
+                                    fts.Filename = Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
+                                    // Send to the channel
+                                    await bot.SendVideoAsync(update.Message.Chat.Id, fts, 0, "", false, update.Message.MessageId);
+                                }
+                                break;
+                            }
+
+                            nwSetGlobalUsageDB("sfw", n_sfwuse++); // Write new value. // set global usage incrementally
+                            nwSetUserUsage(s_username, "sfw", n_sfwuse++); // set this users usage incrementally
+
+                            break;
+
+                        case "/set":
+                        case "/settings":
+
+                            // TODO: This would ideally need to be one of any of the config file settings
+                            // Example of usage: /set -[option to set] -[new value]
+
+                            ChatMember[] cm_admin2 = await bot.GetChatAdministratorsAsync(update.Message.Chat.Id);
+
+                            foreach (ChatMember x in cm_admin2)
+                            {
+
+                                if (x.User.Username.Contains(s_username) != true)
+                                {
+
+                                    if (nwCheckInReplyTimer(dt) != false)
+                                        replyText = "You have insufficient permissions to access this command.";
+                                    break;
+
+                                }
+                                else
+                                {
+
+                                    if (nwCheckInReplyTimer(dt) != false)
+                                        replyText = "This command is not yet implemented.";
+                                    break;
+
+                                }
+
+                            }
+
+                            break;
+
+
                         case "/test":
 
-                            if (s_chattype == "Private")
+                            if (ct == ChatType.Private)
                             {
-                                
+
+                                int n = nwGrabGlobalUsageDB("total");
+                                replyText.ToString();
+
                                 // WAITING FOR THE NEXT TEST
 
                             }
@@ -1522,65 +1754,65 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/set":
-                        case "/settings":
-
-                            // TODO: This would ideally need to be one of any of the config file settings
-                            // Example of usage: /set -[option to set] -[new value]
-
-                            if (s_username != "AndyDingoFolf")
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "You have insufficient permissions to access this command.";
-
-                                break;
-                            }
-                            if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "This command is not yet implemented.";
-
-                            break;
-
-                        case "/eeyup":
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "This command is not yet implemented.";
-
-                            break;
-
                         case "/say":
 
-                            int n_sayuse = nwGrabGlobalUsage("say");
-                            int n_say_gmax = nwGrabGlobalMax("say");
+                            //int n_sayuse = nwGrabGlobalUsageDB("say");
+                            //int n_say_gmax = nwGrabGlobalMax("say");
 
-                            if (n_sayuse == n_say_gmax)
+                            // if (n_sayuse == n_say_gmax)
+                            //  {
+                            //      if (nwCheckInReplyTimer(dt) != false)
+                            //          s_replyToUser = "Sorry, the /say command has been used too many times.";
+                            //      break;
+                            //  }
+
+                            if (ct == ChatType.Private)
                             {
+
+                                //string[] stuff = nwGrabAdminsFromList(Environment.CurrentDirectory + @"\data\adminlist.txt");
+
+
+                                //foreach (string x in stuff)
+                                //{
+
+                                //if (x.Contains(s_username) != true)
+                                //{
+
+                                //    if (nwCheckInReplyTimer(dt) != false)
+                                //        replyText = "You have insufficient permissions to access this command.";
+                                //    break;
+
+                                //}
+                                //else
+                                //{
+
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "Sorry, the /say command has been used too many times.";
-                                break;
-                            }
+                                    //replyText2 = body;
+                                    await bot.SendTextMessageAsync(-1001032131694, body);
+                                //}
 
-                            if (s_chattype == "Private")
+                                //} 
+
+                            }
+                            else
                             {
-                                if (s_username != "AndyDingoFolf")
-                                {
-                                    if (nwCheckInReplyTimer(dt) != false)
-                                        s_replyToUser = "You have insufficient permissions to access this command.";
-                                    break;
-                                }
 
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText2 = body;
+                                    //replyText2 = body;
+                                    await bot.SendTextMessageAsync(-1001032131694, "Not working.");
+
                             }
 
-                            if (body.Length < 2)
-                            {
-                                break;
-                            }
+                            //if (body.Length > 2)
+                            //{
+                            //    break;
+                            //}
 
-                            nwSetGlobalUsage("say", n_sayuse++); // Write new value. // set global usage incrementally
+                            //nwSetGlobalUsage("say", n_sayuse++); // Write new value. // set global usage incrementally
 
                             break;
 
+                        case "/stat":
                         case "/stats": // change to /stats [week|month|year|alltime]
 
                             int n_statuse = nwGrabGlobalUsage("stats");
@@ -1705,6 +1937,7 @@ namespace nwTelegramBot
                             }
 
                             break;
+                        case "/ping":
                         //case "/em": // TODO: Finish this command
                         //    // usage /em -[action (see list of actions)] -[@username of target]
                         //    // performs an action on a target
@@ -1821,8 +2054,8 @@ namespace nwTelegramBot
 
                             if (nwCheckInReplyTimer(dt) != false)
                             {
-                            
-                                if (s_chattype == "Private")
+
+                                if (ct == ChatType.Private)
                                 {
 
                                     replyText = "Your permissions are listed below: " + Environment.NewLine + nwGetUserPermissions(s_username);
@@ -1852,13 +2085,13 @@ namespace nwTelegramBot
                         case "/about":
                         case "/info":
 
-                            int n_nfouse = nwGrabGlobalUsage("about");
+                            //int n_nfouse = nwGrabGlobalUsage("about");
 
                             if (nwCheckInReplyTimer(dt) != false)
                                 s_replyToUser = "PerthFurStats is the best bot" + Environment.NewLine + "Version " + cExtensions.nwGetFileVersionInfo.FileMajorPart + "." + cExtensions.nwGetFileVersionInfo.FileMinorPart + ", Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart + Environment.NewLine + "By @AndyDingoWolf" + Environment.NewLine + "This bot uses open source software.";
 
-                            nwSetGlobalUsage("about", n_nfouse++); // set global usage incrementally
-                            nwSetUserUsage(s_username, "about", n_nfouse++); // set this users usage incrementally
+                            //nwSetGlobalUsage("about", n_nfouse++); // set global usage incrementally
+                            //nwSetUserUsage(s_username, "about", n_nfouse++); // set this users usage incrementally
 
                             break;
 
@@ -1890,7 +2123,7 @@ namespace nwTelegramBot
                     }
 
                     // Add to total command use
-                    int totaluse = nwGrabGlobalUsage("total");
+                    int totaluse = nwGrabGlobalUsageDB("total");
                     totaluse++;
                     nwSetGlobalUsage("total", totaluse++);
 
@@ -2053,9 +2286,47 @@ namespace nwTelegramBot
             }
             catch (Exception ex)
             {
-                //nwErrorCatcher(ex);
+                nwErrorCatcher(ex);
             }
         }
+
+        private static void nwGenerateStatsPage(long id)
+        {
+            string result = id.ToString() + ".html";
+            var s_filename = Environment.CurrentDirectory + @"\logs_tg\#perthfurs.csv";
+            string[] log = File.ReadLines(s_filename).ToArray();
+
+            string bot = log.Count(c => c == ",Andy,").ToString();
+
+
+            var lineCount = 0;
+            using (var reader = File.OpenText(s_filename))
+            {
+                while (reader.ReadLine() != null)
+                {
+                    lineCount++;
+                }
+            }
+            Console.WriteLine("Line count: " + lineCount.ToString());
+
+
+
+        }
+
+        /// <summary>
+        /// Environment.CurrentDirectory + @"\data\adminlist.txt"
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        private static string[] nwGrabAdminsFromList(string filename)
+        {
+            string[] chosen = new string[] { "" };
+
+            chosen = File.ReadAllLines(filename);
+
+            return chosen;
+        }
+
 
         private static string nwRandomJokeLine()
         {
@@ -2419,7 +2690,7 @@ namespace nwTelegramBot
             DateTime startTime = dt; // message time
             TimeSpan span = endTime.Subtract(startTime);
 
-            nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: CHECK IN REPLY EVENT TRIGGERED.");
+            Console.WriteLine("[" + dt.ToString(nwParseFormat(true)) + "] * System: CHECK IN REPLY EVENT TRIGGERED.");
 
             if (span.Minutes <= 10 || span.Minutes == 0)
             {
@@ -2448,16 +2719,21 @@ namespace nwTelegramBot
         /// Catch an error, do a few things to it.
         /// </summary>
         /// <param name="ex"></param>
-        private static void nwErrorCatcher(Exception ex)
+        private static async Task nwErrorCatcher(Exception ex)
         {
+            DateTime curTime = DateTime.Now; // current time
+
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine + "* System: " + ex.StackTrace);
+            Console.WriteLine("-----------------------------------------------------------------------------");
+            Console.WriteLine("* System: Error has occurred at " + curTime.ToLongTimeString());
+            Console.WriteLine("* System: Error details: " + ex.HResult + " " + ex.Message + Environment.NewLine + "* System: " + ex.StackTrace);
             Console.ForegroundColor = ConsoleColor.Green;
 
             using (StreamWriter sw = new StreamWriter(Directory.GetCurrentDirectory() + @"\pfsTelegramBot.log", true))
             {
-                sw.WriteLine("-----------------------------------------------------------------------------");
-                sw.WriteLine("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine +
+                await sw.WriteLineAsync("-----------------------------------------------------------------------------");
+                await sw.WriteLineAsync("* System: Error has occurred at " + curTime.ToLongTimeString());
+                await sw.WriteLineAsync("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine +
                     "* System: Stack Trace: " + ex.StackTrace + Environment.NewLine +
                     "* System: Inner Exception: " + ex.InnerException + Environment.NewLine +
                     "* System: Inner Exception: " + ex.InnerException.Data.ToString() + Environment.NewLine +

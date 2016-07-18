@@ -244,3 +244,5 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 /pfsTelegramBot/data/Facebook-a3aff1.png
+/pfsTelegramBot/data/pfs_tgbot_data.db
+/pfsTelegramBot/data/pfs_tgbot.db
