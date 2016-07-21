@@ -13,13 +13,11 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Telegram.Bot;
@@ -592,7 +590,7 @@ namespace nwTelegramBot
                                     if (nwGrabString("botresponds") == "true" && umt.StartsWith("/") == true)
                                     {
                                         // Fix for work item #13
-                                        if (umt.Contains(me.Username) == true)
+                                        if (umt.Contains(me.Username) == true || update.Message.Chat.Type == ChatType.Private)
                                         {
                                             // TODO: MOVE ALL COMMANDS TO pfsCommandBot
                                             nwProcessSlashCommands(Bot, update, me, m).Wait(-1);
@@ -1741,7 +1739,7 @@ namespace nwTelegramBot
 
                                 int n = nwGrabGlobalUsageDB("total");
                                 replyText.ToString();
-
+                                nwTestColoredConsoleWrite(" mrew ");
                                 // WAITING FOR THE NEXT TEST
 
                             }
@@ -2088,7 +2086,7 @@ namespace nwTelegramBot
                             //int n_nfouse = nwGrabGlobalUsage("about");
 
                             if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "PerthFurStats is the best bot" + Environment.NewLine + "Version " + cExtensions.nwGetFileVersionInfo.FileMajorPart + "." + cExtensions.nwGetFileVersionInfo.FileMinorPart + ", Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart + Environment.NewLine + "By @AndyDingoWolf" + Environment.NewLine + "This bot uses open source software.";
+                                s_replyToUser = "PerthFurStats is the best bot" + Environment.NewLine + "Version " + cExtensions.nwGetFileVersionInfo.FileMajorPart + "." + cExtensions.nwGetFileVersionInfo.FileMinorPart + ", Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart + Environment.NewLine + "By @AndyDingoWolf" + Environment.NewLine + "GitHub: https://github.com/AndyDingo/PerthFurStats_TelegramBot" + Environment.NewLine + "This bot uses open source software.";
 
                             //nwSetGlobalUsage("about", n_nfouse++); // set global usage incrementally
                             //nwSetUserUsage(s_username, "about", n_nfouse++); // set this users usage incrementally
@@ -2715,11 +2713,18 @@ namespace nwTelegramBot
             Console.ForegroundColor = ConsoleColor.Green;
         }
 
+        public static void nwTestColoredConsoleWrite(string text)
+        {
+            ColoredConsoleWrite(ConsoleColor.Yellow, "Meow");
+            ColoredConsoleWrite(ConsoleColor.Cyan, text);
+            ColoredConsoleWrite(ConsoleColor.DarkGray, "Meow");
+        }
+
         /// <summary>
         /// Catch an error, do a few things to it.
         /// </summary>
         /// <param name="ex"></param>
-        private static async Task nwErrorCatcher(Exception ex)
+        private static void nwErrorCatcher(Exception ex)
         {
             DateTime curTime = DateTime.Now; // current time
 
@@ -2731,9 +2736,9 @@ namespace nwTelegramBot
 
             using (StreamWriter sw = new StreamWriter(Directory.GetCurrentDirectory() + @"\pfsTelegramBot.log", true))
             {
-                await sw.WriteLineAsync("-----------------------------------------------------------------------------");
-                await sw.WriteLineAsync("* System: Error has occurred at " + curTime.ToLongTimeString());
-                await sw.WriteLineAsync("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine +
+                 sw.WriteLine("-----------------------------------------------------------------------------");
+                 sw.WriteLine("* System: Error has occurred at " + curTime.ToLongTimeString());
+                 sw.WriteLine("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine +
                     "* System: Stack Trace: " + ex.StackTrace + Environment.NewLine +
                     "* System: Inner Exception: " + ex.InnerException + Environment.NewLine +
                     "* System: Inner Exception: " + ex.InnerException.Data.ToString() + Environment.NewLine +
