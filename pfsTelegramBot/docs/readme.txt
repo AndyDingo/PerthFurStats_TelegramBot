@@ -1,7 +1,7 @@
 ﻿NW's TELEGRAM BOT -Readme-
 ============================================================================================
 
-VERSION: 1.0.0.68
+VERSION: 1.0.0.75
 FOR: WINDOWS 8/10+
 LAST UPDATED ON: 
 LAST UPDATED BY: ANDYDINGOWOLF
@@ -57,7 +57,8 @@ All original content is © 2016 AndyDingo and contributors.
 
 This program is licensed in accordance with the GPL. a copy of the GPL is included with this distribution and may be viewed in the 'docs' directory. Please view gpl.txt for more information.
 
-Uses the Telegram.Bot C# Library by MrRoundRobin.
+Uses the Telegram.Bot C# API library by MrRoundRobin.
+Uses the Newtonsoft.Json C# API library.
 
 +==================================+
 6. CREDITS

@@ -1,7 +1,7 @@
 ﻿NW's TELEGRAM BOT -Changelog-
 ============================================================================================
 
-VERSION: 1.0.0.68
+VERSION: 1.0.0.75
 FOR: WINDOWS 8/10+
 LAST UPDATED ON: 
 LAST UPDATED BY: ANDYDINGOWOLF
@@ -13,7 +13,15 @@ Note: All changes go in this log file under the version those
 changes were made for. Newest Changes generally go first.
 +==================================+
 
-Version 0.66 ALPHA
+Version 0.75 ALPHA
+------------------------------------
+- implemented /me command. [AndyDingo]
+- fixed the say command. [AndyDingo]
+- changed the settings command to only work in private. [AndyDingo]
+- a few other settings have been changed to only work in private. [AndyDingo]
+- security fixes. [AndyDingo]
+
+Version 0.68 ALPHA
 ------------------------------------
 - More jokes added to jokes list. [AndyDingo]
 - More improvements to joke command. [AndyDingo]

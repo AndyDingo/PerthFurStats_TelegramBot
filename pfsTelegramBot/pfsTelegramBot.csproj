@@ -86,7 +86,6 @@
     <Compile Include="cDiceBag.cs" />
     <Compile Include="cExtensions.cs" />
     <Compile Include="cSettings.cs" />
-    <Compile Include="cZalgo.cs" />
     <Compile Include="cZipBackup.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProHttpClient.cs" />
@@ -119,9 +118,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="data\censorlist.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="data\commandlist.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
