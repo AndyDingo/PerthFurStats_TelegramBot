@@ -1249,39 +1249,42 @@ namespace nwTelegramBot
                         case "/count":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                            ChatMember[] cm_admin = await bot.GetChatAdministratorsAsync(update.Message.Chat.Id);
-
-                            foreach (ChatMember x in cm_admin)
+                            if (ct != ChatType.Private)
                             {
+                                ChatMember[] cm_admin = await bot.GetChatAdministratorsAsync(update.Message.Chat.Id);
 
-                                if (x.User.Username.Contains(s_username) != true)
+                                foreach (ChatMember x in cm_admin)
                                 {
 
-                                    if (nwCheckInReplyTimer(dt) != false)
-                                        replyText = "You have insufficient permissions to access this command.";
-                                    break;
-
-                                }
-                                else
-                                {
-
-                                    if (nwCheckInReplyTimer(dt) != false)
+                                    if (x.User.Username.Contains(s_username) != true)
                                     {
 
-                                        int meow;
-                                        meow = await bot.GetChatMembersCountAsync(-1001032131694);
-                                        s_replyToUser = "There are currently " + meow + " people in chat.";
+                                        if (nwCheckInReplyTimer(dt) != false)
+                                            replyText = "You have insufficient permissions to access this command.";
+                                        break;
 
                                     }
                                     else
                                     {
 
-                                        Console.WriteLine(" The " + command + " failed as it took too long to process.");
+                                        if (nwCheckInReplyTimer(dt) != false)
+                                        {
 
+                                            int meow;
+                                            meow = await bot.GetChatMembersCountAsync(-1001032131694);
+                                            s_replyToUser = "There are currently " + meow + " people in chat.";
+
+                                        }
+                                        else
+                                        {
+
+                                            Console.WriteLine(" The " + command + " failed as it took too long to process.");
+
+                                        }
+
+                                        break;
                                     }
 
-                                    break;
                                 }
 
                             }
@@ -1704,7 +1707,7 @@ namespace nwTelegramBot
 
                             // TODO: This would ideally need to be one of any of the config file settings
                             // Example of usage: /set -[option to set] -[new value]
-
+                            
                             ChatMember[] cm_admin2 = await bot.GetChatAdministratorsAsync(update.Message.Chat.Id);
 
                             foreach (ChatMember x in cm_admin2)
@@ -1892,7 +1895,13 @@ namespace nwTelegramBot
                                 break;
 
                             }
+
                         case "/start":
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                                s_replyToUser = "This bot does not need to be started in this fashion, see /command for a list of commands.";
+                            break;
+
                         case "/greet":
                         case "/greeting":
 
@@ -1903,6 +1912,7 @@ namespace nwTelegramBot
                             }
 
                             break;
+
                         case "/meme":
 
                             if (body == string.Empty || body == " " || body == "@" || body == null)
