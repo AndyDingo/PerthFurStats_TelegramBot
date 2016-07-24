@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.75
+ * Version   : 1.0.0.76
  */
 
 using Newtonsoft.Json.Linq;
@@ -992,7 +992,7 @@ namespace nwTelegramBot
         {
             // read configuration and extract api keys
             var wundergroundKey = nwGrabString("weatherapi");
-            var exchangeKey = nwGrabString("exchangeapi");
+            string exchangeKey = "";
 
             // Apparently Telegram sends usernames with extra characters on either side, that the bot hates
             // This should remove them.
@@ -2023,6 +2023,9 @@ namespace nwTelegramBot
 
                             replyText = nwRandomGreeting() + ". This command is coming soon.";
 
+                            exchangeKey = nwGrabString("exchangeapi");
+
+                            //https://www.exchangerate-api.com/AUD/USD?k=4a9ee4be2f2c0675d0417e64
                             string exo = httpClient.DownloadString("https://www.exchangerate-api.com/AUD/USD?k=" + exchangeKey).Result;
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "1 USD = " + exo + " AUD";
