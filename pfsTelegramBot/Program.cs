@@ -587,18 +587,18 @@ namespace nwTelegramBot
                                         string umt = update.Message.Text;
 
                                     //If we have set the bot to be able to respond to our basic commands
-                                    if (nwGrabString("botresponds") == "true" && umt.StartsWith("/") == true)
+                                    if (nwGrabString("botresponds") == "true" && (umt.StartsWith("/") == true || umt.StartsWith("!") == true))
                                     {
                                         // Fix for work item #13
-                                        if (umt.Contains(me.Username) == true || update.Message.Chat.Type == ChatType.Private)
-                                        {
-                                            // TODO: MOVE ALL COMMANDS TO pfsCommandBot
-                                            nwProcessSlashCommands(Bot, update, me, m).Wait(-1);
-                                        }
-                                        else
-                                        {
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: This command isn't intended for me, ignoring.");
-                                        }
+                                        //if (umt.Contains(me.Username) == true || update.Message.Chat.Type == ChatType.Private)
+                                        //{
+                                        // TODO: MOVE ALL COMMANDS TO pfsCommandBot
+                                        nwProcessSlashCommands(Bot, update, me, m).Wait(-1);
+                                        //}
+                                        //else
+                                        //{
+                                        //nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: This command isn't intended for me, ignoring.");
+                                        //}
                                     }
 
                                     if (umt.Contains("Mow") == true || umt.Contains("mow") == true || umt.Contains("mrew") == true || umt.Contains("mjau") == true || umt.Contains("maow") == true || umt.Contains("meow") == true)
@@ -629,7 +629,7 @@ namespace nwTelegramBot
                                         }
 
 
-                                    if (nwGrabString("botresponds") == "false" && update.Message.Text.StartsWith("/") == true)
+                                    if (nwGrabString("botresponds") == "false" && (umt.StartsWith("/") == true || umt.StartsWith("!") == true))
                                     {
                                         if (nwGrabString("debugMode") == "true")
                                             nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has attempted to use a command, but they were disabled.");
@@ -1291,6 +1291,7 @@ namespace nwTelegramBot
 
                             break;
                         case "/help":
+                        case "/command":
                         case "/commands":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
@@ -1707,26 +1708,31 @@ namespace nwTelegramBot
 
                             // TODO: This would ideally need to be one of any of the config file settings
                             // Example of usage: /set -[option to set] -[new value]
-                            
-                            ChatMember[] cm_admin2 = await bot.GetChatAdministratorsAsync(update.Message.Chat.Id);
 
-                            foreach (ChatMember x in cm_admin2)
+                            if (ct != ChatType.Private )
                             {
 
-                                if (x.User.Username.Contains(s_username) != true)
+                                ChatMember[] cm_admin2 = await bot.GetChatAdministratorsAsync(update.Message.Chat.Id);
+
+                                foreach (ChatMember x in cm_admin2)
                                 {
 
-                                    if (nwCheckInReplyTimer(dt) != false)
-                                        replyText = "You have insufficient permissions to access this command.";
-                                    break;
+                                    if (x.User.Username.Contains(s_username) != true)
+                                    {
 
-                                }
-                                else
-                                {
+                                        if (nwCheckInReplyTimer(dt) != false)
+                                            replyText = "You have insufficient permissions to access this command.";
+                                        break;
 
-                                    if (nwCheckInReplyTimer(dt) != false)
-                                        replyText = "This command is not yet implemented.";
-                                    break;
+                                    }
+                                    else
+                                    {
+
+                                        if (nwCheckInReplyTimer(dt) != false)
+                                            replyText = "This command is not yet implemented.";
+                                        break;
+
+                                    }
 
                                 }
 
@@ -1770,29 +1776,30 @@ namespace nwTelegramBot
                             if (ct == ChatType.Private)
                             {
 
-                                //string[] stuff = nwGrabAdminsFromList(Environment.CurrentDirectory + @"\data\adminlist.txt");
+                                string[] stuff = nwGrabAdminsFromList(Environment.CurrentDirectory + @"\data\adminlist.txt");
 
 
-                                //foreach (string x in stuff)
-                                //{
+                                foreach (string x in stuff)
+                                {
 
-                                //if (x.Contains(s_username) != true)
-                                //{
+                                    if (x.Contains(s_username) != true)
+                                    {
 
-                                //    if (nwCheckInReplyTimer(dt) != false)
-                                //        replyText = "You have insufficient permissions to access this command.";
-                                //    break;
+                                        if (nwCheckInReplyTimer(dt) != false)
+                                            replyText = "You have insufficient permissions to access this command.";
+                                        break;
 
-                                //}
-                                //else
-                                //{
+                                    }
+                                    else
+                                    {
 
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    //replyText2 = body;
-                                    await bot.SendTextMessageAsync(-1001032131694, body);
-                                //}
+                                        if (nwCheckInReplyTimer(dt) != false)
+                                            //replyText2 = body;
+                                            await bot.SendTextMessageAsync(-1001032131694, body);
+                                        break;
+                                    }
 
-                                //} 
+                                }
 
                             }
                             else
@@ -1801,6 +1808,7 @@ namespace nwTelegramBot
                                 if (nwCheckInReplyTimer(dt) != false)
                                     //replyText2 = body;
                                     await bot.SendTextMessageAsync(-1001032131694, "Not working.");
+                                break;
 
                             }
 
@@ -1984,25 +1992,29 @@ namespace nwTelegramBot
                         //    nwSetUserString(update.Message.From.FirstName + "/cmd_counts/emote", Convert.ToString(emuse++));
                         //    break;
                         //case "/action":
-                        //case "/me": // TODO: Finish this command
-                        //            // performs an action on the caller
-                        //            // usage /em -[action (see list of actions)]
-                        //            //usage
-                        //    emuse = nwGrabInt("cusage/emote");
-                        //    int n_memax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/emote");
-                        //    int n_memax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/emote");
+                        case "/me": // TODO: Finish this command
+                                    // performs an action on the caller
+                                    // usage /em -[action (see list of actions)]
+                                    //            //usage
+                                    //    emuse = nwGrabInt("cusage/emote");
+                                    //    int n_memax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/emote");
+                                    //    int n_memax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/emote");
 
-                        //    if (body == string.Empty || body == " ")
-                        //    {
-                        //        break;
-                        //    }
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                        //    replyText = nwRandomGreeting() + ". This command is coming soon. *pokes @TsarTheErmine *";
+                            if (body == string.Empty || body == " ")
+                            {
+                                break;
+                            }
 
-                        //    nwSetString("cusage/emote", Convert.ToString(emuse++));
-                        //    nwSetUserString(update.Message.From.FirstName + "/cmd_counts/emote", Convert.ToString(emuse++));
+                            replyText = "*" + update.Message.From.Username + " " + body + "*";
 
-                        //    break;
+                            //    replyText = nwRandomGreeting() + ". This command is coming soon. *pokes @TsarTheErmine *";
+
+                            //    nwSetString("cusage/emote", Convert.ToString(emuse++));
+                            //    nwSetUserString(update.Message.From.FirstName + "/cmd_counts/emote", Convert.ToString(emuse++));
+
+                            break;
 
                         case "/exchange":
                         case "/rate":

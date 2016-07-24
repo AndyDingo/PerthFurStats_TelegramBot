@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <events>
   <event>
-    <id>100</id>
-    <url>http://www.perthfurs.net/events/view/100</url>
-    <title>Perth Furs Interactive Picnic. Mark 2!</title>
-    <location>Port Kennedy</location>
-    <start>2016-07-16 12:00:00</start>
-  </event>
-  <event>
     <id>102</id>
     <url>http://www.perthfurs.net/events/view/102</url>
     <title>CaFURnated XV: CaFURnation Overwhelming</title>
@@ -27,6 +20,13 @@
     <title>F.A.R 5: Further Phones Required (18+)</title>
     <location>Court Hotel</location>
     <start>2016-08-07 14:00:00</start>
+  </event>
+  <event>
+    <id>105</id>
+    <url>http://www.perthfurs.net/events/view/105</url>
+    <title>CaFURnated XVI: Endless CaFURnation</title>
+    <location>Miss Maud Carillon City Arcade</location>
+    <start>2016-08-28 11:30:00</start>
   </event>
   <event>
     <id>104</id>
@@ -49,5 +49,12 @@
     <title>Furwag 2016!</title>
     <location>Metro Hotel Perth</location>
     <start>2016-09-30 00:00:00</start>
+  </event>
+  <event>
+    <id></id>
+    <url>http://thisisnotavalid.url</url>
+    <title>Andy's Birthday BBQ</title>
+    <location>Stirling Civic Gardens</location>
+    <start>2016-11-27 12:00:00</start>
   </event>
 </events>
