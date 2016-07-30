@@ -888,14 +888,13 @@ namespace nwTelegramBot
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="lastuser"></param>
         private static void nwSetDogNoiseCount(int value, string lastuser)
         {
-
-
-
-
-
-
 
             Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
 
@@ -911,6 +910,11 @@ namespace nwTelegramBot
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="lastuser"></param>
         private static void nwSetCatNoiseCount(int value, string lastuser)
         {
 
@@ -972,6 +976,10 @@ namespace nwTelegramBot
             return catnoisecount;
         }
 
+        /// <summary>
+        /// Set the chat message offset.
+        /// </summary>
+        /// <param name="value">the new offset.</param>
         private static void nwSetOffset(string value)
         {
             XmlDocument doc = new XmlDocument();
@@ -1438,7 +1446,10 @@ namespace nwTelegramBot
                             break;
 
 
-                        case "/fursona":
+                        case "/profile":
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                                replyText = "This command is not yet implemented.";
 
                             break;
 
@@ -1549,11 +1560,11 @@ namespace nwTelegramBot
                             nwSetGlobalUsageDB("joke", n_jokeuse++); // set global usage incrementally
                             //nwSetUserUsage(s_username, "joke", n_joke_uuse++); // set this users usage incrementally
 
-                            Task.Delay(150000);
+                            //Task.Delay(150000);
 
                             //using (Task mle=Task.Delay () { }
 
-                            bot.SendTextMessageAsync(update.Message.Chat.Id, "That was a joke, Shepherd.", false, false);
+                            //bot.SendTextMessageAsync(update.Message.Chat.Id, "That was a joke, Shepherd.", false, false);
 
                             break;
 
@@ -1593,6 +1604,7 @@ namespace nwTelegramBot
 
                             if (nwCheckInReplyTimer(dt) != false)
                                 s_replyToUser = "Group rules: " + Environment.NewLine + "- All content (chat, images, stickers) must be SFW at all hours of the day." + Environment.NewLine + "- No flooding or spamming of ANY kind." + Environment.NewLine + "- Be nice to each other.";
+
                             break;
 
                         case "/slap": // TODO: Finish this command

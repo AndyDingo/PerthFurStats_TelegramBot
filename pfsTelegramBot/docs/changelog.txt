@@ -13,8 +13,9 @@ Note: All changes go in this log file under the version those
 changes were made for. Newest Changes generally go first.
 +==================================+
 
-Version 0.75 ALPHA
+Version 0.76 ALPHA
 ------------------------------------
+- Fix /rate command [AndyDingo]
 - implemented /me command. [AndyDingo]
 - fixed the say command. [AndyDingo]
 - changed the settings command to only work in private. [AndyDingo]

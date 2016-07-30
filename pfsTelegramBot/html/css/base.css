@@ -1,3 +1,49 @@
-﻿body
+﻿@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&lang=en");
+
+html
 {
+    font-family:sans-serif;
+    -ms-text-size-adjust:100%;
+    -webkit-text-size-adjust:100%
 }
+body
+{
+    margin:0
+}
+a:active,a:hover
+{
+    outline:0
+}
+div
+{
+	
+}
+div.container
+{
+	height:100%
+}
+
+div.body
+{
+	height:88%
+}
+div.header,div.footer
+{
+    height:11%
+}
+.home
+{
+
+}
+#wrapper
+{
+	width: 100%;
+	overflow-x: hidden;
+}
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+	font-family: inherit;
+	font-weight: 500;
+	line-height: 1.1;
+	color: inherit;
+}
+

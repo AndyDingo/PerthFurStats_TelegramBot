@@ -29,7 +29,7 @@ This Telegram bot is a bot for the Perthfurs Safe for work Telegram group chat, 
 2. REQUIREMENTS
 +==================================+
 
-Source Code requires Microsoft .NET Fraamework 4.5.2 to be installed and Visual Studio 2015, as well as several nuget packages.
+Source Code requires Microsoft .NET Framework 4.5.2 to be installed and Visual Studio 2015, as well as several nuget packages.
 
 Binaries require Microsoft .NET Fraamework 4.5.2 to be installed, on Windows 8.1 or better.
 
@@ -71,6 +71,7 @@ Thanks to:
 Telegram Bot API - Telegram
 Telegram.Bot C# Library - MrRoundRobin
 Telegram.Bot C# Example Bot - MrRoundRobin
+Exchange rate api is thanks to https://www.exchangerate-api.com/
 
 
 EOF
