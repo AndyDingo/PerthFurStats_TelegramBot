@@ -1333,7 +1333,7 @@ namespace nwTelegramBot
 
                                 // Create a new string builder
                                 StringBuilder eventString = new StringBuilder();
-                                eventString.AppendLine("Here is a list of upcoming events. Times are in GMT +8:00.");
+                                eventString.AppendLine("Here is a list of upcoming (public) events. Times are in GMT +8:00.");
 
                                 // Iterate through available events
                                 for (var i1for = 0; i1for < nodes.Count; i1for++)
@@ -1748,6 +1748,32 @@ namespace nwTelegramBot
 
                                 }
 
+                            }
+                            else
+                            {
+                                string[] stuff1 = nwGrabAdminsFromList(Environment.CurrentDirectory + @"\data\adminlist.txt");
+
+
+                                foreach (string x in stuff1)
+                                {
+
+                                    if (x.Contains(s_username) != true)
+                                    {
+
+                                        if (nwCheckInReplyTimer(dt) != false)
+                                            replyText = "You have insufficient permissions to access this command.";
+                                        break;
+
+                                    }
+                                    else
+                                    {
+
+                                        if (nwCheckInReplyTimer(dt) != false)
+                                            replyText = "This command is not yet implemented.";
+                                        break;
+                                    }
+
+                                }
                             }
 
                             break;
@@ -2419,6 +2445,26 @@ namespace nwTelegramBot
                 }
 
             }
+
+        }
+
+        public static void nwLoadXML(string username)
+        {
+            XmlDocument document = new XmlDocument();
+
+            if (!File.Exists(username + ".xml"))
+            {
+                //Populate with data here if necessary, then save to make sure it exists
+                document.Save(username + ".xml");
+            }
+            else
+            {
+                //We know it exists so we can load it
+                document.Load(username + ".xml");
+            }
+
+            //Continue to work with document
+
 
         }
 

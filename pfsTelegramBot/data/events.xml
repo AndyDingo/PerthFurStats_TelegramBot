@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <events>
   <event>
-    <id>102</id>
-    <url>http://www.perthfurs.net/events/view/102</url>
-    <title>CaFURnated XV: CaFURnation Overwhelming</title>
-    <location>Miss Maud Carillon City Arcade</location>
-    <start>2016-07-31 11:30:00</start>
-  </event>
-  <event>
     <id>97</id>
     <url>http://www.perthfurs.net/events/view/97</url>
     <title>South Perth Foreshore Meet</title>
@@ -28,6 +21,13 @@
     <location>Miss Maud Carillon City Arcade</location>
     <start>2016-08-28 11:30:00</start>
   </event>
+	<event>
+		<id>106</id>
+		<url>http://www.perthfurs.net/events/view/106</url>
+		<title>F.A.R. 6: Why is the rum always gone? (18+)</title>
+		<location>Court Hotel</location>
+		<start>2016-09-04 14:00:00</start>
+	</event>
   <event>
     <id>104</id>
     <url>http://www.perthfurs.net/events/view/104</url>
@@ -41,7 +41,6 @@
     <title>FurWag BBQ!</title>
     <location>McCallum Park. South Perth</location>
     <start>2016-09-29 17:00:00</start>
-    <end>2016-09-29 20:00:00</end>
   </event>
   <event>
     <id>90</id>
@@ -52,8 +51,22 @@
   </event>
   <event>
     <id></id>
+    <url>https://www.facebook.com/events/128816207558341/</url>
+    <title>CaFURnated XVII: Virtual CaFURnation</title>
+    <location>Miss Maud Carillon City Arcade</location>
+    <start>2016-10-30 11:30:00</start>
+  </event>
+  <event>
+    <id></id>
     <url>http://thisisnotavalid.url</url>
-    <title>Andy's Birthday BBQ</title>
+    <title>F.A.R. 7: Beer, Wine, Spirits (18+)</title>
+    <location>Court Hotel</location>
+    <start>2016-11-06 14:00:00</start>
+  </event>
+  <event>
+    <id></id>
+    <url>http://thisisnotavalid.url</url>
+    <title>PerthFurBBQ/Andy's Birthday</title>
     <location>Stirling Civic Gardens</location>
     <start>2016-11-27 12:00:00</start>
   </event>
