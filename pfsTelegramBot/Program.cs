@@ -2087,6 +2087,9 @@ namespace nwTelegramBot
                             weatherString.AppendLine("Air temperature; " + d_weather.observations.data[0].air_temp.ToString());
                             weatherString.AppendLine("Dew point; " + d_weather.observations.data[0].dewpt.ToString());
                             weatherString.AppendLine("Humidity; " + d_weather.observations.data[0].rel_hum.ToString());
+
+                            // insert rain chance here?
+
                             weatherString.AppendLine("Rain since 9am; " + d_weather.observations.data[0].rain_trace.ToString());
                             weatherString.AppendLine("Wind speed; " + d_weather.observations.data[0].wind_spd_kmh.ToString() + "kph , Gusting up to " + d_weather.observations.data[0].gust_kmh.ToString()+ "kph");
                             weatherString.AppendLine("Wind direction; " + d_weather.observations.data[0].wind_dir.ToString() + "");
@@ -2096,7 +2099,50 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "/warn":
+                        case "/warning":
+                            // TODO : FINISH THIS COMMAND.
+
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                            if (body == string.Empty || body == " ")
+                            {
+                                break;
+                            }
+
+                            if (ct == ChatType.Private)
+                            {
+
+                                string[] stuff = nwGrabAdminsFromList(Environment.CurrentDirectory + @"\data\adminlist.txt");
+
+
+                                foreach (string x in stuff)
+                                {
+
+                                }
+                            }
+                            else
+                            {
+                                replyText = "This command only works in private messages.";
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                                replyText = "Sorry, the /stat command has been used too many times.";
+
+                            break;
                         case "/wiki":
+                            // TODO : Finish this command.
+
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                            if (body == string.Empty || body == " ")
+                            {
+                                break;
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                                replyText = "Sorry, the /stat command has been used too many times.";
+
                             break;
                         case "/user": // TODO : Finish this command
                             // This command returns a users permission level.
