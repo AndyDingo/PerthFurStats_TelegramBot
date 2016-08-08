@@ -31,6 +31,32 @@ div.header,div.footer
 {
     height:11%
 }
+div.contentblock01,div.contentblock02,div.contentblock03,div.contentblock04
+{
+	width:50%,
+	display:inline-block;
+}
+div.contentblock01,div.contentblock03
+{
+	float: right;
+	background-color:#CCFFCC
+}
+div.contentblock02,div.contentblock04
+{
+	float: left;
+	background-color:#FFCCFF
+}
+.flex {
+        /* basic styling */
+        width: 350px;
+        height: 200px;
+        border: 1px solid #555;
+        font: 14px Arial;
+
+        /* flexbox setup */
+        display: flex;
+        flex-direction: row;
+    }
 .home
 {
 

@@ -1,20 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <events>
   <event>
-    <id>97</id>
-    <url>http://www.perthfurs.net/events/view/97</url>
-    <title>South Perth Foreshore Meet</title>
-    <location>South Perth Foreshore</location>
-    <start>2016-08-06 11:00:00</start>
-  </event>
-  <event>
-    <id>103</id>
-    <url>http://www.perthfurs.net/events/view/103</url>
-    <title>F.A.R 5: Further Phones Required (18+)</title>
-    <location>Court Hotel</location>
-    <start>2016-08-07 14:00:00</start>
-  </event>
-  <event>
     <id>105</id>
     <url>http://www.perthfurs.net/events/view/105</url>
     <title>CaFURnated XVI: Endless CaFURnation</title>
@@ -62,12 +48,5 @@
     <title>F.A.R. 7: Beer, Wine, Spirits (18+)</title>
     <location>Court Hotel</location>
     <start>2016-11-06 14:00:00</start>
-  </event>
-  <event>
-    <id></id>
-    <url>http://thisisnotavalid.url</url>
-    <title>PerthFurBBQ/Andy's Birthday</title>
-    <location>Stirling Civic Gardens</location>
-    <start>2016-11-27 12:00:00</start>
   </event>
 </events>

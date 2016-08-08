@@ -116,6 +116,9 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="runbot.bat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="data\commandlist.xml">

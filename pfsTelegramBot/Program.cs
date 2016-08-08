@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.78
+ * Version   : 1.0.0.80
  */
 
 using Newtonsoft.Json.Linq;
@@ -2069,8 +2069,7 @@ namespace nwTelegramBot
                                 replyText = "1 USD = " + exo + " AUD";
 
                             break;
-
-                        case "/forecast":
+                            
                         case "/weather": // TODO - change to BOM api
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
@@ -2090,7 +2089,7 @@ namespace nwTelegramBot
 
                             // insert rain chance here?
 
-                            weatherString.AppendLine("Rain since 9am; " + d_weather.observations.data[0].rain_trace.ToString());
+                            weatherString.AppendLine("Rain since 9am; " + d_weather.observations.data[0].rain_trace.ToString() + "mm");
                             weatherString.AppendLine("Wind speed; " + d_weather.observations.data[0].wind_spd_kmh.ToString() + "kph , Gusting up to " + d_weather.observations.data[0].gust_kmh.ToString()+ "kph");
                             weatherString.AppendLine("Wind direction; " + d_weather.observations.data[0].wind_dir.ToString() + "");
                             weatherString.AppendLine("This data is refreshed every 10 mins.");
@@ -2098,6 +2097,39 @@ namespace nwTelegramBot
                             replyText = weatherString.ToString();
 
                             break;
+
+                        case "/forecast":
+                        case "/weather2":
+                           
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+                                XmlDocument dok = new XmlDocument();
+                                dok.Load("ftp://ftp.bom.gov.au/anon/gen/fwo/IDW12400.xml");
+                                DateTime dta1 = new DateTime(2016, 4, 1);
+                                dta1 = DateTime.Now;
+
+                                // Get our nodes
+                                XmlNodeList wnodes;
+                                wnodes = dok.GetElementsByTagName("forecast-period");
+
+                                // Create a new string builder
+                                StringBuilder wString = new StringBuilder();
+                                wString.AppendLine("Forecast for:");
+
+                                // Iterate through available days
+                                for (var i1for = 0; i1for < wnodes.Count; i1for++)
+                                {
+                                    dta1 = Convert.ToDateTime(wnodes.Item(i1for).Attributes["start-time-local"].Value);
+
+                                    wString.AppendLine(dta1.ToString("ddd d/MM/yyy") + ": " + wnodes.Item(i1for).SelectSingleNode("text").InnerText); // + " [" + pfn_events.url.ToString() + "]");
+                                }
+
+                                replyText = wString.ToString();
+                            }
+
+                                break;
 
                         case "/warn":
                         case "/warning":
