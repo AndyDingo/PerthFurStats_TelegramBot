@@ -1,7 +1,7 @@
 ﻿NW's TELEGRAM BOT -Changelog-
 ============================================================================================
 
-VERSION: 1.0.0.78
+VERSION: 1.0.0.80
 FOR: WINDOWS 8/10+
 LAST UPDATED ON: 
 LAST UPDATED BY: ANDYDINGOWOLF
@@ -13,8 +13,9 @@ Note: All changes go in this log file under the version those
 changes were made for. Newest Changes generally go first.
 +==================================+
 
-Version 0.76 ALPHA
+Version 0.80 ALPHA
 ------------------------------------
+- Fixed crash when a deleted message is quoted.
 - Fix /rate command [AndyDingo]
 - implemented /me command. [AndyDingo]
 - fixed the say command. [AndyDingo]

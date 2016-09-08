@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.80
+ * Version   : 1.0.0.82
  */
 
 using Newtonsoft.Json.Linq;
@@ -1587,6 +1587,37 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "/quote":
+
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+                            
+                            if (nwCheckInReplyTimer(dt) != false)
+                                replyText = "This command is not yet implemented.";
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+                                string textomatic1 = nwRandomQuoteLine();
+
+                                string[] s_mysplit1 = new string[] { "", "", "" };
+                                string[] s_mysep1 = new string[] { "\\r", "\\n" };
+                                s_mysplit1 = textomatic1.Split(s_mysep1, StringSplitOptions.RemoveEmptyEntries);
+
+                                StringBuilder quotesb = new StringBuilder();
+
+                                foreach (string s_meow1 in s_mysplit1)
+                                {
+                                    quotesb.AppendLine(s_meow1);
+                                }
+
+                                replyText = quotesb.ToString();
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
+
+                            break;
+
                         case "/roll":
                         case "/diceroll":
 
@@ -2429,6 +2460,31 @@ namespace nwTelegramBot
             }
         }
 
+        private static string nwRandomQuoteLine()
+        {
+            string chosen = null;
+            string file_chosen = null;
+            var rng = new Random();
+            int indicator = 0;
+
+            string[] fileEntries = Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg");
+
+            file_chosen = fileEntries[new Random().Next(0, fileEntries.Length)];
+
+            using (var reader = File.OpenText(file_chosen))
+            {
+                while (reader.ReadLine() != null)
+                {
+                    if (rng.Next(++indicator) == 0)
+                    {
+                        chosen = reader.ReadLine();
+                    }
+                    indicator++;
+                }
+            }
+            return chosen;
+        }
+
         private static void nwGenerateStatsPage(long id)
         {
             string result = id.ToString() + ".html";
@@ -2593,7 +2649,6 @@ namespace nwTelegramBot
             XmlElement username = GetChildByName(root, s_username, doc);
 
             XmlElement keystone = GetChildByName(username, key, doc);
-
 
             doc.SelectSingleNode("commands/" + s_username + "/" + key).InnerText = value.ToString();
             doc.Save(s_commandcfg);
