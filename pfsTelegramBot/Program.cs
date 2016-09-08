@@ -530,11 +530,11 @@ namespace nwTelegramBot
                             DateTime m = update.Message.Date.ToLocalTime();
 
                             //remove unsightly characters from first names.
-                            string ss = update.Message.From.FirstName;
-                            ss = Regex.Replace(ss, @"[^\u0000-\u007F]", string.Empty);
+                            string s_mffn = update.Message.From.FirstName;
+                            s_mffn = Regex.Replace(s_mffn, @"[^\u0000-\u007F]", string.Empty);
 
-                            if (ss.Contains(" ") == true)
-                                ss.Replace(" ", string.Empty);
+                            if (s_mffn.Contains(" ") == true)
+                                s_mffn.Replace(" ", string.Empty);
 
                             // Do stuff if we are a text message
                             switch (message.Type)
@@ -545,17 +545,17 @@ namespace nwTelegramBot
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has shared the contact information of " + update.Message.Contact.FirstName);
+                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + update.Message.Contact.FirstName);
                                         else
-                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has shared the contact information of " + update.Message.Contact.FirstName);
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has shared the contact information of " + update.Message.Contact.FirstName);
+                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + update.Message.Contact.FirstName);
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + update.Message.Contact.FirstName);
                                     }
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
                                         using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id.ToString() + ".csv", true))
                                         {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Contact information sharing of " + update.Message.Contact.FirstName);
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Contact information sharing of " + update.Message.Contact.FirstName);
                                         }
                                     }
 
@@ -566,17 +566,17 @@ namespace nwTelegramBot
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has shared a document of type: " + update.Message.Document.MimeType);
+                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + update.Message.Document.MimeType);
                                         else
-                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has shared a document of type: " + update.Message.Document.MimeType);
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has shared a document of type: " + update.Message.Document.MimeType);
+                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + update.Message.Document.MimeType);
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + update.Message.Document.MimeType);
                                     }
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
                                         using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
                                         {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Document sharing of type " + update.Message.Document.MimeType);
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Document sharing of type " + update.Message.Document.MimeType);
                                         }
                                     }
 
@@ -605,10 +605,10 @@ namespace nwTelegramBot
                                     {
 
                                         int n_cat = nwCountCatNoises();
-                                        nwSetCatNoiseCount(n_cat++, ss);
+                                        nwSetCatNoiseCount(n_cat++, s_mffn);
 
                                         if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has mowed, increase mow count.");
+                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has mowed, increase mow count.");
 
                                     }
 
@@ -616,10 +616,10 @@ namespace nwTelegramBot
                                     {
 
                                         int n_dog = nwCountDogNoises();
-                                        nwSetDogNoiseCount(n_dog++, ss);
+                                        nwSetDogNoiseCount(n_dog++, s_mffn);
 
                                         if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has barked, increase bark count.");
+                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
 
                                     }
 
@@ -632,25 +632,25 @@ namespace nwTelegramBot
                                     if (nwGrabString("botresponds") == "false" && (umt.StartsWith("/") == true || umt.StartsWith("!") == true))
                                     {
                                         if (nwGrabString("debugMode") == "true")
-                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has attempted to use a command, but they were disabled.");
+                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has attempted to use a command, but they were disabled.");
                                         else
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has attempted to use a command, but they were disabled, along with debug mode.");
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has attempted to use a command, but they were disabled, along with debug mode.");
                                     }
 
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "<" + update.Message.From.FirstName + "> " + update.Message.Text);
+                                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_mffn + "> " + update.Message.Text);
                                         else
-                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + update.Message.From.FirstName + "> " + update.Message.Text);
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + update.Message.From.FirstName + "> " + update.Message.Text);
+                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_mffn + "> " + update.Message.Text);
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_mffn + "> " + update.Message.Text);
                                     }
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
                                         using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
                                         {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + update.Message.Text);
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + update.Message.Text);
                                         }
                                     }
 
@@ -673,7 +673,7 @@ namespace nwTelegramBot
                                     {
                                         using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
                                         {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Unknown message");
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Unknown message");
                                         }
                                     }
 
@@ -683,16 +683,16 @@ namespace nwTelegramBot
 
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
-                                        nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* System: A user (" + update.Message.From.FirstName + ") has joined or left the group.");
+                                        nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* System: A user (" + s_mffn + ") has joined or left the group.");
 
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has joined or left the group!");
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has joined or left the group!");
                                     }
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
                                         using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
                                         {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "System message");
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "System message");
                                         }
                                     }
 
@@ -704,11 +704,11 @@ namespace nwTelegramBot
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " posted about a location.");
+                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " posted about a location.");
                                         else
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " posted about a location.");
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " posted about a location.");
 
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted about a location.");
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted about a location.");
                                     }
 
                                     break;
@@ -719,11 +719,11 @@ namespace nwTelegramBot
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " posted about a venue on Foursquare.");
+                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " posted about a venue on Foursquare.");
                                         else
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " posted about a venue on Foursquare.");
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " posted about a venue on Foursquare.");
 
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted about a venue on Foursquare.");
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted about a venue on Foursquare.");
                                     }
 
                                     break;
@@ -736,11 +736,11 @@ namespace nwTelegramBot
                                         string s = update.Message.Sticker.Emoji;
 
                                         if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a sticker that represents the " + s + " emoticon.");
+                                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
                                         else
-                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a sticker that represents the " + s + " emoticon.");
+                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
 
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a sticker that represents the " + s + " emoticon.");
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
                                     }
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
@@ -750,7 +750,7 @@ namespace nwTelegramBot
                                             // download the emoji for the image, if there is one. Added in May API update.
                                             string s = update.Message.Sticker.Emoji;
 
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Sticker message (" + s + ")");
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Sticker message (" + s + ")");
                                         }
                                     }
 
@@ -763,17 +763,17 @@ namespace nwTelegramBot
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a voice message.");
+                                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a voice message.");
                                         else
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a voice message.");
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a voice message.");
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a voice message.");
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a voice message.");
                                     }
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
                                         using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
                                         {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Voice message");
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Voice message");
                                         }
                                     }
 
@@ -786,17 +786,17 @@ namespace nwTelegramBot
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a video message.");
+                                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a video message.");
                                         else
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a video message.");
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a video message.");
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a video message.");
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a video message.");
                                     }
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
                                         using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
                                         {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Video message");
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Video message");
                                         }
                                     }
 
@@ -816,18 +816,18 @@ namespace nwTelegramBot
                                         if (s == string.Empty || s == null || s == "" || s == "/n")
                                         {
                                             if (nwGrabString("debugmode") == "true")
-                                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a photo with no caption.");
+                                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a photo with no caption.");
                                             else
-                                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a photo with no caption.");
-                                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a photo with no caption.");
+                                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a photo with no caption.");
+                                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a photo with no caption.");
                                         }
                                         else
                                         {
                                             if (nwGrabString("debugmode") == "true")
-                                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a photo with the caption '" + s + "'.");
+                                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a photo with the caption '" + s + "'.");
                                             else
-                                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted a photo with the caption '" + s + "'.");
-                                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted a photo with the caption '" + s + "'.");
+                                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a photo with the caption '" + s + "'.");
+                                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a photo with the caption '" + s + "'.");
                                         }
                                     }
 
@@ -835,7 +835,7 @@ namespace nwTelegramBot
                                     {
                                         using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
                                         {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Photo message");
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Photo message");
                                         }
                                     }
 
@@ -848,17 +848,17 @@ namespace nwTelegramBot
                                     using (StreamWriter sw = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + update.Message.From.FirstName + " has posted an audio message.");
+                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted an audio message.");
                                         else
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted an audio message.");
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + update.Message.From.FirstName + " has posted an audio message.");
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted an audio message.");
+                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted an audio message.");
                                     }
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
                                         using (StreamWriter sw1 = new StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + nwGrabString("filename") + ".csv", true))
                                         {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + update.Message.From.FirstName + "," + "Audio message");
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Audio message");
                                         }
                                     }
 
