@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.82
+ * Version   : 1.0.0.85
  */
 
 using Newtonsoft.Json.Linq;
@@ -1590,9 +1590,6 @@ namespace nwTelegramBot
                         case "/quote":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-                            
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "This command is not yet implemented.";
 
                             if (nwCheckInReplyTimer(dt) != false)
                             {
@@ -1609,7 +1606,7 @@ namespace nwTelegramBot
                                     quotesb.AppendLine(s_meow1);
                                 }
 
-                                replyText = quotesb.ToString();
+                                replyText = "" + quotesb.ToString();
                             }
                             else
                             {
@@ -1643,19 +1640,19 @@ namespace nwTelegramBot
                             // usage /slap [nickname] bot will slap the person matching the nickname.
                             // will return "yournickname slaps targetnickname around with [randomobject]
 
-                            int n_emouse = nwGrabGlobalUsageDB("emote");
-                            int n_emo_uuse = nwGrabUserUsage(s_username, "emote");
-                            int n_emo_gmax = nwGrabGlobalMax("emote");
-                            int n_emo_umax = nwGrabUserMax("emote");
+                            //int n_emouse = nwGrabGlobalUsageDB("emote");
+                            //int n_emo_uuse = nwGrabUserUsage(s_username, "emote");
+                            //int n_emo_gmax = nwGrabGlobalMax("emote");
+                            //int n_emo_umax = nwGrabUserMax("emote");
 
-                            if (n_emouse == n_emo_gmax || n_emo_uuse == n_emo_umax)
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "Sorry, the /slap command has been used too many times.";
+                            //if (n_emouse == n_emo_gmax || n_emo_uuse == n_emo_umax)
+                            //{
+                            //    if (nwCheckInReplyTimer(dt) != false)
+                            //        s_replyToUser = "Sorry, the /slap command has been used too many times.";
 
-                                break;
+                            //    break;
 
-                            }
+                            //}
 
                             if (nwCheckInReplyTimer(dt) != false)
                             {
@@ -1665,8 +1662,8 @@ namespace nwTelegramBot
 
                                     replyText = "*@PFStats_bot slaps @" + s_username + " around a bit with a large trout!*";
 
-                                    nwSetGlobalUsageDB("emote", n_emouse++); // set global usage incrementally
-                                    nwSetUserUsage(s_username, "emote", n_emouse++); // set this users usage incrementally
+                                    //nwSetGlobalUsageDB("emote", n_emouse++); // set global usage incrementally
+                                    //nwSetUserUsage(s_username, "emote", n_emouse++); // set this users usage incrementally
 
                                     break;
 
@@ -1688,8 +1685,8 @@ namespace nwTelegramBot
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
                                     s_replyToUser = "I'm sorry, I can't let you do that Dave";
 
-                                    nwSetGlobalUsageDB("emote", n_emouse++); // Write new value. // set global usage incrementally
-                                    nwSetUserUsage(s_username, "emote", n_emouse++); // set this users usage incrementally
+                                    //nwSetGlobalUsageDB("emote", n_emouse++); // Write new value. // set global usage incrementally
+                                    //nwSetUserUsage(s_username, "emote", n_emouse++); // set this users usage incrementally
 
                                     break;
                                 }
@@ -1704,8 +1701,8 @@ namespace nwTelegramBot
                                 }
                             }
 
-                            nwSetGlobalUsageDB("emote", n_emouse++); // Write new value. // set global usage incrementally
-                            nwSetUserUsage(s_username, "emote", n_emo_uuse++); // set this users usage incrementally
+                            //nwSetGlobalUsageDB("emote", n_emouse++); // Write new value. // set global usage incrementally
+                            //nwSetUserUsage(s_username, "emote", n_emo_uuse++); // set this users usage incrementally
 
                             break;
 
