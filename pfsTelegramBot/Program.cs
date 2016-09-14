@@ -1591,6 +1591,15 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "/owo":
+
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                                s_replyToUser = "What's this?";
+
+                            break;
+
                         case "/quote":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
@@ -1603,24 +1612,29 @@ namespace nwTelegramBot
                                 fchosen = fileEntries[new Random().Next(0, fileEntries.Length)];
 
                                 string textomatic1 = nwRandomQuoteLine(fchosen);
+
+                                // If our code doesn't contain our test string
+                                if(textomatic1.Contains("Test message. Do not report."))
+                                    textomatic1 = nwRandomQuoteLine(fchosen);
+
                                 string sayrandom = nwRandomSaidLine();
 
                                 string[] s_mysplit1 = new string[] { "", "", "" };
                                 string[] s_mysplit2 = new string[] { "", "", "" };
-                                int[] n_mysplit = new int[] { 2016, 9, 1,0,0 };
+                                int[] n_mysplit = new int[] { 2016, 9, 1, 0, 0 };
                                 string[] s_mysep1 = new string[] { "\\r", "\\n","[","] <","> " };
                                 string[] s_splitfile = new string[] { "." };
 
                                 s_mysplit1 = textomatic1.Split(s_mysep1, StringSplitOptions.RemoveEmptyEntries);
                                 s_mysplit2 = fchosen.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
 
-                                n_mysplit[0] = Convert.ToInt32(s_mysplit2[1].Substring(0, 4));
-                                n_mysplit[1] = Convert.ToInt32(s_mysplit2[1].Substring(4, 2));
-                                n_mysplit[2] = Convert.ToInt32(s_mysplit2[1].Substring(7));
-                                n_mysplit[3] = Convert.ToInt32(s_mysplit1[0].Substring(0, 2));
-                                n_mysplit[4] = Convert.ToInt32(s_mysplit1[0].Substring(2));
+                                n_mysplit[0] = Convert.ToInt32(s_mysplit2[1].Substring(0, 4)); // YEAR
+                                n_mysplit[1] = Convert.ToInt32(s_mysplit2[1].Substring(4, 2)); // MONTH
+                                n_mysplit[2] = Convert.ToInt32(s_mysplit2[1].Substring(6)); // DAY
+                                n_mysplit[3] = Convert.ToInt32(s_mysplit1[0].Substring(0, 2)); // HOUR
+                                n_mysplit[4] = Convert.ToInt32(s_mysplit1[0].Substring(3, 2)); // MINUTE
 
-                                DateTime mdt = new DateTime(n_mysplit[0], n_mysplit[1], n_mysplit[2]);
+                                DateTime mdt = new DateTime(n_mysplit[0], n_mysplit[1], n_mysplit[2], n_mysplit[3], n_mysplit[4], 0);
 
                                 StringBuilder quotesb = new StringBuilder();
 
@@ -1633,7 +1647,7 @@ namespace nwTelegramBot
 
                                 //File.
 
-                                replyText= String.Format("On {0}, at {1}, the user \"{2}\" {3} the following: " + Environment.NewLine + "{4}", mdt.ToShortDateString(), s_mysplit1[0], s_mysplit1[1], sayrandom, s_mysplit1[2]);
+                                replyText= String.Format("On {0}, at {1}, the user \"{2}\" {3} the following: " + Environment.NewLine + "{4}", mdt.ToString("ddd d/MM/yyy"), mdt.ToShortTimeString(), s_mysplit1[1], sayrandom, s_mysplit1[2]);
                             }
                             else
                             {
@@ -1840,7 +1854,7 @@ namespace nwTelegramBot
                             {
 
                                 int n = nwGrabGlobalUsageDB("total");
-                                replyText.ToString();
+                                replyText=n.ToString();
                                 nwTestColoredConsoleWrite(" mrew ");
                                 // WAITING FOR THE NEXT TEST
 
@@ -2471,6 +2485,10 @@ namespace nwTelegramBot
                 nwErrorCatcher(ex);
             }
             catch (AggregateException ex)
+            {
+                nwErrorCatcher(ex);
+            }
+            catch (FormatException ex)
             {
                 nwErrorCatcher(ex);
             }

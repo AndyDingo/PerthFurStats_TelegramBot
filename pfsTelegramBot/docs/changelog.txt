@@ -13,9 +13,17 @@ Note: All changes go in this log file under the version those
 changes were made for. Newest Changes generally go first.
 +==================================+
 
+Version 0.86 BETA
+------------------------------------
+- Expanded quote command. [AndyDingo]
+- Added OwO command. [AndyDingo]
+- Spelling and grammar fixes. [AndyDingo]
+- Bug fixes. [AndyDingo]
+
 Version 0.85 ALPHA
 ------------------------------------
-- Fixed crash when a deleted message is quoted.
+- Added quote command. [AndyDingo]
+- Fixed crash when a deleted message is quoted. [AndyDingo]
 - Fix /rate command [AndyDingo]
 - implemented /me command. [AndyDingo]
 - fixed the say command. [AndyDingo]
