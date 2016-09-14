@@ -92,6 +92,10 @@ namespace nwTelegramBot
             {
                 nwErrorCatcher(ex);
             }
+            catch (XmlException ex)
+            {
+                nwErrorCatcher(ex);
+            }
             catch (AggregateException ex)
             {
                 nwErrorCatcher(ex);
@@ -1593,20 +1597,43 @@ namespace nwTelegramBot
 
                             if (nwCheckInReplyTimer(dt) != false)
                             {
-                                string textomatic1 = nwRandomQuoteLine();
+                                string fchosen = null;
+                                string[] fileEntries = Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg");
+
+                                fchosen = fileEntries[new Random().Next(0, fileEntries.Length)];
+
+                                string textomatic1 = nwRandomQuoteLine(fchosen);
+                                string sayrandom = nwRandomSaidLine();
 
                                 string[] s_mysplit1 = new string[] { "", "", "" };
-                                string[] s_mysep1 = new string[] { "\\r", "\\n" };
+                                string[] s_mysplit2 = new string[] { "", "", "" };
+                                int[] n_mysplit = new int[] { 2016, 9, 1,0,0 };
+                                string[] s_mysep1 = new string[] { "\\r", "\\n","[","] <","> " };
+                                string[] s_splitfile = new string[] { "." };
+
                                 s_mysplit1 = textomatic1.Split(s_mysep1, StringSplitOptions.RemoveEmptyEntries);
+                                s_mysplit2 = fchosen.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
+
+                                n_mysplit[0] = Convert.ToInt32(s_mysplit2[1].Substring(0, 4));
+                                n_mysplit[1] = Convert.ToInt32(s_mysplit2[1].Substring(4, 2));
+                                n_mysplit[2] = Convert.ToInt32(s_mysplit2[1].Substring(7));
+                                n_mysplit[3] = Convert.ToInt32(s_mysplit1[0].Substring(0, 2));
+                                n_mysplit[4] = Convert.ToInt32(s_mysplit1[0].Substring(2));
+
+                                DateTime mdt = new DateTime(n_mysplit[0], n_mysplit[1], n_mysplit[2]);
 
                                 StringBuilder quotesb = new StringBuilder();
 
-                                foreach (string s_meow1 in s_mysplit1)
-                                {
-                                    quotesb.AppendLine(s_meow1);
-                                }
+                                //foreach (string s_meow1 in s_mysplit1)
+                                //{
+                                //    quotesb.AppendLine(s_meow1);
+                                //}
 
-                                replyText = "" + quotesb.ToString();
+                                //replyText = "" + quotesb.ToString();
+
+                                //File.
+
+                                replyText= String.Format("On {0}, at {1}, the user \"{2}\" {3} the following: " + Environment.NewLine + "{4}", mdt.ToShortDateString(), s_mysplit1[0], s_mysplit1[1], sayrandom, s_mysplit1[2]);
                             }
                             else
                             {
@@ -2457,16 +2484,29 @@ namespace nwTelegramBot
             }
         }
 
-        private static string nwRandomQuoteLine()
+        private static string nwRandomSaidLine()
+        {
+            int i = cDiceBag.Instance.d4(1);
+            switch (i)
+            {
+                case 1:
+                    return "said";
+                case 2:
+                    return "quipped";
+                case 3:
+                    return "typed";
+                case 4:
+                    return "posted";
+                default:
+                    return "wrote";
+            }
+        }
+
+        private static string nwRandomQuoteLine(string file_chosen)
         {
             string chosen = null;
-            string file_chosen = null;
             var rng = new Random();
             int indicator = 0;
-
-            string[] fileEntries = Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg");
-
-            file_chosen = fileEntries[new Random().Next(0, fileEntries.Length)];
 
             using (var reader = File.OpenText(file_chosen))
             {
@@ -2474,7 +2514,10 @@ namespace nwTelegramBot
                 {
                     if (rng.Next(++indicator) == 0)
                     {
-                        chosen = reader.ReadLine();
+                        if (reader.ReadLine().Contains("] <") == true)
+                            chosen = reader.ReadLine();
+                        else
+                            chosen = "[00:00] <PerthFurStats> Test message. Do not report.";
                     }
                     indicator++;
                 }
@@ -2702,7 +2745,7 @@ namespace nwTelegramBot
                 case 8:
                     return "Can't decide.";
                 case 9:
-                    return "Maybe, In  a few weeks, if you're lucky.";
+                    return "Maybe, In a few weeks, if you're lucky.";
                 case 10:
                     return "If your mommy says it is OK.";
                 case 11:
