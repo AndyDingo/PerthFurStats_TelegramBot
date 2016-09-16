@@ -26,6 +26,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using File = System.IO.File;
 using Mew = System.Data.SQLite;
+using Tweetinvi;
 
 namespace nwTelegramBot
 {
@@ -1868,6 +1869,18 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "/twitter":
+
+                            Auth.SetUserCredentials("CONSUMER_KEY", "CONSUMER_SECRET", "ACCESS_TOKEN", "ACCESS_TOKEN_SECRET");
+
+                            TweetinviEvents.QueryBeforeExecute += (sender, args) =>
+                            {
+                                Console.WriteLine(args.QueryURL);
+                            };
+
+
+                            break;
+
                         case "/say":
 
                             //int n_sayuse = nwGrabGlobalUsageDB("say");
@@ -1947,7 +1960,7 @@ namespace nwTelegramBot
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular usage: /stats -[week|month|year|alltime|archive|commands]";
+                                    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular usage: /stats [week|fortnight|month|year|alltime|archive|commands]";
 
                                 nwSetGlobalUsage("stats", n_statuse++); // set global usage incrementally
                                 nwSetUserUsage(s_username, "stats", n_statuse++); // set this users usage incrementally
