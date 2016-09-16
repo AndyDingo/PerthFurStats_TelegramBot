@@ -39,8 +39,9 @@ namespace nwTelegramBot
         #region -= VARIABLES =-
         public static string s_logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log"; // error log
         public static string s_cfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.cfg"; // Main config
-        public static string s_ucfgfile = Environment.CurrentDirectory + @"\pfsPermConfig.cfg"; // User config
+        public static string s_ucfgfile = Environment.CurrentDirectory + @"\pfsPermConfig.cfg"; // User perm config
         public static string s_botdb = Environment.CurrentDirectory + @"\data\pfs_tgbot.db"; // User config
+        public static string s_twitterapi = Environment.CurrentDirectory + @"\data\pfsTwitterCfg.cfg"; // Twitter API config
         public static string s_offsetcfg = Environment.CurrentDirectory + @"\data\offset.xml"; // User config
         public static string s_commandcfg = Environment.CurrentDirectory + @"\data\commandlist.xml"; // User config
         #endregion
@@ -1873,14 +1874,20 @@ namespace nwTelegramBot
                             string ckey1, ckey2;
                             string akey1, akey2;
 
-                            Auth.SetUserCredentials("CONSUMER_KEY", "CONSUMER_SECRET", "ACCESS_TOKEN", "ACCESS_TOKEN_SECRET");
+                            ckey1 = nwGrabTwitterApiKey("ckey");
+                            ckey2 = nwGrabTwitterApiKey("ckeys");
+                            akey1 = nwGrabTwitterApiKey("akey");
+                            akey2 = nwGrabTwitterApiKey("akeys");
+
+
+                            Auth.SetUserCredentials(ckey1, ckey2, akey1, akey2);
 
                             TweetinviEvents.QueryBeforeExecute += (sender, args) =>
                             {
                                 Console.WriteLine(args.QueryURL);
                             };
 
-                            nwPublishTweet(string.Format("I love tweetinvi! ({0})", Guid.NewGuid()));
+                            nwPublishTweet(string.Format("This is a test message posted using PerthFurStats's new Twitter API features! IGNORE."));
 
 
                             break;
@@ -2519,12 +2526,42 @@ namespace nwTelegramBot
             }
         }
 
+        /// <summary>
+        /// Grab Twitter API keys
+        /// </summary>
+        /// <param name="key">the name of the key to grab</param>
+        /// <returns>the keys value.</returns>
+        private static string nwGrabTwitterApiKey(string key)
+        {
+            XmlDocument doc = new XmlDocument();
+            string s = "";
+
+            doc.Load(s_twitterapi);
+
+            if (doc.SelectSingleNode("config/" + key) != null)
+            {
+
+                s = doc.SelectSingleNode("config/" + key).InnerText;
+                return s;
+
+            }
+            else { return ""; }
+        }
+
+        /// <summary>
+        /// Publish the tweet
+        /// </summary>
+        /// <param name="text"></param>
         private static void nwPublishTweet(string text)
         {
             var tweet = Tweet.PublishTweet(text);
             Console.WriteLine(tweet.IsTweetPublished);
         }
 
+        /// <summary>
+        /// Adds randomness to the quote command.
+        /// </summary>
+        /// <returns></returns>
         private static string nwRandomSaidLine()
         {
             int i = cDiceBag.Instance.d4(1);
@@ -2663,25 +2700,25 @@ namespace nwTelegramBot
 
         }
 
-        public static void nwLoadXML(string username)
-        {
-            XmlDocument document = new XmlDocument();
+        //public static void nwLoadXML(string username)
+        //{
+        //    XmlDocument document = new XmlDocument();
 
-            if (!File.Exists(username + ".xml"))
-            {
-                //Populate with data here if necessary, then save to make sure it exists
-                document.Save(username + ".xml");
-            }
-            else
-            {
-                //We know it exists so we can load it
-                document.Load(username + ".xml");
-            }
+        //    if (!File.Exists(username + ".xml"))
+        //    {
+        //        //Populate with data here if necessary, then save to make sure it exists
+        //        document.Save(username + ".xml");
+        //    }
+        //    else
+        //    {
+        //        //We know it exists so we can load it
+        //        document.Load(username + ".xml");
+        //    }
 
-            //Continue to work with document
+        //    //Continue to work with document
 
 
-        }
+        //}
 
         private static string nwRollDice(string s_username, DateTime dt, string body)
         {
