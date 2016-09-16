@@ -630,6 +630,9 @@ namespace nwTelegramBot
 
                                         if (update.Message.Text.Contains("Eeyup") == true || update.Message.Text.Contains("eeyup") == true)
                                         {
+                                        string s_rande = null;
+                                        s_rande = nwGenRandomSuffix();
+
                                             Bot.SendTextMessageAsync(update.Message.Chat.Id, "Eeyup", false, false, update.Message.MessageId);
                                         }
 
@@ -881,6 +884,7 @@ namespace nwTelegramBot
 
                             break;
                         case UpdateType.InlineQueryUpdate:
+                            //nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: User tried an Inline query.");
                             break;
                         default:
                             //nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: Find out how we got to this point.");
@@ -891,6 +895,11 @@ namespace nwTelegramBot
 
             }
 
+        }
+
+        private static string nwGenRandomSuffix()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -1614,9 +1623,14 @@ namespace nwTelegramBot
 
                                 string textomatic1 = nwRandomQuoteLine(fchosen);
 
+                                blah:
+
                                 // If our code doesn't contain our test string
-                                if(textomatic1.Contains("Test message. Do not report."))
+                                if (textomatic1.Contains("Test message. Do not report."))
+                                {
                                     textomatic1 = nwRandomQuoteLine(fchosen);
+                                    goto blah;
+                                }
 
                                 string sayrandom = nwRandomSaidLine();
 
@@ -2700,26 +2714,6 @@ namespace nwTelegramBot
 
         }
 
-        //public static void nwLoadXML(string username)
-        //{
-        //    XmlDocument document = new XmlDocument();
-
-        //    if (!File.Exists(username + ".xml"))
-        //    {
-        //        //Populate with data here if necessary, then save to make sure it exists
-        //        document.Save(username + ".xml");
-        //    }
-        //    else
-        //    {
-        //        //We know it exists so we can load it
-        //        document.Load(username + ".xml");
-        //    }
-
-        //    //Continue to work with document
-
-
-        //}
-
         private static string nwRollDice(string s_username, DateTime dt, string body)
         {
             string tst1 = "";
@@ -2850,38 +2844,6 @@ namespace nwTelegramBot
                     return "Yes, now give the screen a little kiss.";
             }
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        private static string nwRandom8BallResponse2()
-        {
-            int i = cDiceBag.Instance.d8(1);
-
-            switch (i)
-            {
-                case 1:
-                    return "Outcome is as likely as my not caring about it";
-                case 2:
-                    return "Chances are good.... if you're a betting person";
-                case 3:
-                    return "Pfft, You wish.";
-                case 4:
-                    return "You've got to be kidding.";
-                case 5:
-                    return "Ask me if I care";
-                case 6:
-                    return "Dear god no.";
-                case 7:
-                    return "Not in a million years.";
-                case 8:
-                    return "Can't decide.";
-                default:
-                    return "Yes, now give the screen a little kiss.";
-            }
-        }
-
 
         private static string GetHtmlCode(string s_topic)
         {
