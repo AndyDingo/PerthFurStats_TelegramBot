@@ -1,7 +1,7 @@
 ﻿NW's TELEGRAM BOT -Changelog-
 ============================================================================================
 
-VERSION: 1.0.0.89
+VERSION: 1.0.0.90
 FOR: WINDOWS 8/10+
 LAST UPDATED ON: 
 LAST UPDATED BY: ANDYDINGOWOLF
@@ -13,9 +13,14 @@ Note: All changes go in this log file under the version those
 changes were made for. Newest Changes generally go first.
 +==================================+
 
-Version 0.89 BETA
+Version 0.90 BETA
 ------------------------------------
 - Removed obsolete code. [AndyDingo]
+- quote command can be restricted to users. [AndyDingo]
+- More ground work to allow use on multiple channels at once. [AndyDingo]
+- GIF command. [AndyDingo]
+- Edits to image command. [AndyDingo]
+- /meme, /image and /gif have been altered to check the validity of the files they're about to post. If they aren't valid, they should attempt to repost. [AndyDingo]
 - Spelling and grammar fixes. [AndyDingo]
 - Bug fixes. [AndyDingo]
 
