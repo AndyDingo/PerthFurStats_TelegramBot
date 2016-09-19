@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.89
+ * Version   : 1.0.0.90
  */
 
 using System.Reflection;
@@ -45,9 +45,9 @@ using System.Resources;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.89")]
-[assembly: AssemblyFileVersion("1.0.0.89")]
-[assembly: AssemblyInformationalVersion("1.0.0.89")]
+[assembly: AssemblyVersion("1.0.0.90")]
+[assembly: AssemblyFileVersion("1.0.0.90")]
+[assembly: AssemblyInformationalVersion("1.0.0.90")]
 [assembly: NeutralResourcesLanguageAttribute("en-AU")]
 
 //[assembly: PermissionSetAttribute(SecurityAction.RequestMinimum, Name = "FullTrust")]
