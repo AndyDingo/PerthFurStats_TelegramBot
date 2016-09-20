@@ -1046,6 +1046,7 @@ namespace nwTelegramBot
                 var replyVideo = string.Empty;
                 var replyImageCaption = string.Empty;
                 var replyDocument = string.Empty;
+                var thischat = bot.GetChatAsync(update.Message.Chat.Id);
 
                 if (text != null && (text.StartsWith("/", StringComparison.Ordinal) || text.StartsWith("!", StringComparison.Ordinal)))
                 {
@@ -1257,16 +1258,12 @@ namespace nwTelegramBot
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (ct == ChatType.Private)
+                            if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
                             {
 
                                 if (body == string.Empty || body == " " || body == "@" || body == null)
                                 {
                                     string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=1");
-
-                                    Console.WriteLine("mew");
-
-                                    Console.WriteLine(s_img_grabbed);
 
                                     replyImage = s_img_grabbed;
 
@@ -1289,10 +1286,6 @@ namespace nwTelegramBot
 
                                     string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=1&tags=" + body);
 
-                                    Console.WriteLine("mew");
-
-                                    Console.WriteLine(s_img_grabbed);
-
                                     replyImage = s_img_grabbed;
 
                                     break;
@@ -1303,7 +1296,7 @@ namespace nwTelegramBot
                             else
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "Not happening, outside of private messages that is.";
+                                    s_replyToUser = "Not happening, outside of private messages, or NSFW channels that is.";
                             }
 
                             break;
@@ -1507,75 +1500,155 @@ namespace nwTelegramBot
 
                         case "/gif":
 
-                            if (body == string.Empty || body == " " || body == "@" || body == null)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                s_replyToUser = "Usage: /gif [image to look for]";
-
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                s_replyToUser = "Usage: /gif [Image to look for]" + Environment.NewLine + "Type '/gif help' to see this message again.";
-
-                                break;
-
-                            }
-
-                            if (nwCheckInReplyTimer(dt) != false)
+                            if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
                             {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
-
-                                retryme:
-
-                                string html = GetHtmlCode(body, true);
-                                List<string> urls = GetUrls(html);
-                                var rnd = new Random();
-
-                                int randomUrl = rnd.Next(0, urls.Count - 1);
-
-                                string luckyUrl = urls[randomUrl];
-
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(luckyUrl))
+                                if (body == string.Empty || body == " " || body == "@" || body == null)
                                 {
-                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine("URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "Usage: /gif [image to look for]";
+
+                                    break;
+                                }
+                                else if (body == "help")
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "Usage: /gif [Image to look for]" + Environment.NewLine + "Type '/gif help' to see this message again.";
+
+                                    break;
+
                                 }
 
-                                if (luckyUrl.Contains(" ") == true)
-                                    luckyUrl.Replace(" ", "%20");
+                                if (nwCheckInReplyTimer(dt) != false)
+                                {
 
-                                replyImage = luckyUrl;
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                //nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
-                                //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
+                                    retryme:
 
-                                break;
+                                    string html = GetHtmlCode(body, true, true);
+                                    List<string> urls = GetUrls(html);
+                                    var rnd = new Random();
+
+                                    int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                    string luckyUrl = urls[randomUrl];
+
+                                    // Check if the file is valid, or throws an unwanted status code.
+                                    if (!string.IsNullOrEmpty(luckyUrl))
+                                    {
+                                        UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                        if (response.StatusCode == HttpStatusCode.NotFound)
+                                        {
+                                            Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                            goto retryme;
+                                        }
+                                        if (response.StatusCode == HttpStatusCode.OK)
+                                        {
+                                            Console.WriteLine("URL appears to be good.");
+                                        }
+                                        else //There are a lot of other status codes you could check for...
+                                        {
+                                            Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                       response.StatusCode.ToString()));
+                                        }
+                                    }
+
+                                    if (luckyUrl.Contains(" ") == true)
+                                        luckyUrl.Replace(" ", "%20");
+
+                                    replyImage = luckyUrl;
+
+                                    //nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
+                                    //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
+
+                                    break;
+
+                                }
+                                else
+                                {
+                                    Console.WriteLine("The " + command + " failed as it took too long to process.");
+                                }
 
                             }
                             else
                             {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+
+                                if (body == string.Empty || body == " " || body == "@" || body == null)
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "Usage: /gif [image to look for]";
+
+                                    break;
+                                }
+                                else if (body == "help")
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "Usage: /gif [Image to look for]" + Environment.NewLine + "Type '/gif help' to see this message again.";
+
+                                    break;
+
+                                }
+
+                                if (nwCheckInReplyTimer(dt) != false)
+                                {
+
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                    retryme:
+
+                                    string html = GetHtmlCode(body, true, false);
+                                    List<string> urls = GetUrls(html);
+                                    var rnd = new Random();
+
+                                    int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                    string luckyUrl = urls[randomUrl];
+
+                                    // Check if the file is valid, or throws an unwanted status code.
+                                    if (!string.IsNullOrEmpty(luckyUrl))
+                                    {
+                                        UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                        if (response.StatusCode == HttpStatusCode.NotFound)
+                                        {
+                                            Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                            goto retryme;
+                                        }
+                                        if (response.StatusCode == HttpStatusCode.OK)
+                                        {
+                                            Console.WriteLine("URL appears to be good.");
+                                        }
+                                        else //There are a lot of other status codes you could check for...
+                                        {
+                                            Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                       response.StatusCode.ToString()));
+                                        }
+                                    }
+
+                                    if (luckyUrl.Contains(" ") == true)
+                                        luckyUrl.Replace(" ", "%20");
+
+                                    replyImage = luckyUrl;
+
+                                    //nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
+                                    //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
+
+                                    break;
+
+                                }
+                                else
+                                {
+                                    Console.WriteLine("The " + command + " failed as it took too long to process.");
+                                }
+
                             }
 
                             break;
@@ -1609,77 +1682,159 @@ namespace nwTelegramBot
                             //    break;
                             //}
 
-                            if (body == string.Empty || body == " " || body == "@" || body == null)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                s_replyToUser = "Usage: /image [image to look for]";
-                                
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                s_replyToUser = "Usage: /image [Image to look for]" + Environment.NewLine + "Type '/image help' to see this message again.";
-
-                                break;
-
-                            }
-
-                            if (nwCheckInReplyTimer(dt) != false)
+                            if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
                             {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
-
-                                retryme:
-
-                                string html = GetHtmlCode(body, false);
-                                List<string> urls = GetUrls(html);
-                                var rnd = new Random();
-
-                                int randomUrl = rnd.Next(0, urls.Count - 1);
-
-                                // Select url from url list.
-                                string luckyUrl = urls[randomUrl];
-
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(luckyUrl))
+                                if (body == string.Empty || body == " " || body == "@" || body == null)
                                 {
-                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine( "URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "Usage: /image [image to look for]";
+
+                                    break;
+                                }
+                                else if (body == "help")
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "Usage: /image [Image to look for]" + Environment.NewLine + "Type '/image help' to see this message again.";
+
+                                    break;
 
                                 }
 
-                                if (luckyUrl.Contains(" ") == true)
-                                    luckyUrl.Replace(" ", "%20");
+                                if (nwCheckInReplyTimer(dt) != false)
+                                {
 
-                                replyImage = luckyUrl;
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
-                                //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
+                                    retryme:
 
-                                break;
+                                    string html = GetHtmlCode(body, false, true);
+                                    List<string> urls = GetUrls(html);
+                                    var rnd = new Random();
+
+                                    int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                    // Select url from url list.
+                                    string luckyUrl = urls[randomUrl];
+
+                                    // Check if the file is valid, or throws an unwanted status code.
+                                    if (!string.IsNullOrEmpty(luckyUrl))
+                                    {
+                                        UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                        if (response.StatusCode == HttpStatusCode.NotFound)
+                                        {
+                                            Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                            goto retryme;
+                                        }
+                                        if (response.StatusCode == HttpStatusCode.OK)
+                                        {
+                                            Console.WriteLine("URL appears to be good.");
+                                        }
+                                        else //There are a lot of other status codes you could check for...
+                                        {
+                                            Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                       response.StatusCode.ToString()));
+                                        }
+
+                                    }
+
+                                    if (luckyUrl.Contains(" ") == true)
+                                        luckyUrl.Replace(" ", "%20");
+
+                                    replyImage = luckyUrl;
+
+                                    nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
+                                                                           //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
+
+                                    break;
+
+                                }
+                                else
+                                {
+                                    Console.WriteLine("The " + command + " failed as it took too long to process.");
+                                }
 
                             }
                             else
                             {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+
+                                if (body == string.Empty || body == " " || body == "@" || body == null)
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "Usage: /image [image to look for]";
+
+                                    break;
+                                }
+                                else if (body == "help")
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "Usage: /image [Image to look for]" + Environment.NewLine + "Type '/image help' to see this message again.";
+
+                                    break;
+
+                                }
+
+                                if (nwCheckInReplyTimer(dt) != false)
+                                {
+
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                    retryme:
+
+                                    string html = GetHtmlCode(body, false, false);
+                                    List<string> urls = GetUrls(html);
+                                    var rnd = new Random();
+
+                                    int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                    // Select url from url list.
+                                    string luckyUrl = urls[randomUrl];
+
+                                    // Check if the file is valid, or throws an unwanted status code.
+                                    if (!string.IsNullOrEmpty(luckyUrl))
+                                    {
+                                        UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                        if (response.StatusCode == HttpStatusCode.NotFound)
+                                        {
+                                            Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                            goto retryme;
+                                        }
+                                        if (response.StatusCode == HttpStatusCode.OK)
+                                        {
+                                            Console.WriteLine("URL appears to be good.");
+                                        }
+                                        else //There are a lot of other status codes you could check for...
+                                        {
+                                            Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                       response.StatusCode.ToString()));
+                                        }
+
+                                    }
+
+                                    if (luckyUrl.Contains(" ") == true)
+                                        luckyUrl.Replace(" ", "%20");
+
+                                    replyImage = luckyUrl;
+
+                                    nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
+                                                                           //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
+
+                                    break;
+
+                                }
+                                else
+                                {
+                                    Console.WriteLine("The " + command + " failed as it took too long to process.");
+                                }
+
                             }
 
                             break;
@@ -1773,70 +1928,145 @@ namespace nwTelegramBot
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (nwCheckInReplyTimer(dt) != false)
+                            if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
                             {
-                                string fchosen = null;
-                                string[] fileEntries = ehoh.Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg");
 
-                                fchosen = fileEntries[new Random().Next(0, fileEntries.Length)];
-
-                                if (fchosen == null) { replyText = "An error has occurred, please try this command again, and/or quote 'fchosen returned null' to @AndyDingoFolf"; }
-
-                                string textomatic1 = "";
-
-                                blah:
-
-                                // if blank, get quote line without a body
-                                if (body == string.Empty || body == " " || body == "@" || body == null)
+                                if (nwCheckInReplyTimer(dt) != false)
                                 {
-                                    textomatic1 = nwRandomQuoteLine(fchosen);
-                                }
-                                else if (body == "help")
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+                                    string fchosen = null;
+                                    string[] fileEntries = ehoh.Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg", @"*\-1001052518605.*.log");
 
-                                    s_replyToUser = "Usage: /quote [name of person to quote, or leave blank for random]" + Environment.NewLine + "Type '/quote help' to see this message again.";
+                                    fchosen = fileEntries[new Random().Next(0, fileEntries.Length)];
 
-                                    break;
+                                    if (fchosen == null) { replyText = "An error has occurred, please try this command again, and/or quote 'fchosen returned null' to @AndyDingoFolf"; }
+
+                                    string textomatic1 = "";
+
+                                    blah:
+
+                                    // if blank, get quote line without a body
+                                    if (body == string.Empty || body == " " || body == "@" || body == null)
+                                    {
+                                        textomatic1 = nwRandomQuoteLine(fchosen);
+                                    }
+                                    else if (body == "help")
+                                    {
+                                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                        s_replyToUser = "Usage: /quote [name of person to quote, or leave blank for random]" + Environment.NewLine + "Type '/quote help' to see this message again.";
+
+                                        break;
+
+                                    }
+                                    else
+                                    {
+                                        textomatic1 = nwRandomQuoteLine(fchosen, body);
+                                    }
+
+                                    // If our code doesn't contain our test string
+                                    if (textomatic1.Contains("Test message. Do not report."))
+                                    {
+                                        textomatic1 = nwRandomQuoteLine(fchosen);
+                                        goto blah;
+                                    }
+
+                                    string sayrandom = nwRandomSaidLine();
+
+                                    string[] s_mysplit1 = new string[] { "", "", "" };
+                                    string[] s_mysplit2 = new string[] { "", "", "" };
+                                    int[] n_mysplit = new int[] { 2016, 9, 1, 0, 0 };
+                                    string[] s_mysep1 = new string[] { "\\r", "\\n", "[", "] <", "> " };
+                                    string[] s_splitfile = new string[] { "." };
+
+                                    s_mysplit1 = textomatic1.Split(s_mysep1, StringSplitOptions.RemoveEmptyEntries);
+                                    s_mysplit2 = fchosen.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
+
+                                    n_mysplit[0] = Convert.ToInt32(s_mysplit2[1].Substring(0, 4)); // YEAR
+                                    n_mysplit[1] = Convert.ToInt32(s_mysplit2[1].Substring(4, 2)); // MONTH
+                                    n_mysplit[2] = Convert.ToInt32(s_mysplit2[1].Substring(6)); // DAY
+                                    n_mysplit[3] = Convert.ToInt32(s_mysplit1[0].Substring(0, 2)); // HOUR
+                                    n_mysplit[4] = Convert.ToInt32(s_mysplit1[0].Substring(3, 2)); // MINUTE
+
+                                    DateTime mdt = new DateTime(n_mysplit[0], n_mysplit[1], n_mysplit[2], n_mysplit[3], n_mysplit[4], 0);
+
+                                    replyText = string.Format("On {0}, at {1}, the user \"{2}\" {3} the following: " + Environment.NewLine + "{4}", mdt.ToString("ddd d/MM/yyy"), mdt.ToShortTimeString(), s_mysplit1[1], sayrandom, s_mysplit1[2]);
 
                                 }
                                 else
                                 {
-                                    textomatic1 = nwRandomQuoteLine(fchosen, body);
+                                    Console.WriteLine("The " + command + " failed as it took too long to process.");
                                 }
-
-                                // If our code doesn't contain our test string
-                                if (textomatic1.Contains("Test message. Do not report."))
-                                {
-                                    textomatic1 = nwRandomQuoteLine(fchosen);
-                                    goto blah;
-                                }
-
-                                string sayrandom = nwRandomSaidLine();
-
-                                string[] s_mysplit1 = new string[] { "", "", "" };
-                                string[] s_mysplit2 = new string[] { "", "", "" };
-                                int[] n_mysplit = new int[] { 2016, 9, 1, 0, 0 };
-                                string[] s_mysep1 = new string[] { "\\r", "\\n", "[", "] <", "> " };
-                                string[] s_splitfile = new string[] { "." };
-
-                                s_mysplit1 = textomatic1.Split(s_mysep1, StringSplitOptions.RemoveEmptyEntries);
-                                s_mysplit2 = fchosen.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
-
-                                n_mysplit[0] = Convert.ToInt32(s_mysplit2[1].Substring(0, 4)); // YEAR
-                                n_mysplit[1] = Convert.ToInt32(s_mysplit2[1].Substring(4, 2)); // MONTH
-                                n_mysplit[2] = Convert.ToInt32(s_mysplit2[1].Substring(6)); // DAY
-                                n_mysplit[3] = Convert.ToInt32(s_mysplit1[0].Substring(0, 2)); // HOUR
-                                n_mysplit[4] = Convert.ToInt32(s_mysplit1[0].Substring(3, 2)); // MINUTE
-
-                                DateTime mdt = new DateTime(n_mysplit[0], n_mysplit[1], n_mysplit[2], n_mysplit[3], n_mysplit[4], 0);
-
-                                replyText = string.Format("On {0}, at {1}, the user \"{2}\" {3} the following: " + Environment.NewLine + "{4}", mdt.ToString("ddd d/MM/yyy"), mdt.ToShortTimeString(), s_mysplit1[1], sayrandom, s_mysplit1[2]);
 
                             }
                             else
                             {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+
+                                if (nwCheckInReplyTimer(dt) != false)
+                                {
+                                    string fchosen = null;
+                                    string[] fileEntries = ehoh.Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg", @"*\-1001032131694.*.log");
+
+                                    fchosen = fileEntries[new Random().Next(0, fileEntries.Length)];
+
+                                    if (fchosen == null) { replyText = "An error has occurred, please try this command again, and/or quote 'fchosen returned null' to @AndyDingoFolf"; }
+
+                                    string textomatic1 = "";
+
+                                    blah:
+
+                                    // if blank, get quote line without a body
+                                    if (body == string.Empty || body == " " || body == "@" || body == null)
+                                    {
+                                        textomatic1 = nwRandomQuoteLine(fchosen);
+                                    }
+                                    else if (body == "help")
+                                    {
+                                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                        s_replyToUser = "Usage: /quote [name of person to quote, or leave blank for random]" + Environment.NewLine + "Type '/quote help' to see this message again.";
+
+                                        break;
+
+                                    }
+                                    else
+                                    {
+                                        textomatic1 = nwRandomQuoteLine(fchosen, body);
+                                    }
+
+                                    // If our code doesn't contain our test string
+                                    if (textomatic1.Contains("Test message. Do not report."))
+                                    {
+                                        textomatic1 = nwRandomQuoteLine(fchosen);
+                                        goto blah;
+                                    }
+
+                                    string sayrandom = nwRandomSaidLine();
+
+                                    string[] s_mysplit1 = new string[] { "", "", "" };
+                                    string[] s_mysplit2 = new string[] { "", "", "" };
+                                    int[] n_mysplit = new int[] { 2016, 9, 1, 0, 0 };
+                                    string[] s_mysep1 = new string[] { "\\r", "\\n", "[", "] <", "> " };
+                                    string[] s_splitfile = new string[] { "." };
+
+                                    s_mysplit1 = textomatic1.Split(s_mysep1, StringSplitOptions.RemoveEmptyEntries);
+                                    s_mysplit2 = fchosen.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
+
+                                    n_mysplit[0] = Convert.ToInt32(s_mysplit2[1].Substring(0, 4)); // YEAR
+                                    n_mysplit[1] = Convert.ToInt32(s_mysplit2[1].Substring(4, 2)); // MONTH
+                                    n_mysplit[2] = Convert.ToInt32(s_mysplit2[1].Substring(6)); // DAY
+                                    n_mysplit[3] = Convert.ToInt32(s_mysplit1[0].Substring(0, 2)); // HOUR
+                                    n_mysplit[4] = Convert.ToInt32(s_mysplit1[0].Substring(3, 2)); // MINUTE
+
+                                    DateTime mdt = new DateTime(n_mysplit[0], n_mysplit[1], n_mysplit[2], n_mysplit[3], n_mysplit[4], 0);
+
+                                    replyText = string.Format("On {0}, at {1}, the user \"{2}\" {3} the following: " + Environment.NewLine + "{4}", mdt.ToString("ddd d/MM/yyy"), mdt.ToShortTimeString(), s_mysplit1[1], sayrandom, s_mysplit1[2]);
+
+                                }
+                                else
+                                {
+                                    Console.WriteLine("The " + command + " failed as it took too long to process.");
+                                }
+
                             }
 
                             break;
@@ -2256,61 +2486,141 @@ namespace nwTelegramBot
 
                         case "/meme":
 
-                            if (body == string.Empty || body == " " || body == "@" || body == null)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                s_replyToUser = "Usage: /meme [image to look for]";
-
-                                break;
-                            }
-
-                            if (nwCheckInReplyTimer(dt) != false)
+                            if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
                             {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
-
-                                retryme:
-
-                                string html1 = GetHtmlCode(body, false);
-                                List<string> urls1 = GetUrls(html1);
-
-                                int memecount = urls1.Count;
-
-                                string s_luckyUrl = urls1[0];
-
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(s_luckyUrl))
+                                if (body == string.Empty || body == " " || body == "@" || body == null)
                                 {
-                                    UriBuilder uriBuilder = new UriBuilder(s_luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine("URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "Usage: /meme [image to look for]";
+
+                                    break;
+                                }
+                                else if (body == "help")
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "Usage: /meme [image to look for]" + Environment.NewLine + "Type '/mee help' to see this message again.";
+
+                                    break;
+
                                 }
 
-                                if (s_luckyUrl.Contains(" ") == true)
-                                    s_luckyUrl.Replace(" ", "%20");
+                                if (nwCheckInReplyTimer(dt) != false)
+                                {
 
-                                replyImage = s_luckyUrl;
-                                break;
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                    retryme:
+
+                                    string html1 = GetHtmlCode(body, false, true);
+                                    List<string> urls1 = GetUrls(html1);
+
+                                    int memecount = urls1.Count;
+
+                                    string s_luckyUrl = urls1[0];
+
+                                    // Check if the file is valid, or throws an unwanted status code.
+                                    if (!string.IsNullOrEmpty(s_luckyUrl))
+                                    {
+                                        UriBuilder uriBuilder = new UriBuilder(s_luckyUrl);
+                                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                        if (response.StatusCode == HttpStatusCode.NotFound)
+                                        {
+                                            Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                            goto retryme;
+                                        }
+                                        if (response.StatusCode == HttpStatusCode.OK)
+                                        {
+                                            Console.WriteLine("URL appears to be good.");
+                                        }
+                                        else //There are a lot of other status codes you could check for...
+                                        {
+                                            Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                       response.StatusCode.ToString()));
+                                        }
+                                    }
+
+                                    if (s_luckyUrl.Contains(" ") == true)
+                                        s_luckyUrl.Replace(" ", "%20");
+
+                                    replyImage = s_luckyUrl;
+                                    break;
+
+                                }
+
+                            }
+                            else
+                            {
+
+                                if (body == string.Empty || body == " " || body == "@" || body == null)
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "Usage: /meme [image to look for]";
+
+                                    break;
+                                }
+                                else if (body == "help")
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "Usage: /meme [image to look for]" + Environment.NewLine + "Type '/mee help' to see this message again.";
+
+                                    break;
+
+                                }
+
+                                if (nwCheckInReplyTimer(dt) != false)
+                                {
+
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                    retryme:
+
+                                    string html1 = GetHtmlCode(body, false, false);
+                                    List<string> urls1 = GetUrls(html1);
+
+                                    int memecount = urls1.Count;
+
+                                    string s_luckyUrl = urls1[0];
+
+                                    // Check if the file is valid, or throws an unwanted status code.
+                                    if (!string.IsNullOrEmpty(s_luckyUrl))
+                                    {
+                                        UriBuilder uriBuilder = new UriBuilder(s_luckyUrl);
+                                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                        if (response.StatusCode == HttpStatusCode.NotFound)
+                                        {
+                                            Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                            goto retryme;
+                                        }
+                                        if (response.StatusCode == HttpStatusCode.OK)
+                                        {
+                                            Console.WriteLine("URL appears to be good.");
+                                        }
+                                        else //There are a lot of other status codes you could check for...
+                                        {
+                                            Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                       response.StatusCode.ToString()));
+                                        }
+                                    }
+
+                                    if (s_luckyUrl.Contains(" ") == true)
+                                        s_luckyUrl.Replace(" ", "%20");
+
+                                    replyImage = s_luckyUrl;
+                                    break;
+
+                                }
 
                             }
 
                             break;
-                        case "/ping":
+                        //case "/ping":
                         //case "/em": // TODO: Finish this command
                         //    // usage /em -[action (see list of actions)] -[@username of target]
                         //    // performs an action on a target
@@ -2779,21 +3089,19 @@ namespace nwTelegramBot
                 {
                     doc1.Load(dataStream);
 
-                    Console.WriteLine(doc1.ToString());
-
                     s_returnedImage = doc1.SelectSingleNode("posts/post/file_url").InnerText;
 
-                    Console.WriteLine(s_returnedImage);
+                    Console.WriteLine("System: The following image was selected: " + s_returnedImage);
                 }
 
                 if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                    Console.WriteLine("System: Broken - 404 Not Found, attempting to retry.");
                     s_returnedImage = "404";
                 }
                 if (response.StatusCode == HttpStatusCode.Forbidden)
                 {
-                    Console.WriteLine("URL appears to be forbidden.");
+                    Console.WriteLine("System: URL appears to be forbidden.");
                     s_returnedImage = "403";
                 }
             }
@@ -3162,10 +3470,24 @@ namespace nwTelegramBot
             return data;
         }
 
-        private static string GetHtmlCode(string s_topic, bool isgif)
+        /// <summary>
+        /// Gets code
+        /// </summary>
+        /// <param name="s_topic">The topic to search for</param>
+        /// <param name="isgif">Is this a gif?</param>
+        /// <param name="isnsfw">Is this NOT safe for work/18+?</param>
+        /// <returns></returns>
+        private static string GetHtmlCode(string s_topic, bool isgif, bool isnsfw)
         {
             string url = "https://www.google.com/search?q=" + s_topic + "&safe=active&tbm=isch";
-            string data = "";
+
+            if (isnsfw == true)
+            {
+                url = "https://www.google.com/search?q=" + s_topic + "&tbm=isch";
+            }
+
+
+                string data = "";
 
             if (isgif == true)
             {
