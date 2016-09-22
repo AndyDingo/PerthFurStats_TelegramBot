@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <events>
+	<event>
+		<id>111</id>
+		<url>http://www.perthfurs.net/events/view/111</url>
+		<title>QuayFurs 4</title>
+		<location>Elizabeth Quay</location>
+		<start>2016-09-27 18:30:00</start>
+	</event>
   <event>
     <id>95</id>
     <url>http://www.perthfurs.net/events/view/95</url>
@@ -28,4 +35,11 @@
     <location>Court Hotel</location>
     <start>2016-11-05 14:00:00</start>
   </event>
+	<event>
+		<id>110</id>
+		<url>http://www.perthfurs.net/events/view/110</url>
+		<title>CaFURnated XVIII: Hangover Cure</title>
+		<location>Miss Maud Carillon City Arcade</location>
+		<start>2016-11-27 12:30:00</start>
+	</event>
 </events>

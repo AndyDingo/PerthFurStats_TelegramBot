@@ -630,10 +630,12 @@ namespace nwTelegramBot
 
                                         if (update.Message.Text.Contains("Eeyup") == true || update.Message.Text.Contains("eeyup") == true)
                                         {
+
                                         string s_rande = null;
+
                                         s_rande = nwGenRandomSuffix();
 
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "Eeyup", false, false, update.Message.MessageId);
+                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, s_rande, false, false, update.Message.MessageId);
                                         }
 
 
@@ -899,7 +901,20 @@ namespace nwTelegramBot
 
         private static string nwGenRandomSuffix()
         {
-            throw new NotImplementedException();
+            int i = cDiceBag.Instance.d4(1);
+            switch (i)
+            {
+                case 1:
+                    return ".";
+                case 2:
+                    return "!";
+                case 3:
+                    return "?";
+                case 4:
+                    return "!?!";
+                default:
+                    return @" \o/ ";
+            }
         }
 
         /// <summary>
@@ -1264,7 +1279,7 @@ namespace nwTelegramBot
 
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                    string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=1");
+                                    string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=200");
 
                                     replyImage = s_img_grabbed;
 
@@ -1287,7 +1302,7 @@ namespace nwTelegramBot
 
                                     body = body.Replace(' ', '+');
 
-                                    string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=100&tags=" + body);
+                                    string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=200&tags=" + body);
 
                                     replyImage = s_img_grabbed;
 
