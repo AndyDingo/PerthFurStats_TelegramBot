@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.90
+ * Version   : 1.0.0.93
  */
 
 using Newtonsoft.Json.Linq;
@@ -1256,13 +1256,14 @@ namespace nwTelegramBot
 
                         case "/e621":
 
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
                             if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
                             {
 
                                 if (body == string.Empty || body == " " || body == "@" || body == null)
                                 {
+
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
                                     string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=1");
 
                                     replyImage = s_img_grabbed;
@@ -1282,9 +1283,11 @@ namespace nwTelegramBot
                                 else
                                 {
 
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
                                     body = body.Replace(' ', '+');
 
-                                    string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=1&tags=" + body);
+                                    string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=100&tags=" + body);
 
                                     replyImage = s_img_grabbed;
 
@@ -3084,25 +3087,30 @@ namespace nwTelegramBot
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
                 XmlDocument doc1 = new XmlDocument();
-                
+
                 using (ehoh.Stream dataStream = response.GetResponseStream())
                 {
                     doc1.Load(dataStream);
 
-                    s_returnedImage = doc1.SelectSingleNode("posts/post/file_url").InnerText;
+                    if (doc1.SelectSingleNode("posts/post/file_url") != null)
+                    {
 
-                    Console.WriteLine("System: The following image was selected: " + s_returnedImage);
-                }
+                        s_returnedImage = doc1.SelectSingleNode("posts/post/file_url").InnerText;
+                        string[] s_repoarray = new string[] { "test" };
 
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    Console.WriteLine("System: Broken - 404 Not Found, attempting to retry.");
-                    s_returnedImage = "404";
-                }
-                if (response.StatusCode == HttpStatusCode.Forbidden)
-                {
-                    Console.WriteLine("System: URL appears to be forbidden.");
-                    s_returnedImage = "403";
+                        //s_repoarray = doc1.SelectNodes("posts/post/file_url"; 
+                        XmlNodeList xnl_test = doc1.SelectNodes("posts/post/file_url");
+                        s_returnedImage = xnl_test[new Random().Next(0, xnl_test.Count)].InnerText;
+
+
+                        Console.WriteLine("System: The following image was selected: " + s_returnedImage);
+
+                    }
+                    else
+                    {
+                        return "No image found.";
+                    }
+
                 }
             }
             return s_returnedImage;
