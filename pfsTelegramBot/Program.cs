@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.93
+ * Version   : 1.0.0.94
  */
 
 using Newtonsoft.Json.Linq;
@@ -23,6 +23,7 @@ using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using Tweetinvi;
 using ehoh = System.IO;
 using File = System.IO.File;
@@ -532,6 +533,7 @@ namespace nwTelegramBot
                         case UpdateType.MessageUpdate:
 
                             Telegram.Bot.Types.Message message = update.Message;
+                            long n_chanid = update.Message.Chat.Id;
                             DateTime m = update.Message.Date.ToLocalTime();
 
                             //remove unsightly characters from first names.
@@ -547,10 +549,10 @@ namespace nwTelegramBot
 
                                 case MessageType.ContactMessage:
 
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + update.Message.Contact.FirstName);
+                                            Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + update.Message.Contact.FirstName);
                                         else
                                             Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + update.Message.Contact.FirstName);
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + update.Message.Contact.FirstName);
@@ -568,10 +570,10 @@ namespace nwTelegramBot
 
                                 case MessageType.DocumentMessage:
 
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + update.Message.Document.MimeType);
+                                            Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + update.Message.Document.MimeType);
                                         else
                                             Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + update.Message.Document.MimeType);
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + update.Message.Document.MimeType);
@@ -579,7 +581,7 @@ namespace nwTelegramBot
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + ".csv", true))
+                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
                                         {
                                             await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Document sharing of type " + update.Message.Document.MimeType);
                                         }
@@ -613,7 +615,7 @@ namespace nwTelegramBot
                                         nwSetCatNoiseCount(n_cat++, s_mffn);
 
                                         if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has mowed, increase mow count.");
+                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has mowed, increase mow count.");
 
                                     }
 
@@ -624,33 +626,33 @@ namespace nwTelegramBot
                                         nwSetDogNoiseCount(n_dog++, s_mffn);
 
                                         if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
+                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
 
                                     }
 
-                                        if (update.Message.Text.Contains("Eeyup") == true || update.Message.Text.Contains("eeyup") == true)
-                                        {
+                                    if (update.Message.Text.Contains("Eeyup") == true || update.Message.Text.Contains("eeyup") == true)
+                                    {
 
                                         string s_rande = null;
 
                                         s_rande = nwGenRandomSuffix();
 
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, s_rande, false, false, update.Message.MessageId);
-                                        }
+                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "Eeyup" + s_rande, false, false, update.Message.MessageId);
+                                    }
 
 
                                     if (nwGrabString("botresponds") == "false" && (umt.StartsWith("/") == true || umt.StartsWith("!") == true))
                                     {
                                         if (nwGrabString("debugMode") == "true")
-                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has attempted to use a command, but they were disabled.");
+                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has attempted to use a command, but they were disabled.");
                                         else
                                             nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has attempted to use a command, but they were disabled, along with debug mode.");
                                     }
 
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_mffn + "> " + update.Message.Text);
+                                            Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_mffn + "> " + update.Message.Text);
                                         else
                                             Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_mffn + "> " + update.Message.Text);
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_mffn + "> " + update.Message.Text);
@@ -658,7 +660,7 @@ namespace nwTelegramBot
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + ".csv", true))
+                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
                                         {
                                             await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + update.Message.Text);
                                         }
@@ -669,10 +671,10 @@ namespace nwTelegramBot
                                 case MessageType.UnknownMessage: // UNKNOWN MESSAGES.
                                     // TODO: Work out what to actually flocking do with them.
 
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * System: Unknown, please report");
+                                            Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * System: Unknown, please report");
                                         else
                                             nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: Unknown, please report");
 
@@ -681,7 +683,7 @@ namespace nwTelegramBot
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + ".csv", true))
+                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
                                         {
                                             await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Unknown message");
                                         }
@@ -691,16 +693,16 @@ namespace nwTelegramBot
 
                                 case MessageType.ServiceMessage: // Service messages (user leaves or joins)
 
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
-                                        nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* System: A user (" + s_mffn + ") has joined or left the group.");
+                                        nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* System: A user (" + s_mffn + ") has joined or left the group.");
 
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has joined or left the group!");
                                     }
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + ".csv", true))
+                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
                                         {
                                             await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "System message");
                                         }
@@ -711,14 +713,22 @@ namespace nwTelegramBot
                                 case MessageType.LocationMessage: // Venue messages. Added in API v2.0
                                                                // TODO: IMPLEMENT PROPERLY
 
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " posted about a location.");
+                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " posted about a location.");
                                         else
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " posted about a location.");
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " posted about a location.");
 
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted about a location.");
+                                    }
+
+                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+                                    {
+                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
+                                        {
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Location message");
+                                        }
                                     }
 
                                     break;
@@ -726,36 +736,44 @@ namespace nwTelegramBot
                                 case MessageType.VenueMessage: // Venue messages. Added in API v2.0
                                 // TODO: IMPLEMENT PROPERLY
 
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " posted about a venue on Foursquare.");
+                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " posted about a venue on Foursquare.");
                                         else
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " posted about a venue on Foursquare.");
+                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " posted about a venue on Foursquare.");
 
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted about a venue on Foursquare.");
+                                    }
+
+                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+                                    {
+                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
+                                        {
+                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Venue message");
+                                        }
                                     }
 
                                     break;
                                 
                                 case MessageType.StickerMessage: // Do stuff if we are a sticker message
 
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         // download the emoji for the image, if there is one. Added in May API update.
                                         string s = update.Message.Sticker.Emoji;
 
                                         if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
+                                            Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
                                         else
-                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
+                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
 
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
                                     }
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + ".csv", true))
+                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
                                         {
                                             // download the emoji for the image, if there is one. Added in May API update.
                                             string s = update.Message.Sticker.Emoji;
@@ -770,10 +788,10 @@ namespace nwTelegramBot
 
                                     m = update.Message.Date.ToLocalTime();
 
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a voice message.");
+                                            Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a voice message.");
                                         else
                                             nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a voice message.");
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a voice message.");
@@ -781,7 +799,7 @@ namespace nwTelegramBot
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + ".csv", true))
+                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
                                         {
                                             await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Voice message");
                                         }
@@ -793,10 +811,10 @@ namespace nwTelegramBot
 
                                     m = update.Message.Date.ToLocalTime();
 
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a video message.");
+                                            Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a video message.");
                                         else
                                             nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a video message.");
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a video message.");
@@ -804,7 +822,7 @@ namespace nwTelegramBot
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + ".csv", true))
+                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
                                         {
                                             await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Video message");
                                         }
@@ -817,7 +835,7 @@ namespace nwTelegramBot
                                     m = update.Message.Date.ToLocalTime(); // Get date/time
 
                                     //write following to file stream.
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         // download the caption for the image, if there is one.
                                         string s = update.Message.Caption;
@@ -826,7 +844,7 @@ namespace nwTelegramBot
                                         if (s == string.Empty || s == null || s == "" || s == "/n")
                                         {
                                             if (nwGrabString("debugmode") == "true")
-                                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a photo with no caption.");
+                                                Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a photo with no caption.");
                                             else
                                                 nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a photo with no caption.");
                                             await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a photo with no caption.");
@@ -843,7 +861,7 @@ namespace nwTelegramBot
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + ".csv", true))
+                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
                                         {
                                             await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Photo message");
                                         }
@@ -855,10 +873,10 @@ namespace nwTelegramBot
 
                                     m = update.Message.Date.ToLocalTime();
 
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted an audio message.");
+                                            Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted an audio message.");
                                         else
                                             nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted an audio message.");
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted an audio message.");
@@ -866,7 +884,7 @@ namespace nwTelegramBot
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                                     {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + ".csv", true))
+                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
                                         {
                                             await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Audio message");
                                         }
@@ -1238,8 +1256,8 @@ namespace nwTelegramBot
                             }
 
                             nwSetGlobalUsageDB("cat", n_catuse++); // set global usage incrementally
-                            //nwSetUserUsage(s_username, "cat", n_cat_uuse++); // set this users usage incrementally
-                            
+                                                                   //nwSetUserUsage(s_username, "cat", n_cat_uuse++); // set this users usage incrementally
+
                             break;
 
                         case "/die":
@@ -1279,9 +1297,12 @@ namespace nwTelegramBot
 
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                    string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=200");
+                                    body = body.Replace(' ', '+');
+                                    body = body.Replace("@", string.Empty);
 
-                                    replyImage = s_img_grabbed;
+                                    string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=220");
+
+                                    await bot.SendTextMessageAsync(update.Message.Chat.Id, nwGrabImage("https://e621.net/post/index.xml?limit=220&tags=order:score"), false, false, 0, null, ParseMode.Html);
 
                                     break;
 
@@ -1290,7 +1311,12 @@ namespace nwTelegramBot
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: /e621 [tag to look for, leave blank for random]" + Environment.NewLine + "Type '/e621 help' to see this message again.";
+                                    s_replyToUser = "Usage: /e621 [tag to look for, leave blank for random]" + Environment.NewLine +
+                                        "Tips:" + Environment.NewLine +
+                                        "If you wish to prevent undesireable artwork from appearing you should use some more complex tags." + Environment.NewLine +
+                                        "This bot relies on e621 API and if it's not working, and/or servers are down, then the bot can't do anything about it." + Environment.NewLine +
+                                        "Flash content is completely ignored by this, due to the Telegram api." + Environment.NewLine +
+                                        "Type '/e621 help' to see this message again.";
 
                                     break;
 
@@ -1301,10 +1327,11 @@ namespace nwTelegramBot
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
                                     body = body.Replace(' ', '+');
+                                    body = body.Replace("@", string.Empty);
 
-                                    string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=200&tags=" + body);
+                                    string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=220&tags=" + body);
 
-                                    replyImage = s_img_grabbed;
+                                    await bot.SendTextMessageAsync(update.Message.Chat.Id, s_img_grabbed, false, false, 0, null, ParseMode.Html);
 
                                     break;
 
@@ -1317,12 +1344,6 @@ namespace nwTelegramBot
                                     s_replyToUser = "Not happening, outside of private messages, or NSFW channels that is.";
                             }
 
-                            break;
-
-                        case "/dook":
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "Dook!";
                             break;
 
                         case "/count":
@@ -1454,13 +1475,6 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/eeyup":
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "This command is not yet implemented.";
-
-                            break;
-
                         case "/edit":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
@@ -1518,9 +1532,6 @@ namespace nwTelegramBot
 
                         case "/gif":
 
-                            if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                            {
-
                                 if (body == string.Empty || body == " " || body == "@" || body == null)
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
@@ -1546,7 +1557,15 @@ namespace nwTelegramBot
 
                                     retryme:
 
-                                    string html = GetHtmlCode(body, true, true);
+                                    // list of urls.
+                                    string html = null;
+
+                                    // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                                    if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                        html = GetHtmlCode(body, false, true);
+                                    else
+                                        html = GetHtmlCode(body, false, false);
+
                                     List<string> urls = GetUrls(html);
                                     var rnd = new Random();
 
@@ -1591,83 +1610,6 @@ namespace nwTelegramBot
                                 {
                                     Console.WriteLine("The " + command + " failed as it took too long to process.");
                                 }
-
-                            }
-                            else
-                            {
-
-                                if (body == string.Empty || body == " " || body == "@" || body == null)
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    s_replyToUser = "Usage: /gif [image to look for]";
-
-                                    break;
-                                }
-                                else if (body == "help")
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    s_replyToUser = "Usage: /gif [Image to look for]" + Environment.NewLine + "Type '/gif help' to see this message again.";
-
-                                    break;
-
-                                }
-
-                                if (nwCheckInReplyTimer(dt) != false)
-                                {
-
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
-
-                                    retryme:
-
-                                    string html = GetHtmlCode(body, true, false);
-                                    List<string> urls = GetUrls(html);
-                                    var rnd = new Random();
-
-                                    int randomUrl = rnd.Next(0, urls.Count - 1);
-
-                                    string luckyUrl = urls[randomUrl];
-
-                                    // Check if the file is valid, or throws an unwanted status code.
-                                    if (!string.IsNullOrEmpty(luckyUrl))
-                                    {
-                                        UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                        if (response.StatusCode == HttpStatusCode.NotFound)
-                                        {
-                                            Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                            goto retryme;
-                                        }
-                                        if (response.StatusCode == HttpStatusCode.OK)
-                                        {
-                                            Console.WriteLine("URL appears to be good.");
-                                        }
-                                        else //There are a lot of other status codes you could check for...
-                                        {
-                                            Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                       response.StatusCode.ToString()));
-                                        }
-                                    }
-
-                                    if (luckyUrl.Contains(" ") == true)
-                                        luckyUrl.Replace(" ", "%20");
-
-                                    replyImage = luckyUrl;
-
-                                    //nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
-                                    //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
-
-                                    break;
-
-                                }
-                                else
-                                {
-                                    Console.WriteLine("The " + command + " failed as it took too long to process.");
-                                }
-
-                            }
 
                             break;
 
@@ -1700,9 +1642,6 @@ namespace nwTelegramBot
                             //    break;
                             //}
 
-                            if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                            {
-
                                 if (body == string.Empty || body == " " || body == "@" || body == null)
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
@@ -1728,7 +1667,15 @@ namespace nwTelegramBot
 
                                     retryme:
 
-                                    string html = GetHtmlCode(body, false, true);
+                                    // list of urls.
+                                    string html = null;
+
+                                    // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                                    if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                        html = GetHtmlCode(body, false, true);
+                                    else
+                                        html = GetHtmlCode(body, false, false);
+
                                     List<string> urls = GetUrls(html);
                                     var rnd = new Random();
 
@@ -1775,85 +1722,6 @@ namespace nwTelegramBot
                                 {
                                     Console.WriteLine("The " + command + " failed as it took too long to process.");
                                 }
-
-                            }
-                            else
-                            {
-
-                                if (body == string.Empty || body == " " || body == "@" || body == null)
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    s_replyToUser = "Usage: /image [image to look for]";
-
-                                    break;
-                                }
-                                else if (body == "help")
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    s_replyToUser = "Usage: /image [Image to look for]" + Environment.NewLine + "Type '/image help' to see this message again.";
-
-                                    break;
-
-                                }
-
-                                if (nwCheckInReplyTimer(dt) != false)
-                                {
-
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
-
-                                    retryme:
-
-                                    string html = GetHtmlCode(body, false, false);
-                                    List<string> urls = GetUrls(html);
-                                    var rnd = new Random();
-
-                                    int randomUrl = rnd.Next(0, urls.Count - 1);
-
-                                    // Select url from url list.
-                                    string luckyUrl = urls[randomUrl];
-
-                                    // Check if the file is valid, or throws an unwanted status code.
-                                    if (!string.IsNullOrEmpty(luckyUrl))
-                                    {
-                                        UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                        if (response.StatusCode == HttpStatusCode.NotFound)
-                                        {
-                                            Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                            goto retryme;
-                                        }
-                                        if (response.StatusCode == HttpStatusCode.OK)
-                                        {
-                                            Console.WriteLine("URL appears to be good.");
-                                        }
-                                        else //There are a lot of other status codes you could check for...
-                                        {
-                                            Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                       response.StatusCode.ToString()));
-                                        }
-
-                                    }
-
-                                    if (luckyUrl.Contains(" ") == true)
-                                        luckyUrl.Replace(" ", "%20");
-
-                                    replyImage = luckyUrl;
-
-                                    nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
-                                                                           //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
-
-                                    break;
-
-                                }
-                                else
-                                {
-                                    Console.WriteLine("The " + command + " failed as it took too long to process.");
-                                }
-
-                            }
 
                             break;
 
@@ -1865,7 +1733,7 @@ namespace nwTelegramBot
                             int n_joke_gmax = nwGrabGlobalMax("joke");
                             //int n_joke_umax = nwGrabUserMax("joke");
 
-                            if (n_jokeuse == n_joke_gmax )//|| n_joke_uuse == n_joke_umax)
+                            if (n_jokeuse == n_joke_gmax)//|| n_joke_uuse == n_joke_umax)
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     s_replyToUser = "Sorry, the /joke command has been used too many times.";
@@ -1884,7 +1752,7 @@ namespace nwTelegramBot
 
                                 StringBuilder jokesb = new StringBuilder();
 
-                                foreach(string s_meow in s_mysplit)
+                                foreach (string s_meow in s_mysplit)
                                 {
                                     jokesb.AppendLine(s_meow);
                                 }
@@ -1899,12 +1767,6 @@ namespace nwTelegramBot
                             nwSetGlobalUsageDB("joke", n_jokeuse++); // set global usage incrementally
                             //nwSetUserUsage(s_username, "joke", n_joke_uuse++); // set this users usage incrementally
 
-                            //Task.Delay(150000);
-
-                            //using (Task mle=Task.Delay () { }
-
-                            //bot.SendTextMessageAsync(update.Message.Chat.Id, "That was a joke, Shepherd.", false, false);
-
                             break;
 
                         case "/link":
@@ -1915,7 +1777,7 @@ namespace nwTelegramBot
                                 s_replyToUser = "Chat link: https://telegram.me/joinchat/ByYWcD2FFG72gZK04d6lLg";
 
                             break;
-                            
+
                         case "/oo":
                         case "/optout":
 
@@ -1946,145 +1808,75 @@ namespace nwTelegramBot
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                            if (nwCheckInReplyTimer(dt) != false)
                             {
+                                string fchosen = null;
+                                string[] fileEntries = null;
 
-                                if (nwCheckInReplyTimer(dt) != false)
+                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                    fileEntries = ehoh.Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg", @"*\-1001052518605.*.log");
+                                else
+                                    fileEntries = ehoh.Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg", @"*\-1001032131694.*.log");
+
+                                fchosen = fileEntries[new Random().Next(0, fileEntries.Length)];
+
+                                if (fchosen == null) { replyText = "An error has occurred, please try this command again, and/or quote 'fchosen returned null' to @AndyDingoFolf"; }
+
+                                string textomatic1 = "";
+
+                                blah:
+
+                                // if blank, get quote line without a body
+                                if (body == string.Empty || body == " " || body == "@" || body == null)
                                 {
-                                    string fchosen = null;
-                                    string[] fileEntries = ehoh.Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg", @"*\-1001052518605.*.log");
+                                    textomatic1 = nwRandomQuoteLine(fchosen);
+                                }
+                                else if (body == "help")
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    fchosen = fileEntries[new Random().Next(0, fileEntries.Length)];
+                                    s_replyToUser = "Usage: /quote [name of person to quote, or leave blank for random]" + Environment.NewLine + "Type '/quote help' to see this message again.";
 
-                                    if (fchosen == null) { replyText = "An error has occurred, please try this command again, and/or quote 'fchosen returned null' to @AndyDingoFolf"; }
-
-                                    string textomatic1 = "";
-
-                                    blah:
-
-                                    // if blank, get quote line without a body
-                                    if (body == string.Empty || body == " " || body == "@" || body == null)
-                                    {
-                                        textomatic1 = nwRandomQuoteLine(fchosen);
-                                    }
-                                    else if (body == "help")
-                                    {
-                                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                        s_replyToUser = "Usage: /quote [name of person to quote, or leave blank for random]" + Environment.NewLine + "Type '/quote help' to see this message again.";
-
-                                        break;
-
-                                    }
-                                    else
-                                    {
-                                        textomatic1 = nwRandomQuoteLine(fchosen, body);
-                                    }
-
-                                    // If our code doesn't contain our test string
-                                    if (textomatic1.Contains("Test message. Do not report."))
-                                    {
-                                        textomatic1 = nwRandomQuoteLine(fchosen);
-                                        goto blah;
-                                    }
-
-                                    string sayrandom = nwRandomSaidLine();
-
-                                    string[] s_mysplit1 = new string[] { "", "", "" };
-                                    string[] s_mysplit2 = new string[] { "", "", "" };
-                                    int[] n_mysplit = new int[] { 2016, 9, 1, 0, 0 };
-                                    string[] s_mysep1 = new string[] { "\\r", "\\n", "[", "] <", "> " };
-                                    string[] s_splitfile = new string[] { "." };
-
-                                    s_mysplit1 = textomatic1.Split(s_mysep1, StringSplitOptions.RemoveEmptyEntries);
-                                    s_mysplit2 = fchosen.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
-
-                                    n_mysplit[0] = Convert.ToInt32(s_mysplit2[1].Substring(0, 4)); // YEAR
-                                    n_mysplit[1] = Convert.ToInt32(s_mysplit2[1].Substring(4, 2)); // MONTH
-                                    n_mysplit[2] = Convert.ToInt32(s_mysplit2[1].Substring(6)); // DAY
-                                    n_mysplit[3] = Convert.ToInt32(s_mysplit1[0].Substring(0, 2)); // HOUR
-                                    n_mysplit[4] = Convert.ToInt32(s_mysplit1[0].Substring(3, 2)); // MINUTE
-
-                                    DateTime mdt = new DateTime(n_mysplit[0], n_mysplit[1], n_mysplit[2], n_mysplit[3], n_mysplit[4], 0);
-
-                                    replyText = string.Format("On {0}, at {1}, the user \"{2}\" {3} the following: " + Environment.NewLine + "{4}", mdt.ToString("ddd d/MM/yyy"), mdt.ToShortTimeString(), s_mysplit1[1], sayrandom, s_mysplit1[2]);
+                                    break;
 
                                 }
                                 else
                                 {
-                                    Console.WriteLine("The " + command + " failed as it took too long to process.");
+                                    textomatic1 = nwRandomQuoteLine(fchosen, body);
                                 }
+
+                                // If our code doesn't contain our test string
+                                if (textomatic1.Contains("Test message. Do not report."))
+                                {
+                                    textomatic1 = nwRandomQuoteLine(fchosen);
+                                    goto blah;
+                                }
+
+                                string sayrandom = nwRandomSaidLine();
+
+                                string[] s_mysplit1 = new string[] { "", "", "" };
+                                string[] s_mysplit2 = new string[] { "", "", "" };
+                                int[] n_mysplit = new int[] { 2016, 9, 1, 0, 0 };
+                                string[] s_mysep1 = new string[] { "\\r", "\\n", "[", "] <", "> " };
+                                string[] s_splitfile = new string[] { "." };
+
+                                s_mysplit1 = textomatic1.Split(s_mysep1, StringSplitOptions.RemoveEmptyEntries);
+                                s_mysplit2 = fchosen.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
+
+                                n_mysplit[0] = Convert.ToInt32(s_mysplit2[1].Substring(0, 4)); // YEAR
+                                n_mysplit[1] = Convert.ToInt32(s_mysplit2[1].Substring(4, 2)); // MONTH
+                                n_mysplit[2] = Convert.ToInt32(s_mysplit2[1].Substring(6)); // DAY
+                                n_mysplit[3] = Convert.ToInt32(s_mysplit1[0].Substring(0, 2)); // HOUR
+                                n_mysplit[4] = Convert.ToInt32(s_mysplit1[0].Substring(3, 2)); // MINUTE
+
+                                DateTime mdt = new DateTime(n_mysplit[0], n_mysplit[1], n_mysplit[2], n_mysplit[3], n_mysplit[4], 0);
+
+                                replyText = string.Format("On {0}, at {1}, the user \"{2}\" {3} the following: " + Environment.NewLine + "{4}", mdt.ToString("ddd d/MM/yyy"), mdt.ToShortTimeString(), s_mysplit1[1], sayrandom, s_mysplit1[2]);
 
                             }
                             else
                             {
-
-                                if (nwCheckInReplyTimer(dt) != false)
-                                {
-                                    string fchosen = null;
-                                    string[] fileEntries = ehoh.Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg", @"*\-1001032131694.*.log");
-
-                                    fchosen = fileEntries[new Random().Next(0, fileEntries.Length)];
-
-                                    if (fchosen == null) { replyText = "An error has occurred, please try this command again, and/or quote 'fchosen returned null' to @AndyDingoFolf"; }
-
-                                    string textomatic1 = "";
-
-                                    blah:
-
-                                    // if blank, get quote line without a body
-                                    if (body == string.Empty || body == " " || body == "@" || body == null)
-                                    {
-                                        textomatic1 = nwRandomQuoteLine(fchosen);
-                                    }
-                                    else if (body == "help")
-                                    {
-                                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                        s_replyToUser = "Usage: /quote [name of person to quote, or leave blank for random]" + Environment.NewLine + "Type '/quote help' to see this message again.";
-
-                                        break;
-
-                                    }
-                                    else
-                                    {
-                                        textomatic1 = nwRandomQuoteLine(fchosen, body);
-                                    }
-
-                                    // If our code doesn't contain our test string
-                                    if (textomatic1.Contains("Test message. Do not report."))
-                                    {
-                                        textomatic1 = nwRandomQuoteLine(fchosen);
-                                        goto blah;
-                                    }
-
-                                    string sayrandom = nwRandomSaidLine();
-
-                                    string[] s_mysplit1 = new string[] { "", "", "" };
-                                    string[] s_mysplit2 = new string[] { "", "", "" };
-                                    int[] n_mysplit = new int[] { 2016, 9, 1, 0, 0 };
-                                    string[] s_mysep1 = new string[] { "\\r", "\\n", "[", "] <", "> " };
-                                    string[] s_splitfile = new string[] { "." };
-
-                                    s_mysplit1 = textomatic1.Split(s_mysep1, StringSplitOptions.RemoveEmptyEntries);
-                                    s_mysplit2 = fchosen.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
-
-                                    n_mysplit[0] = Convert.ToInt32(s_mysplit2[1].Substring(0, 4)); // YEAR
-                                    n_mysplit[1] = Convert.ToInt32(s_mysplit2[1].Substring(4, 2)); // MONTH
-                                    n_mysplit[2] = Convert.ToInt32(s_mysplit2[1].Substring(6)); // DAY
-                                    n_mysplit[3] = Convert.ToInt32(s_mysplit1[0].Substring(0, 2)); // HOUR
-                                    n_mysplit[4] = Convert.ToInt32(s_mysplit1[0].Substring(3, 2)); // MINUTE
-
-                                    DateTime mdt = new DateTime(n_mysplit[0], n_mysplit[1], n_mysplit[2], n_mysplit[3], n_mysplit[4], 0);
-
-                                    replyText = string.Format("On {0}, at {1}, the user \"{2}\" {3} the following: " + Environment.NewLine + "{4}", mdt.ToString("ddd d/MM/yyy"), mdt.ToShortTimeString(), s_mysplit1[1], sayrandom, s_mysplit1[2]);
-
-                                }
-                                else
-                                {
-                                    Console.WriteLine("The " + command + " failed as it took too long to process.");
-                                }
-
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
                             }
 
                             break;
@@ -2232,7 +2024,7 @@ namespace nwTelegramBot
                             // TODO: This would ideally need to be one of any of the config file settings
                             // Example of usage: /set -[option to set] -[new value]
 
-                            if (ct != ChatType.Private )
+                            if (ct != ChatType.Private)
                             {
 
                                 ChatMember[] cm_admin2 = await bot.GetChatAdministratorsAsync(update.Message.Chat.Id);
@@ -2295,10 +2087,12 @@ namespace nwTelegramBot
                             if (ct == ChatType.Private)
                             {
 
-                                int n = nwGrabGlobalUsageDB("total");
-                                replyText=n.ToString();
+                                //int n = nwGrabGlobalUsageDB("total");
+                                //replyText = n.ToString();
                                 nwTestColoredConsoleWrite(" mrew ");
                                 // WAITING FOR THE NEXT TEST
+
+                                //await bot.SendTextMessageAsync(update.Message.Chat.Id, nwGrabImage("https://e621.net/post/index.xml?limit=100&tags=feline%20dickgirl%20solo%20rating:safe%20order:score"), false, false, 0, null, ParseMode.Html);
 
                             }
                             else
@@ -2365,10 +2159,42 @@ namespace nwTelegramBot
                                     else
                                     {
 
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            //replyText2 = body;
-                                            await bot.SendTextMessageAsync(-1001032131694, body);
-                                        break;
+                                        if (body == string.Empty || body == " ")
+                                        {
+                                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(dt) != false)
+                                                s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular usage: /stats [week|fortnight|month|year|alltime|archive|commands]";
+
+                                            break;
+
+                                        }
+                                        else if (body == "help")
+                                        {
+                                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            s_replyToUser = "Usage: /say [thing to say]" + Environment.NewLine + "Type '/say help' to see this message again.";
+
+                                            break;
+
+                                        }
+                                        else
+                                        {
+                                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+                                            
+                                            string[] s_splitfile = new string[] { " " };
+                                            string[] boob = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
+
+
+                                            if boob.
+
+                                            if (nwCheckInReplyTimer(dt) != false)
+                                                await bot.SendTextMessageAsync(-1001032131694, body);
+
+                                            break;
+
+                                        }
+
                                     }
 
                                 }
@@ -2379,7 +2205,7 @@ namespace nwTelegramBot
 
                                 if (nwCheckInReplyTimer(dt) != false)
                                     //replyText2 = body;
-                                    await bot.SendTextMessageAsync(-1001032131694, "Not working.");
+                                    await bot.SendTextMessageAsync(update.Message.Chat.Id, "Not working.");
                                 break;
 
                             }
@@ -2390,6 +2216,90 @@ namespace nwTelegramBot
                             //}
 
                             //nwSetGlobalUsage("say", n_sayuse++); // Write new value. // set global usage incrementally
+
+                            break;
+
+                        case "/mow":
+                        case "/homph":
+                        case "/snep":
+
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /snep";
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /snep" + Environment.NewLine + "Type '/snep help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                retryme:
+
+                                // list of urls.
+                                string html = null;
+
+                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                    html = GetHtmlCode("snow leopard", false, true);
+                                else
+                                    html = GetHtmlCode("snow leopard", false, false);
+
+                                List<string> urls = GetUrls(html);
+                                var rnd = new Random();
+
+                                int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                // Select url from url list.
+                                string luckyUrl = urls[randomUrl];
+
+                                // Check if the file is valid, or throws an unwanted status code.
+                                if (!string.IsNullOrEmpty(luckyUrl))
+                                {
+                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.NotFound)
+                                    {
+                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.OK)
+                                    {
+                                        Console.WriteLine("URL appears to be good.");
+                                    }
+                                    else //There are a lot of other status codes you could check for...
+                                    {
+                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                   response.StatusCode.ToString()));
+                                    }
+
+                                }
+
+                                if (luckyUrl.Contains(" ") == true)
+                                    luckyUrl.Replace(" ", "%20");
+
+                                replyImage = luckyUrl;
+
+                                break;
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
 
                             break;
 
@@ -2504,178 +2414,77 @@ namespace nwTelegramBot
 
                         case "/meme":
 
-                            if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                            if (body == string.Empty || body == " " || body == "@" || body == null)
                             {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                if (body == string.Empty || body == " " || body == "@" || body == null)
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+                                s_replyToUser = "Usage: /meme [image to look for]";
 
-                                    s_replyToUser = "Usage: /meme [image to look for]";
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    break;
-                                }
-                                else if (body == "help")
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+                                s_replyToUser = "Usage: /meme [image to look for]" + Environment.NewLine + "Type '/mee help' to see this message again.";
 
-                                    s_replyToUser = "Usage: /meme [image to look for]" + Environment.NewLine + "Type '/mee help' to see this message again.";
-
-                                    break;
-
-                                }
-
-                                if (nwCheckInReplyTimer(dt) != false)
-                                {
-
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
-
-                                    retryme:
-
-                                    string html1 = GetHtmlCode(body, false, true);
-                                    List<string> urls1 = GetUrls(html1);
-
-                                    int memecount = urls1.Count;
-
-                                    string s_luckyUrl = urls1[0];
-
-                                    // Check if the file is valid, or throws an unwanted status code.
-                                    if (!string.IsNullOrEmpty(s_luckyUrl))
-                                    {
-                                        UriBuilder uriBuilder = new UriBuilder(s_luckyUrl);
-                                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                        if (response.StatusCode == HttpStatusCode.NotFound)
-                                        {
-                                            Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                            goto retryme;
-                                        }
-                                        if (response.StatusCode == HttpStatusCode.OK)
-                                        {
-                                            Console.WriteLine("URL appears to be good.");
-                                        }
-                                        else //There are a lot of other status codes you could check for...
-                                        {
-                                            Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                       response.StatusCode.ToString()));
-                                        }
-                                    }
-
-                                    if (s_luckyUrl.Contains(" ") == true)
-                                        s_luckyUrl.Replace(" ", "%20");
-
-                                    replyImage = s_luckyUrl;
-                                    break;
-
-                                }
+                                break;
 
                             }
-                            else
+
+                            if (nwCheckInReplyTimer(dt) != false)
                             {
 
-                                if (body == string.Empty || body == " " || body == "@" || body == null)
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                retryme:
+
+                                // list of urls.
+                                string html1 = null;
+
+                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                    html1 = GetHtmlCode(body, false, true);
+                                else
+                                    html1 = GetHtmlCode(body, false, false);
+
+                                List<string> urls1 = GetUrls(html1);
+
+                                int memecount = urls1.Count;
+
+                                string s_luckyUrl = urls1[0];
+
+                                // Check if the file is valid, or throws an unwanted status code.
+                                if (!string.IsNullOrEmpty(s_luckyUrl))
                                 {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    s_replyToUser = "Usage: /meme [image to look for]";
-
-                                    break;
-                                }
-                                else if (body == "help")
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    s_replyToUser = "Usage: /meme [image to look for]" + Environment.NewLine + "Type '/mee help' to see this message again.";
-
-                                    break;
-
-                                }
-
-                                if (nwCheckInReplyTimer(dt) != false)
-                                {
-
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
-
-                                    retryme:
-
-                                    string html1 = GetHtmlCode(body, false, false);
-                                    List<string> urls1 = GetUrls(html1);
-
-                                    int memecount = urls1.Count;
-
-                                    string s_luckyUrl = urls1[0];
-
-                                    // Check if the file is valid, or throws an unwanted status code.
-                                    if (!string.IsNullOrEmpty(s_luckyUrl))
+                                    UriBuilder uriBuilder = new UriBuilder(s_luckyUrl);
+                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.NotFound)
                                     {
-                                        UriBuilder uriBuilder = new UriBuilder(s_luckyUrl);
-                                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                        if (response.StatusCode == HttpStatusCode.NotFound)
-                                        {
-                                            Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                            goto retryme;
-                                        }
-                                        if (response.StatusCode == HttpStatusCode.OK)
-                                        {
-                                            Console.WriteLine("URL appears to be good.");
-                                        }
-                                        else //There are a lot of other status codes you could check for...
-                                        {
-                                            Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                       response.StatusCode.ToString()));
-                                        }
+                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                        goto retryme;
                                     }
-
-                                    if (s_luckyUrl.Contains(" ") == true)
-                                        s_luckyUrl.Replace(" ", "%20");
-
-                                    replyImage = s_luckyUrl;
-                                    break;
-
+                                    if (response.StatusCode == HttpStatusCode.OK)
+                                    {
+                                        Console.WriteLine("URL appears to be good.");
+                                    }
+                                    else //There are a lot of other status codes you could check for...
+                                    {
+                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                   response.StatusCode.ToString()));
+                                    }
                                 }
+
+                                if (s_luckyUrl.Contains(" ") == true)
+                                    s_luckyUrl.Replace(" ", "%20");
+
+                                replyImage = s_luckyUrl;
+                                break;
 
                             }
 
                             break;
-                        //case "/ping":
-                        //case "/em": // TODO: Finish this command
-                        //    // usage /em -[action (see list of actions)] -[@username of target]
-                        //    // performs an action on a target
-                        //    emuse = nwGrabInt("cusage/emote");
-                        //    int n_emmax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/emote");
-                        //    int n_emmax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/emote");
-
-                        //    if (emuse == n_emmax1 || emuse == n_emmax2)
-                        //    {
-                        //        if (nwCheckInReplyTimer(dt) != false)
-                        //            replyText = "Sorry, the /em command has been used too many times.";
-                        //        break;
-                        //    }
-
-                        //    if (nwCheckInReplyTimer(dt) != false)
-                        //    {
-                        //        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                        //        if (body == string.Empty || body == " ")
-                        //        {
-                        //            break;
-                        //        }
-
-                        //        if (s_chattype == "Private")
-                        //        {
-
-
-
-                        //        }
-
-
-                        //        replyText = nwRandomGreeting() + ". This command is coming soon.";
-                        //    }
-
-                        //    nwSetString("cusage/emote", Convert.ToString(emuse++));
-                        //    nwSetUserString(update.Message.From.FirstName + "/cmd_counts/emote", Convert.ToString(emuse++));
-                        //    break;
                         case "/action":
                         case "/me": // TODO: Finish this command
                                     // performs an action on the caller
@@ -3087,9 +2896,16 @@ namespace nwTelegramBot
             }
         }
 
+        /// <summary>
+        /// Grab an image from a given url and return a string to post to the channel.
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         private static string nwGrabImage(string url)
         {
             string s_returnedImage = null;
+            string s_furl = null;
+            string s_randxml;
 
             // Check if the file is valid, or throws an unwanted status code.
             if (!string.IsNullOrEmpty(url))
@@ -3103,6 +2919,9 @@ namespace nwTelegramBot
 
                 XmlDocument doc1 = new XmlDocument();
 
+                // Create a new doc from the loaded xml in prev example.
+                XmlDocument xdoc = new XmlDocument();
+
                 using (ehoh.Stream dataStream = response.GetResponseStream())
                 {
                     doc1.Load(dataStream);
@@ -3110,25 +2929,56 @@ namespace nwTelegramBot
                     if (doc1.SelectSingleNode("posts/post/file_url") != null)
                     {
 
-                        s_returnedImage = doc1.SelectSingleNode("posts/post/file_url").InnerText;
-                        string[] s_repoarray = new string[] { "test" };
+                        XmlNodeList xnl_test2 = doc1.SelectNodes("posts/post");
+                        
+                        s_randxml = xnl_test2[new Random().Next(0, xnl_test2.Count)].OuterXml;
 
-                        //s_repoarray = doc1.SelectNodes("posts/post/file_url"; 
-                        XmlNodeList xnl_test = doc1.SelectNodes("posts/post/file_url");
-                        s_returnedImage = xnl_test[new Random().Next(0, xnl_test.Count)].InnerText;
+                        xdoc.LoadXml(s_randxml);
 
+                        s_furl = doc1.SelectSingleNode("posts/post/file_url").InnerText;
 
-                        Console.WriteLine("System: The following image was selected: " + s_returnedImage);
+                        Uri uri = new Uri(s_furl);
+                        string filename = ehoh.Path.GetFileName(uri.LocalPath);
+
+                        string s_sample = xdoc.SelectSingleNode("post/sample_url").InnerText;
+
+                        string s_rating = nwConvertRating(xdoc.SelectSingleNode("post/rating").InnerText);
+
+                        s_returnedImage = string.Format("Image: <a href=\"{1}\">{0}</a>" + Environment.NewLine +
+                            "Post: https://e621.net/post/show/" + "{7}" + Environment.NewLine +
+                            "Artist: <b>{2}</b>" + Environment.NewLine +
+                            "Source: {3}" + Environment.NewLine +
+                            "Score: <b>{4}</b> Favorites: <b>{5}</b> Rating: <b>{6}</b>", filename, xdoc.SelectSingleNode("post/file_url").InnerText, xdoc.SelectSingleNode("post/artist/artist").InnerText, xdoc.SelectSingleNode("post/source").InnerText, xdoc.SelectSingleNode("post/score").InnerText, xdoc.SelectSingleNode("post/fav_count").InnerText, s_rating, xdoc.SelectSingleNode("post/id").InnerText);
+
+                        //+Environment.NewLine +
+                        //   "{8}", filename, xdoc.SelectSingleNode("post/file_url").InnerText, xdoc.SelectSingleNode("post/artist/artist").InnerText, xdoc.SelectSingleNode("post/source").InnerText, xdoc.SelectSingleNode("post/score").InnerText, xdoc.SelectSingleNode("post/fav_count").InnerText, xdoc.SelectSingleNode("post/rating").InnerText, xdoc.SelectSingleNode("post/id").InnerText, s_sample);
+
+                        Console.WriteLine("System: The following image was selected: " + s_sample);
 
                     }
                     else
                     {
-                        return "No image found.";
+                        return "No image was found with the specified tag(s).";
                     }
 
                 }
             }
             return s_returnedImage;
+        }
+
+        private static string nwConvertRating(string innerText)
+        {
+            switch (innerText)
+            {
+                case "e":
+                    return "Explicit";
+                case "q":
+                    return "Questionable";
+                case "s":
+                    return "Safe";
+                default:
+                    return innerText;
+            }
         }
 
         /// <summary>
@@ -3348,8 +3198,8 @@ namespace nwTelegramBot
                     return "Usage: /roll [number of sides] [amount of dice]";
             }
             
-            string[] mysplit = new string[] { "", "", "" };
-            mysplit = body.Split(' ');
+            string[] mysplit = new string[] { "1", "1", "1" };
+             mysplit = body.Split(' ');
 
             string ms1 = mysplit[0];
             string ms2 = mysplit[1];
@@ -3502,6 +3352,7 @@ namespace nwTelegramBot
         /// <returns></returns>
         private static string GetHtmlCode(string s_topic, bool isgif, bool isnsfw)
         {
+
             string url = "https://www.google.com/search?q=" + s_topic + "&safe=active&tbm=isch";
 
             if (isnsfw == true)
@@ -3509,8 +3360,7 @@ namespace nwTelegramBot
                 url = "https://www.google.com/search?q=" + s_topic + "&tbm=isch";
             }
 
-
-                string data = "";
+            string data = "";
 
             if (isgif == true)
             {
@@ -3532,7 +3382,9 @@ namespace nwTelegramBot
                     data = sr.ReadToEnd();
                 }
             }
+
             return data;
+
         }
 
         private static List<string> GetUrls(string html)
@@ -3677,7 +3529,7 @@ namespace nwTelegramBot
 
         public static void nwTestColoredConsoleWrite(string text)
         {
-            ColoredConsoleWrite(ConsoleColor.Yellow, "Meow");
+            ColoredConsoleWrite(ConsoleColor.Yellow, "System:");
             ColoredConsoleWrite(ConsoleColor.Cyan, text);
             ColoredConsoleWrite(ConsoleColor.DarkGray, "Meow");
         }

@@ -13,8 +13,9 @@ Note: All changes go in this log file under the version those
 changes were made for. Newest Changes generally go first.
 +==================================+
 
-Version 0.93 BETA
+Version 0.94 BETA
 ------------------------------------
+- Removed more obsolete code. [AndyDingo]
 - e621 command rewritten. [AndyDingo]
 - Added help subcommand to various commands. Will display usage. [AndyDingo]
 - Bug fixes. [AndyDingo]
