@@ -629,7 +629,16 @@ namespace nwTelegramBot
                                             nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
 
                                     }
+                                    
+                                    // if message contains skynet
+                                    if (update.Message.Text.Contains("Skynet") == true || update.Message.Text.Contains("skynet") == true)
+                                    {
 
+                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "https://www.youtube.com/watch?v=XcNXq5DUZnk", false, false, update.Message.MessageId);
+
+                                    }
+
+                                    // if message contains eeyup
                                     if (update.Message.Text.Contains("Eeyup") == true || update.Message.Text.Contains("eeyup") == true)
                                     {
 
@@ -638,6 +647,37 @@ namespace nwTelegramBot
                                         s_rande = nwGenRandomSuffix();
 
                                         Bot.SendTextMessageAsync(update.Message.Chat.Id, "Eeyup" + s_rande, false, false, update.Message.MessageId);
+
+                                    }
+
+                                    // if message contains andy dingo
+                                    if (update.Message.Text.Contains("Andy Dingo") == true)
+                                    {
+
+                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "That is no longer me :P Am transitioning to a girl, kthanks", false, false, update.Message.MessageId);
+                                        
+                                    }
+
+                                    // If message contains OWO
+                                    if (update.Message.Text.Contains("owo") == true || update.Message.Text.Contains("OwO") == true)
+                                    {
+
+                                        Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                        if (nwCheckInReplyTimer(m) != false)
+                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "What's this?", false, false, update.Message.MessageId);
+
+                                    }
+
+                                    // If message contains buttstripe
+                                    if (update.Message.Text.Contains("buttstripe") == true)
+                                    {
+
+                                        Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                        if (nwCheckInReplyTimer(m) != false)
+                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, ">:|", false, false, update.Message.MessageId);
+
                                     }
 
 
@@ -1349,6 +1389,7 @@ namespace nwTelegramBot
                         case "/count":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
                             if (ct != ChatType.Private)
                             {
                                 ChatMember[] cm_admin = await bot.GetChatAdministratorsAsync(update.Message.Chat.Id);
@@ -1371,7 +1412,7 @@ namespace nwTelegramBot
                                         {
 
                                             int meow;
-                                            meow = await bot.GetChatMembersCountAsync(-1001032131694);
+                                            meow = await bot.GetChatMembersCountAsync(update.Message.Chat.Id);
                                             s_replyToUser = "There are currently " + meow + " people in chat.";
 
                                         }
@@ -1390,6 +1431,7 @@ namespace nwTelegramBot
                             }
 
                             break;
+
                         case "/help":
                         case "/command":
                         case "/commands":
@@ -1788,15 +1830,6 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/owo":
-
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "What's this?";
-
-                            break;
-
                         case "/profile":
 
                             if (nwCheckInReplyTimer(dt) != false)
@@ -1814,9 +1847,9 @@ namespace nwTelegramBot
                                 string[] fileEntries = null;
 
                                 if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                    fileEntries = ehoh.Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg", @"*\-1001052518605.*.log");
+                                    fileEntries = ehoh.Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg", @"-1001052518605.*.log");
                                 else
-                                    fileEntries = ehoh.Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg", @"*\-1001032131694.*.log");
+                                    fileEntries = ehoh.Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg", @"-1001032131694.*.log");
 
                                 fchosen = fileEntries[new Random().Next(0, fileEntries.Length)];
 
@@ -2182,11 +2215,23 @@ namespace nwTelegramBot
                                         {
                                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
                                             
-                                            string[] s_splitfile = new string[] { " " };
-                                            string[] boob = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
+                                            //string[] s_splitfile = new string[] { " " };
+                                            //string[] boob = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
+
+                                            //StringBuilder saysb = new StringBuilder();
+
+                                            //if (boob[0].Contains("sfw"))
+                                            //{
 
 
-                                            if boob.
+                                            //    foreach (string s_meow in boob)
+                                            //    {
+                                            //        saysb.(s_meow);
+                                            //    }
+                                            //}
+                                            //boob.
+
+                                            //if boob.
 
                                             if (nwCheckInReplyTimer(dt) != false)
                                                 await bot.SendTextMessageAsync(-1001032131694, body);
