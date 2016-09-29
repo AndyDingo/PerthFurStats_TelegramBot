@@ -659,7 +659,7 @@ namespace nwTelegramBot
                                     }
 
                                     // If message contains OWO
-                                    if (update.Message.Text.Contains("owo") == true || update.Message.Text.Contains("OwO") == true)
+                                    if (update.Message.Text.Contains(@"\bowo\b") == true || update.Message.Text.Contains("\bOwO\b") == true)
                                     {
 
                                         Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
@@ -2214,27 +2214,43 @@ namespace nwTelegramBot
                                         else
                                         {
                                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-                                            
-                                            //string[] s_splitfile = new string[] { " " };
-                                            //string[] boob = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
 
-                                            //StringBuilder saysb = new StringBuilder();
+                                            string[] s_splitfile = new string[] { " " };
+                                            string[] boob = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
 
-                                            //if (boob[0].Contains("sfw"))
-                                            //{
+                                            StringBuilder saysb = new StringBuilder();
 
+                                            if (boob[0].Contains("sfw"))
+                                            {
 
-                                            //    foreach (string s_meow in boob)
-                                            //    {
-                                            //        saysb.(s_meow);
-                                            //    }
-                                            //}
+                                                boob[0] = boob[0].Replace("sfw", "");
+
+                                                foreach (string s_meow in boob)
+                                                {
+                                                    saysb.Append(s_meow);
+                                                }
+
+                                                if (nwCheckInReplyTimer(dt) != false)
+                                                    await bot.SendTextMessageAsync(-1001032131694, saysb.ToString());
+
+                                            }
+                                            else if (boob[0].Contains("nsfw"))
+                                            {
+                                                boob[0] = boob[0].Replace("nsfw", "");
+
+                                                foreach (string s_meow in boob)
+                                                {
+                                                    saysb.Append(s_meow);
+                                                }
+
+                                                if (nwCheckInReplyTimer(dt) != false)
+                                                    await bot.SendTextMessageAsync(-1001052518605, saysb.ToString());
+                                            }
                                             //boob.
 
                                             //if boob.
 
-                                            if (nwCheckInReplyTimer(dt) != false)
-                                                await bot.SendTextMessageAsync(-1001032131694, body);
+                                            
 
                                             break;
 
@@ -2735,7 +2751,7 @@ namespace nwTelegramBot
                             //int n_nfouse = nwGrabGlobalUsage("about");
 
                             if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "PerthFurStats is the best bot" + Environment.NewLine + "Version " + cExtensions.nwGetFileVersionInfo.FileMajorPart + "." + cExtensions.nwGetFileVersionInfo.FileMinorPart + ", Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart + Environment.NewLine + "By @AndyDingoWolf" + Environment.NewLine + "GitHub: https://github.com/AndyDingo/PerthFurStats_TelegramBot" + Environment.NewLine + "This bot uses open source software.";
+                                s_replyToUser = "PerthFurStats is the best bot" + Environment.NewLine + "Version " + cExtensions.nwGetFileVersionInfo.FileMajorPart + "." + cExtensions.nwGetFileVersionInfo.FileMinorPart + ", Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart + Environment.NewLine + "By @AnwenSnowMew" + Environment.NewLine + "GitHub: https://github.com/AndyDingo/PerthFurStats_TelegramBot" + Environment.NewLine + "This bot uses open source software.";
 
                             //nwSetGlobalUsage("about", n_nfouse++); // set global usage incrementally
                             //nwSetUserUsage(s_username, "about", n_nfouse++); // set this users usage incrementally
