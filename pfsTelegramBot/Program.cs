@@ -608,7 +608,7 @@ namespace nwTelegramBot
                                         //}
                                     }
 
-                                    if (umt.Contains("Mow") == true || umt.Contains("mow") == true || umt.Contains("mrew") == true || umt.Contains("mjau") == true || umt.Contains("maow") == true || umt.Contains("meow") == true)
+                                    if (Regex.IsMatch(umt, @"\bmow\b", RegexOptions.IgnoreCase) == true || umt.Contains("mrew") == true || umt.Contains("mjau") == true || umt.Contains("maow") == true || umt.Contains("meow") == true)
                                     {
 
                                         int n_cat = nwCountCatNoises();
@@ -619,7 +619,7 @@ namespace nwTelegramBot
 
                                     }
 
-                                    if (umt.Contains("aroo") == true || umt.Contains("awoo") == true || umt.Contains("aruu") == true || umt.Contains("awuu") == true || umt.Contains("bark") == true || umt.Contains("bork") == true)
+                                    if (Regex.IsMatch(umt, @"\baroo\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bawoo\b", RegexOptions.IgnoreCase) == true || umt.Contains("aruu") == true || umt.Contains("awuu") == true || umt.Contains("bark") == true || umt.Contains("bork") == true)
                                     {
 
                                         int n_dog = nwCountDogNoises();
@@ -629,9 +629,9 @@ namespace nwTelegramBot
                                             nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
 
                                     }
-                                    
+
                                     // if message contains skynet
-                                    if (update.Message.Text.Contains("Skynet") == true || update.Message.Text.Contains("skynet") == true)
+                                    if (Regex.IsMatch(update.Message.Text, @"\bskynet\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(update.Message.Text, @"\bcyberdyne\b", RegexOptions.IgnoreCase) == true)
                                     {
 
                                         Bot.SendTextMessageAsync(update.Message.Chat.Id, "https://www.youtube.com/watch?v=XcNXq5DUZnk", false, false, update.Message.MessageId);
@@ -639,7 +639,7 @@ namespace nwTelegramBot
                                     }
 
                                     // if message contains eeyup
-                                    if (update.Message.Text.Contains("Eeyup") == true || update.Message.Text.Contains("eeyup") == true)
+                                    if (Regex.IsMatch(update.Message.Text, @"\beeyup\b", RegexOptions.IgnoreCase) == true)
                                     {
 
                                         string s_rande = null;
@@ -650,8 +650,16 @@ namespace nwTelegramBot
 
                                     }
 
+                                    // if message contains eeyup
+                                    if (Regex.IsMatch(update.Message.Text, @"\btrigger\b", RegexOptions.IgnoreCase) == true)
+                                    {
+
+                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "Go back to tumblr with your 'triggers' and 'microaggressions'.", false, false, update.Message.MessageId);
+
+                                    }
+
                                     // if message contains andy dingo
-                                    if (update.Message.Text.Contains("Andy Dingo") == true)
+                                    if (Regex.IsMatch(update.Message.Text, @"\bAndy Dingo\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(update.Message.Text, @"\bAndy Dingo Wolf\b", RegexOptions.IgnoreCase) == true)
                                     {
 
                                         Bot.SendTextMessageAsync(update.Message.Chat.Id, "That is no longer me :P Am transitioning to a girl, kthanks", false, false, update.Message.MessageId);
@@ -659,7 +667,7 @@ namespace nwTelegramBot
                                     }
 
                                     // If message contains OWO
-                                    if (update.Message.Text.Contains(@"\bowo\b") == true || update.Message.Text.Contains("\bOwO\b") == true)
+                                    if (Regex.IsMatch(update.Message.Text, @"\bowo\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(update.Message.Text, @"\buwu\b", RegexOptions.IgnoreCase) == true)
                                     {
 
                                         Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
@@ -670,7 +678,7 @@ namespace nwTelegramBot
                                     }
 
                                     // If message contains buttstripe
-                                    if (update.Message.Text.Contains("buttstripe") == true)
+                                    if (Regex.IsMatch(update.Message.Text, @"\bbuttstripe\b", RegexOptions.IgnoreCase) == true)
                                     {
 
                                         Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
@@ -1241,7 +1249,7 @@ namespace nwTelegramBot
                                 bool b_kat = false;
 
                                 // check the username
-                                if (s_username != "AndyDingoFolf")
+                                if (s_username != "AnwenSnowMew")
                                 {
                                     if (nwCheckInReplyTimer(dt) != false)
                                         s_replyToUser = "You have insufficient permissions to access this command.";
@@ -1490,7 +1498,7 @@ namespace nwTelegramBot
 
                             if (ct == ChatType.Private)
                             {
-                                if (s_username != "AndyDingoFolf" || s_username != "Inflatophin")
+                                if (s_username != "AnwenSnowMew" || s_username != "Inflatophin")
                                 {
                                     if (nwCheckInReplyTimer(dt) != false)
                                         replyText = "You have insufficient permissions to access this command.";
@@ -1517,11 +1525,259 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "/canine":
+                        case "/dog":
+                        case "/doggo":
+
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /dog";
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /dog" + Environment.NewLine + "Type '/dog help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                retryme:
+
+                                // list of urls.
+                                string html = null;
+
+                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                    html = GetHtmlCode("dog", false, true);
+                                else
+                                    html = GetHtmlCode("dog", false, false);
+
+                                List<string> urls = GetUrls(html);
+                                var rnd = new Random();
+
+                                int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                // Select url from url list.
+                                string luckyUrl = urls[randomUrl];
+
+                                // Check if the file is valid, or throws an unwanted status code.
+                                if (!string.IsNullOrEmpty(luckyUrl))
+                                {
+                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.NotFound)
+                                    {
+                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.OK)
+                                    {
+                                        Console.WriteLine("URL appears to be good.");
+                                    }
+                                    else //There are a lot of other status codes you could check for...
+                                    {
+                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                   response.StatusCode.ToString()));
+                                    }
+
+                                }
+
+                                if (luckyUrl.Contains(" ") == true)
+                                    luckyUrl.Replace(" ", "%20");
+
+                                replyImage = luckyUrl;
+
+                                break;
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
+
+                            break;
+
+                        case "/dino":
+
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /dino";
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /dino" + Environment.NewLine + "Type '/dino help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                retryme:
+
+                                // list of urls.
+                                string html = null;
+
+                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                    html = GetHtmlCode("dinosaur", false, true);
+                                else
+                                    html = GetHtmlCode("dinosaur", false, false);
+
+                                List<string> urls = GetUrls(html);
+                                var rnd = new Random();
+
+                                int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                // Select url from url list.
+                                string luckyUrl = urls[randomUrl];
+
+                                // Check if the file is valid, or throws an unwanted status code.
+                                if (!string.IsNullOrEmpty(luckyUrl))
+                                {
+                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.NotFound)
+                                    {
+                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.OK)
+                                    {
+                                        Console.WriteLine("URL appears to be good.");
+                                    }
+                                    else //There are a lot of other status codes you could check for...
+                                    {
+                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                   response.StatusCode.ToString()));
+                                    }
+
+                                }
+
+                                if (luckyUrl.Contains(" ") == true)
+                                    luckyUrl.Replace(" ", "%20");
+
+                                replyImage = luckyUrl;
+
+                                break;
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
+
+                            break;
+
+                        case "/dragon":
+
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /dragon";
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /dragon" + Environment.NewLine + "Type '/dragon help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                retryme:
+
+                                // list of urls.
+                                string html = null;
+
+                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                    html = GetHtmlCode("dragon", false, true);
+                                else
+                                    html = GetHtmlCode("dragon", false, false);
+
+                                List<string> urls = GetUrls(html);
+                                var rnd = new Random();
+
+                                int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                // Select url from url list.
+                                string luckyUrl = urls[randomUrl];
+
+                                // Check if the file is valid, or throws an unwanted status code.
+                                if (!string.IsNullOrEmpty(luckyUrl))
+                                {
+                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.NotFound)
+                                    {
+                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.OK)
+                                    {
+                                        Console.WriteLine("URL appears to be good.");
+                                    }
+                                    else //There are a lot of other status codes you could check for...
+                                    {
+                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                   response.StatusCode.ToString()));
+                                    }
+
+                                }
+
+                                if (luckyUrl.Contains(" ") == true)
+                                    luckyUrl.Replace(" ", "%20");
+
+                                replyImage = luckyUrl;
+
+                                break;
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
+
+                            break;
+
                         case "/edit":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (s_username != "AndyDingoFolf")
+                            if (s_username != "AnwenSnowMew")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     s_replyToUser = "You have insufficient permissions to access this command.";
@@ -1568,6 +1824,88 @@ namespace nwTelegramBot
 
                                 break;
 
+                            }
+
+                            break;
+
+                        case "/fox":
+
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /fox";
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /fox" + Environment.NewLine + "Type '/fox help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                retryme:
+
+                                // list of urls.
+                                string html = null;
+
+                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                    html = GetHtmlCode("fox", false, true);
+                                else
+                                    html = GetHtmlCode("fox", false, false);
+
+                                List<string> urls = GetUrls(html);
+                                var rnd = new Random();
+
+                                int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                // Select url from url list.
+                                string luckyUrl = urls[randomUrl];
+
+                                // Check if the file is valid, or throws an unwanted status code.
+                                if (!string.IsNullOrEmpty(luckyUrl))
+                                {
+                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.NotFound)
+                                    {
+                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.OK)
+                                    {
+                                        Console.WriteLine("URL appears to be good.");
+                                    }
+                                    else //There are a lot of other status codes you could check for...
+                                    {
+                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                   response.StatusCode.ToString()));
+                                    }
+
+                                }
+
+                                if (luckyUrl.Contains(" ") == true)
+                                    luckyUrl.Replace(" ", "%20");
+
+                                replyImage = luckyUrl;
+
+                                break;
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
                             }
 
                             break;
@@ -3563,7 +3901,7 @@ namespace nwTelegramBot
             DateTime startTime = dt; // message time
             TimeSpan span = endTime.Subtract(startTime);
 
-            Console.WriteLine("[" + dt.ToString(nwParseFormat(true)) + "] * System: CHECK IN REPLY EVENT TRIGGERED.");
+            nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: CHECK IN REPLY EVENT TRIGGERED.");
 
             if (span.Minutes <= 10 || span.Minutes == 0)
             {
