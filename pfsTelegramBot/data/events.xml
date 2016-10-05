@@ -1,26 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <events>
 	<event>
-		<id>111</id>
-		<url>http://www.perthfurs.net/events/view/111</url>
-		<title>QuayFurs 4</title>
+		<id>115</id>
+		<url>http://www.perthfurs.net/events/view/115</url>
+		<title>Quay Furs 6 - Perth Furs Elizabeth Quay Meet</title>
 		<location>Elizabeth Quay</location>
-		<start>2016-09-27 18:30:00</start>
+		<start>2016-10-11 18:30:00</start>
 	</event>
-  <event>
-    <id>95</id>
-    <url>http://www.perthfurs.net/events/view/95</url>
-    <title>FurWag BBQ!</title>
-    <location>McCallum Park. South Perth</location>
-    <start>2016-09-29 17:00:00</start>
-  </event>
-  <event>
-    <id>90</id>
-    <url>http://www.perthfurs.net/events/view/90</url>
-    <title>Furwag 2016!</title>
-    <location>Metro Hotel Perth</location>
-    <start>2016-09-30 00:00:00</start>
-  </event>
   <event>
     <id>109</id>
     <url>http://www.perthfurs.net/events/view/109</url>
@@ -42,4 +28,11 @@
 		<location>Miss Maud Carillon City Arcade</location>
 		<start>2016-11-27 12:30:00</start>
 	</event>
+  <event>
+    <id>114</id>
+    <url>http://www.perthfurs.net/events/view/114</url>
+    <title>F.A.R. 7 (18+)</title>
+    <location>Court Hotel</location>
+    <start>2016-12-03 14:00:00</start>
+  </event>
 </events>
