@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.94
+ * Version   : 1.0.0.99
  */
 
 using Newtonsoft.Json.Linq;
@@ -38,7 +38,7 @@ namespace nwTelegramBot
     class Program
     {
         #region -= VARIABLES =-
-        public static string s_logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log"; // error log
+        //public static string s_logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log"; // error log
         public static string s_cfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.cfg"; // Main config
         public static string s_ucfgfile = Environment.CurrentDirectory + @"\pfsPermConfig.cfg"; // User perm config
         public static string s_botdb = Environment.CurrentDirectory + @"\data\pfs_tgbot.db"; // User config
@@ -646,6 +646,16 @@ namespace nwTelegramBot
 
                                     }
 
+                                    if (Regex.IsMatch(umt, @"\bwat\b", RegexOptions.IgnoreCase) == true)
+                                    {
+
+                                        Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                        if (nwCheckInReplyTimer(m) != false)
+                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "65 Wat", false, false, update.Message.MessageId);
+
+                                    }
+
                                     if (Regex.IsMatch(umt, @"\bharambe\b", RegexOptions.IgnoreCase) == true)
                                     {
 
@@ -668,7 +678,7 @@ namespace nwTelegramBot
 
                                     }
 
-                                    if (Regex.IsMatch(umt, @"\bblake De Bruyn\b", RegexOptions.IgnoreCase) == true)
+                                    if (Regex.IsMatch(umt, @"\bblake De Bruyn\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bblake DeBruyn\b", RegexOptions.IgnoreCase) == true)
                                     {
 
                                         string ret = null;
@@ -1682,6 +1692,84 @@ namespace nwTelegramBot
                             break;
 
                         case "/dingo":
+
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /dingo";
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /dingo" + Environment.NewLine + "Type '/dingo help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                retryme:
+
+                                // list of urls.
+                                string html = null;
+
+                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                    html = GetHtmlCode("dingo", false, true);
+                                else
+                                    html = GetHtmlCode("dingo", false, false);
+
+                                List<string> urls = GetUrls(html);
+                                var rnd = new Random();
+
+                                int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                // Select url from url list.
+                                string luckyUrl = urls[randomUrl];
+
+                                // Check if the file is valid, or throws an unwanted status code.
+                                if (!string.IsNullOrEmpty(luckyUrl))
+                                {
+                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.NotFound)
+                                    {
+                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.OK)
+                                    {
+                                        Console.WriteLine("URL appears to be good.");
+                                    }
+                                    else //There are a lot of other status codes you could check for...
+                                    {
+                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                   response.StatusCode.ToString()));
+                                    }
+
+                                }
+
+                                if (luckyUrl.Contains(" ") == true)
+                                    luckyUrl.Replace(" ", "%20");
+
+                                replyImage = luckyUrl;
+
+                                break;
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
 
                             break;
 
@@ -2713,36 +2801,42 @@ namespace nwTelegramBot
                                         {
                                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                            string[] s_splitfile = new string[] { " " };
+                                            string[] s_splitfile = new string[] { "-" };
                                             string[] boob = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
 
                                             StringBuilder saysb = new StringBuilder();
 
-                                            if (boob[0].Contains("sfw"))
+                                            if (Regex.IsMatch(boob[0], @"\bsfw\b", RegexOptions.IgnoreCase) == true)
                                             {
 
                                                 boob[0] = boob[0].Replace("sfw", "");
 
-                                                foreach (string s_meow in boob)
-                                                {
-                                                    saysb.Append(s_meow);
-                                                }
+                                                //foreach (string s_meow in boob)
+                                                //{
+                                                //    saysb.Append(s_meow);
+                                                //}
+
+                                                if (boob[1] == null) { replyText = "You didn't use the prefix, silly"; }
 
                                                 if (nwCheckInReplyTimer(dt) != false)
-                                                    await bot.SendTextMessageAsync(-1001032131694, saysb.ToString());
+                                                    await bot.SendTextMessageAsync(-1001032131694, boob[1].ToString());
+
+
 
                                             }
-                                            else if (boob[0].Contains("nsfw"))
+                                            else if (Regex.IsMatch(boob[0], @"\bnsfw\b", RegexOptions.IgnoreCase) == true)
                                             {
                                                 boob[0] = boob[0].Replace("nsfw", "");
 
-                                                foreach (string s_meow in boob)
-                                                {
-                                                    saysb.Append(s_meow);
-                                                }
+                                                //foreach (string s_meow in boob)
+                                                //{
+                                                //    saysb.Append(s_meow);
+                                                //}
+
+                                                if (boob[1] == null) { replyText = "You didn't use the prefix, silly"; }
 
                                                 if (nwCheckInReplyTimer(dt) != false)
-                                                    await bot.SendTextMessageAsync(-1001052518605, saysb.ToString());
+                                                    await bot.SendTextMessageAsync(-1001052518605, boob[1].ToString());
                                             }
                                             //boob.
 
