@@ -1,7 +1,7 @@
 ﻿NW's TELEGRAM BOT -Changelog-
 ============================================================================================
 
-VERSION: 1.0.0.98
+VERSION: 1.0.0.101
 FOR: WINDOWS 8/10+
 LAST UPDATED ON: 
 LAST UPDATED BY: ANDYDINGOWOLF
@@ -13,9 +13,12 @@ Note: All changes go in this log file under the version those
 changes were made for. Newest Changes generally go first.
 +==================================+
 
-Version 0.98 BETA
+Version 0.101 BETA
 ------------------------------------
 - Removed more obsolete code. [AndyDingo]
+- New convention command. [AndyDingo]
+- New meet command. [AndyDingo]
+- Easter eggs can now be toggled on/off. [AndyDingo]
 - Add dog, snep and fox commands
 - e621 command rewritten. [AndyDingo]
 - Added help subcommand to various commands. Will display usage. [AndyDingo]

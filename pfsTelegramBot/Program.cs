@@ -608,216 +608,221 @@ namespace nwTelegramBot
                                         //}
                                     }
 
-                                    if (Regex.IsMatch(umt, @"\bmow\b", RegexOptions.IgnoreCase) == true || umt.Contains("mrew") == true || umt.Contains("mjau") == true || umt.Contains("maow") == true || umt.Contains("meow") == true)
+                                    // If we have easter eggs enabled.
+                                    if (nwGrabString("eastereggs") == "true")
                                     {
 
-                                        int n_cat = nwCountCatNoises();
-                                        nwSetCatNoiseCount(n_cat++, s_mffn);
+                                        if (Regex.IsMatch(umt, @"\bmow\b", RegexOptions.IgnoreCase) == true || umt.Contains("mrew") == true || umt.Contains("mjau") == true || umt.Contains("maow") == true || umt.Contains("meow") == true)
+                                        {
 
-                                        if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has mowed, increase mow count.");
+                                            int n_cat = nwCountCatNoises();
+                                            nwSetCatNoiseCount(n_cat++, s_mffn);
 
-                                        if (nwCheckInReplyTimer(m) != false)
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, ">:|", false, false, update.Message.MessageId);
+                                            if (nwGrabString("debugmode") == "true")
+                                                nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has mowed, increase mow count.");
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, ">:|", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        if (Regex.IsMatch(umt, @"\baroo\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bawoo\b", RegexOptions.IgnoreCase) == true || umt.Contains("aruu") == true || umt.Contains("awuu") == true || umt.Contains("bark") == true || umt.Contains("bork") == true)
+                                        {
+
+                                            int n_dog = nwCountDogNoises();
+                                            nwSetDogNoiseCount(n_dog++, s_mffn);
+
+                                            if (nwGrabString("debugmode") == "true")
+                                                nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, ">:|", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        if (Regex.IsMatch(umt, @"\bboobs\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\btits\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "(  .  Y  .  )", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        if (Regex.IsMatch(umt, @"\bwat\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "65 Wat", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        if (Regex.IsMatch(umt, @"\bharambe\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            string ret = null;
+
+                                            ret = nwGenRandomPhrase();
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, ret, false, false, update.Message.MessageId);
+
+                                        }
+
+                                        if (Regex.IsMatch(umt, @"\bAm I ever gonna see your face again\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "https://www.youtube.com/watch?v=i_py6WbMV1k", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        if (Regex.IsMatch(umt, @"\bblake De Bruyn\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bblake DeBruyn\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            string ret = null;
+
+                                            ret = nwGenRandomPhrase2();
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, ret, false, false, update.Message.MessageId);
+
+                                        }
+
+                                        if (Regex.IsMatch(umt, @"\bneko\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "Aww, so cute", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        if (Regex.IsMatch(umt, @"\bkawaii desu\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bkawaii\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "Sugoi!", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        if (Regex.IsMatch(umt, @"\bdat boi\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "OH SHIT WHADDUP", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        if (Regex.IsMatch(umt, @"\bhalal snack pack\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "Best thing ever invented.", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        if (Regex.IsMatch(umt, @"\bmorgana\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "That's my masters mundane name!", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        if (Regex.IsMatch(umt, @"\bleaving the fandom\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bquitting the fandom\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "https://www.youtube.com/watch?v=HhI3zf0Pgf4", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        if (Regex.IsMatch(umt, @"\bAnwen\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "That's my masters furry name.", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        // if message contains skynet
+                                        if (Regex.IsMatch(update.Message.Text, @"\bskynet\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(update.Message.Text, @"\bcyberdyne\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "https://www.youtube.com/watch?v=XcNXq5DUZnk", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        // if message contains eeyup
+                                        if (Regex.IsMatch(update.Message.Text, @"\beeyup\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            string s_rande = null;
+
+                                            s_rande = nwGenRandomSuffix();
+
+                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "Eeyup" + s_rande, false, false, update.Message.MessageId);
+
+                                        }
+
+                                        // if message contains eeyup
+                                        if (Regex.IsMatch(update.Message.Text, @"\btrigger\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "Go back to tumblr with your 'triggers' and 'microaggressions'.", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        // if message contains andy dingo
+                                        if (Regex.IsMatch(update.Message.Text, @"\bAndy Dingo\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(update.Message.Text, @"\bAndy Dingo Wolf\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "That is no longer me :P Am transitioning to a girl, kthanks", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        // If message contains OWO
+                                        if (Regex.IsMatch(update.Message.Text, @"\bowo\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(update.Message.Text, @"\buwu\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "What's this?", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        // If message contains buttstripe
+                                        if (Regex.IsMatch(update.Message.Text, @"\bbuttstripe\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, ">:|", false, false, update.Message.MessageId);
+
+                                        }
 
                                     }
-
-                                    if (Regex.IsMatch(umt, @"\baroo\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bawoo\b", RegexOptions.IgnoreCase) == true || umt.Contains("aruu") == true || umt.Contains("awuu") == true || umt.Contains("bark") == true || umt.Contains("bork") == true)
-                                    {
-
-                                        int n_dog = nwCountDogNoises();
-                                        nwSetDogNoiseCount(n_dog++, s_mffn);
-
-                                        if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
-
-                                        if (nwCheckInReplyTimer(m) != false)
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, ">:|", false, false, update.Message.MessageId);
-
-                                    }
-
-                                    if (Regex.IsMatch(umt, @"\bboobs\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\btits\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                        if (nwCheckInReplyTimer(m) != false)
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "(  .  Y  .  )", false, false, update.Message.MessageId);
-
-                                    }
-
-                                    if (Regex.IsMatch(umt, @"\bwat\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                        if (nwCheckInReplyTimer(m) != false)
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "65 Wat", false, false, update.Message.MessageId);
-
-                                    }
-
-                                    if (Regex.IsMatch(umt, @"\bharambe\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        string ret = null;
-
-                                        ret = nwGenRandomPhrase();
-                                        
-                                        if (nwCheckInReplyTimer(m) != false)
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, ret, false, false, update.Message.MessageId);
-
-                                    }
-
-                                    if (Regex.IsMatch(umt, @"\bAm I ever gonna see your face again\b", RegexOptions.IgnoreCase) == true)
-                                    {
-                                        
-                                        Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                        if (nwCheckInReplyTimer(m) != false)
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "https://www.youtube.com/watch?v=i_py6WbMV1k", false, false, update.Message.MessageId);
-
-                                    }
-
-                                    if (Regex.IsMatch(umt, @"\bblake De Bruyn\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bblake DeBruyn\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        string ret = null;
-
-                                        ret = nwGenRandomPhrase2();
-
-                                        if (nwCheckInReplyTimer(m) != false)
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, ret, false, false, update.Message.MessageId);
-
-                                    }
-
-                                    if (Regex.IsMatch(umt, @"\bneko\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                        if (nwCheckInReplyTimer(m) != false)
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "Aww, so cute", false, false, update.Message.MessageId);
-
-                                    }
-
-                                    if (Regex.IsMatch(umt, @"\bkawaii desu\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bkawaii\b", RegexOptions.IgnoreCase) == true)
-                                    {
-                                        
-                                        Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                        if (nwCheckInReplyTimer(m) != false)
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "Sugoi!", false, false, update.Message.MessageId);
-
-                                    }
-
-                                    if (Regex.IsMatch(umt, @"\bdat boi\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                        if (nwCheckInReplyTimer(m) != false)
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "OH SHIT WHADDUP", false, false, update.Message.MessageId);
-
-                                    }
-
-                                    if (Regex.IsMatch(umt, @"\bhalal snack pack\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                        if (nwCheckInReplyTimer(m) != false)
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "Best thing ever invented.", false, false, update.Message.MessageId);
-
-                                    }
-
-                                    if (Regex.IsMatch(umt, @"\bmorgana\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                        if (nwCheckInReplyTimer(m) != false)
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "That's my masters mundane name!", false, false, update.Message.MessageId);
-
-                                    }
-
-                                    if (Regex.IsMatch(umt, @"\bleaving the fandom\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bquitting the fandom\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                        if (nwCheckInReplyTimer(m) != false)
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "https://www.youtube.com/watch?v=HhI3zf0Pgf4", false, false, update.Message.MessageId);
-
-                                    }
-
-                                    if (Regex.IsMatch(umt, @"\bAnwen\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                        if (nwCheckInReplyTimer(m) != false)
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "That's my masters furry name.", false, false, update.Message.MessageId);
-
-                                    }
-
-                                    // if message contains skynet
-                                    if (Regex.IsMatch(update.Message.Text, @"\bskynet\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(update.Message.Text, @"\bcyberdyne\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "https://www.youtube.com/watch?v=XcNXq5DUZnk", false, false, update.Message.MessageId);
-
-                                    }
-
-                                    // if message contains eeyup
-                                    if (Regex.IsMatch(update.Message.Text, @"\beeyup\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        string s_rande = null;
-
-                                        s_rande = nwGenRandomSuffix();
-
-                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "Eeyup" + s_rande, false, false, update.Message.MessageId);
-
-                                    }
-
-                                    // if message contains eeyup
-                                    if (Regex.IsMatch(update.Message.Text, @"\btrigger\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "Go back to tumblr with your 'triggers' and 'microaggressions'.", false, false, update.Message.MessageId);
-
-                                    }
-
-                                    // if message contains andy dingo
-                                    if (Regex.IsMatch(update.Message.Text, @"\bAndy Dingo\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(update.Message.Text, @"\bAndy Dingo Wolf\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "That is no longer me :P Am transitioning to a girl, kthanks", false, false, update.Message.MessageId);
-                                        
-                                    }
-
-                                    // If message contains OWO
-                                    if (Regex.IsMatch(update.Message.Text, @"\bowo\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(update.Message.Text, @"\buwu\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                        if (nwCheckInReplyTimer(m) != false)
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "What's this?", false, false, update.Message.MessageId);
-
-                                    }
-
-                                    // If message contains buttstripe
-                                    if (Regex.IsMatch(update.Message.Text, @"\bbuttstripe\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                        if (nwCheckInReplyTimer(m) != false)
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, ">:|", false, false, update.Message.MessageId);
-
-                                    }
-
 
                                     if (nwGrabString("botresponds") == "false" && (umt.StartsWith("/") == true || umt.StartsWith("!") == true))
                                     {
@@ -1606,6 +1611,50 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "/con":
+                        case "/cons":
+                        case "/convention": // TODO: Finish this command
+                        case "/conventions": // TODO: Finish this command
+
+                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+                                XmlDocument dook = new XmlDocument();
+                                dook.Load(ehoh.Directory.GetCurrentDirectory() + @"/data/conventions.xml");
+                                DateTime dta1 = new DateTime(2016, 4, 1);
+                                dta1 = DateTime.Now;
+
+                                DateTime dta2 = new DateTime(2016, 4, 1);
+                                dta2 = DateTime.Now;
+
+                                // Get our nodes
+                                XmlNodeList nodes;
+                                nodes = dook.GetElementsByTagName("event");
+
+                                // Create a new string builder
+                                StringBuilder eventString = new StringBuilder();
+                                eventString.AppendLine("Here is a list of upcoming (public) Australian conventions. Times are in local time, and may be subject to change.");
+
+                                // Iterate through available events
+                                for (var i1for = 0; i1for < nodes.Count; i1for++)
+                                {
+                                    dta1 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("start").InnerText);
+                                    dta2 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("end").InnerText);
+                                    eventString.AppendLine(dta1.ToString("ddd d/MM/yyy") + " (" + dta1.ToString("h:mm tt") + "): " + nodes.Item(i1for).SelectSingleNode("title").InnerText + " [" + nodes.Item(i1for).SelectSingleNode("url").InnerText + "]"); // + " [" + pfn_events.url.ToString() + "]");
+                                    eventString.AppendLine(dta2.ToString("ddd d/MM/yyy") + " (" + dta2.ToString("h:mm tt"));
+                                }
+
+                                replyTextEvent = eventString.ToString();
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
+
+                            break;
+
                         case "/help":
                         case "/command":
                         case "/commands":
@@ -1623,6 +1672,8 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "/meet":
+                        case "/meets":
                         case "/event":
                         case "/events": // TODO: Finish this command
 
@@ -2656,14 +2707,36 @@ namespace nwTelegramBot
 
                                         if (nwCheckInReplyTimer(dt) != false)
                                             replyText = "You have insufficient permissions to access this command.";
+
                                         break;
 
                                     }
                                     else
                                     {
 
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = "This command is not yet implemented.";
+                                        string[] s_splitfile = new string[] { "-" };
+                                        string[] sp_body = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
+
+                                        switch (sp_body[0])
+                                        {
+                                            case "egg":
+
+                                                if (sp_body[1] != null && sp_body[1] == "disable")
+                                                    nwSetString("eastereggs", "false");
+                                                if (sp_body[1] != null && sp_body[1] == "enable")
+                                                    nwSetString("eastereggs", "true");
+
+                                                if (nwCheckInReplyTimer(dt) != false)
+                                                    replyText = "The setting " + sp_body[0] + " was changed.";
+
+                                                break;
+                                            default:
+                                                break;
+                                        }
+
+                                        //if (nwCheckInReplyTimer(dt) != false)
+                                        //    replyText = "This command is not yet implemented.";
+
                                         break;
 
                                     }
@@ -2673,9 +2746,9 @@ namespace nwTelegramBot
                             }
                             else
                             {
+
                                 string[] stuff1 = nwGrabAdminsFromList(Environment.CurrentDirectory + @"\data\adminlist.txt");
-
-
+                                
                                 foreach (string x in stuff1)
                                 {
 
@@ -2689,10 +2762,32 @@ namespace nwTelegramBot
                                     }
                                     else
                                     {
+                                        
+                                        string[] s_splitfile = new string[] { "-" };
+                                        string[] sp_body = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
 
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = "This command is not yet implemented.";
+                                        switch (sp_body[0])
+                                        {
+                                            case "egg":
+
+                                                if (sp_body[1] != null && sp_body[1] == "disable")
+                                                    nwSetString("eastereggs", "false");
+                                                if (sp_body[1] != null && sp_body[1] == "enable")
+                                                    nwSetString("eastereggs", "true");
+
+                                                if (nwCheckInReplyTimer(dt) != false)
+                                                    replyText = "The setting " + sp_body[0] + " was changed.";
+
+                                                break;
+                                            default:
+                                                break;
+                                        }
+
+                                        //if (nwCheckInReplyTimer(dt) != false)
+                                        //    replyText = "This command is not yet implemented.";
+
                                         break;
+
                                     }
 
                                 }
@@ -2716,9 +2811,12 @@ namespace nwTelegramBot
                             }
                             else
                             {
+
                                 if (nwCheckInReplyTimer(dt) != false)
                                     s_replyToUser = "This command can only be used in private messages.";
+
                                 break;
+
                             }
 
                             break;
@@ -2738,7 +2836,9 @@ namespace nwTelegramBot
 
                             TweetinviEvents.QueryBeforeExecute += (sender, args) =>
                             {
+
                                 Console.WriteLine(args.QueryURL);
+
                             };
 
                             nwPublishTweet(string.Format("This is a test message posted using PerthFurStats's new Twitter API features! IGNORE."));
@@ -2816,10 +2916,10 @@ namespace nwTelegramBot
                                                 //    saysb.Append(s_meow);
                                                 //}
 
-                                                if (boob[1] == null) { replyText = "You didn't use the prefix, silly"; }
+                                                //if (boob[1] == null) { replyText = "You didn't use the prefix, silly"; }
 
                                                 if (nwCheckInReplyTimer(dt) != false)
-                                                    await bot.SendTextMessageAsync(-1001032131694, boob[1].ToString());
+                                                    await bot.SendTextMessageAsync(-1001032131694, boob[0].ToString());
 
 
 

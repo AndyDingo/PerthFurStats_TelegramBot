@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<events>
+	<event>
+		<id>1</id>
+		<url>http://www.confurgence.com/</url>
+		<title>ConFurgence 2017</title>
+		<location>Melbourne</location>
+		<start>2017-01-08 09:00:00</start>
+		<end>2017-01-10 23:59:00</end>
+	</event>
+	<event>
+		<id>2</id>
+		<url>http://www.furdu.com.au/</url>
+		<title>FurDU 2017</title>
+		<location>Gold Coast</location>
+		<start>2017-05-05 9:00:00</start>
+		<end>2017-05-07 23:59:00</end>
+	</event>
+	<event>
+		<id>3</id>
+		<url>https://www.furcon.com.au/</url>
+		<title>Harbour City Furcon</title>
+		<location>Sydney</location>
+		<start>2017-07-21 14:00:00</start>
+		<end>2017-07-23 23:59:00</end>
+	</event>
+</events>

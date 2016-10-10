@@ -7,6 +7,27 @@
 		<location>Elizabeth Quay</location>
 		<start>2016-10-11 18:30:00</start>
 	</event>
+	<event>
+		<id>116</id>
+		<url>http://www.perthfurs.net/events/view/116</url>
+		<title>Quay Furs 7</title>
+		<location>Elizabeth Quay</location>
+		<start>2016-10-18 18:30:00</start>
+	</event>
+	<event>
+		<id>117</id>
+		<url>http://www.perthfurs.net/events/view/117</url>
+		<title>Perth Furs Monthly - Quay Furs Weekend Edition</title>
+		<location>Elizabeth Quay</location>
+		<start>2016-10-23 14:00:00</start>
+	</event>
+	<event>
+		<id>119</id>
+		<url>http://www.perthfurs.net/events/view/119</url>
+		<title>Mammals in Mandurah. (Birds and Scales too!)</title>
+		<location>Henson Park</location>
+		<start>2016-10-29 11:00:00</start>
+	</event>
   <event>
     <id>109</id>
     <url>http://www.perthfurs.net/events/view/109</url>
@@ -14,6 +35,13 @@
     <location>Miss Maud Carillon City Arcade</location>
     <start>2016-10-30 11:30:00</start>
   </event>
+	<event>
+		<id>120</id>
+		<url>http://www.perthfurs.net/events/view/120</url>
+		<title>Nopevember</title>
+		<location>Rockingham Beach Foreshore</location>
+		<start>2016-11-05 10:30:00</start>
+	</event>
   <event>
     <id>108</id>
     <url>http://www.perthfurs.net/events/view/108</url>
@@ -21,6 +49,13 @@
     <location>Court Hotel</location>
     <start>2016-11-05 14:00:00</start>
   </event>
+	<event>
+		<id>118</id>
+		<url>http://www.perthfurs.net/events/view/118</url>
+		<title>Furries on the foreshore</title>
+		<location>South Perth Foreshore</location>
+		<start>2016-11-26 11:00:00</start>
+	</event>
 	<event>
 		<id>110</id>
 		<url>http://www.perthfurs.net/events/view/110</url>

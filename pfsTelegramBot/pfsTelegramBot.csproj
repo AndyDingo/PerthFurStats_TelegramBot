@@ -136,6 +136,9 @@
     <None Include="data\pfsTwitterCfg.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="data\conventions.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="data\quotelist.txt" />
     <Content Include="data\statsgen.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
