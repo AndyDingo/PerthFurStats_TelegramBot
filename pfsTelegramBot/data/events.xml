@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<events>
-	<event>
-		<id>115</id>
-		<url>http://www.perthfurs.net/events/view/115</url>
-		<title>Quay Furs 6 - Perth Furs Elizabeth Quay Meet</title>
-		<location>Elizabeth Quay</location>
-		<start>2016-10-11 18:30:00</start>
-	</event>
+<events version="0.9" botver="1.0.0.102">
 	<event>
 		<id>116</id>
 		<url>http://www.perthfurs.net/events/view/116</url>
@@ -20,6 +13,13 @@
 		<title>Perth Furs Monthly - Quay Furs Weekend Edition</title>
 		<location>Elizabeth Quay</location>
 		<start>2016-10-23 14:00:00</start>
+	</event>
+	<event>
+		<id>125</id>
+		<url>http://www.perthfurs.net/events/view/125</url>
+		<title>Quay Furs 8 - Perth Furs Elizabeth Quay Meet</title>
+		<location>Elizabeth Quay</location>
+		<start>2016-10-25 18:30:00</start>
 	</event>
 	<event>
 		<id>119</id>
@@ -41,6 +41,13 @@
 		<title>Nopevember</title>
 		<location>Rockingham Beach Foreshore</location>
 		<start>2016-11-05 10:30:00</start>
+	</event>
+	<event>
+		<id>123</id>
+		<url>http://www.perthfurs.net/events/view/123</url>
+		<title>IKEA Furs</title>
+		<location>6 Sunray Drive</location>
+		<start>2016-11-05 12:00:00</start>
 	</event>
   <event>
     <id>108</id>
@@ -69,5 +76,19 @@
     <title>F.A.R. 7 (18+)</title>
     <location>Court Hotel</location>
     <start>2016-12-03 14:00:00</start>
+  </event>
+  <event>
+    <id>0</id>
+    <url>URL TBA</url>
+    <title>F.A.R. 8 (18+)</title>
+    <location>Court Hotel</location>
+    <start>2017-01-07 14:00:00</start>
+  </event>
+  <event>
+    <id>0</id>
+    <url>URL TBA</url>
+    <title>CaFURnated XIX: Final CaFURnation</title>
+    <location>Miss Maud Carillon City</location>
+    <start>2017-01-29 14:00:00</start>
   </event>
 </events>

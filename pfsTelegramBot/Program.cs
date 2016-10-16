@@ -19,6 +19,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
@@ -621,8 +622,8 @@ namespace nwTelegramBot
                                             if (nwGrabString("debugmode") == "true")
                                                 nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has mowed, increase mow count.");
 
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, ">:|", false, false, update.Message.MessageId);
+                                            //if (nwCheckInReplyTimer(m) != false)
+                                            //    Bot.SendTextMessageAsync(update.Message.Chat.Id, ">:|", false, false, update.Message.MessageId);
 
                                         }
 
@@ -635,8 +636,8 @@ namespace nwTelegramBot
                                             if (nwGrabString("debugmode") == "true")
                                                 nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
 
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, ">:|", false, false, update.Message.MessageId);
+                                            //if (nwCheckInReplyTimer(m) != false)
+                                            //    Bot.SendTextMessageAsync(update.Message.Chat.Id, ">:|", false, false, update.Message.MessageId);
 
                                         }
 
@@ -647,6 +648,26 @@ namespace nwTelegramBot
 
                                             if (nwCheckInReplyTimer(m) != false)
                                                 Bot.SendTextMessageAsync(update.Message.Chat.Id, "(  .  Y  .  )", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        if (Regex.IsMatch(umt, @"\bping\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "pong", false, false, update.Message.MessageId);
+
+                                        }
+
+                                        if (Regex.IsMatch(umt, @"\bmarco\b", RegexOptions.IgnoreCase) == true)
+                                        {
+
+                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "polo", false, false, update.Message.MessageId);
 
                                         }
 
@@ -1087,7 +1108,11 @@ namespace nwTelegramBot
 
                             break;
                         case UpdateType.InlineQueryUpdate:
-                            //nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: User tried an Inline query.");
+
+                            DateTime m2 = update.Message.Date.ToLocalTime();
+
+                            nwPrintSystemMessage("[" + m2.ToString(nwParseFormat(true)) + "] * System: User tried an Inline query.");
+
                             break;
                         default:
                             //nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: Find out how we got to this point.");
@@ -1641,8 +1666,10 @@ namespace nwTelegramBot
                                 {
                                     dta1 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("start").InnerText);
                                     dta2 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("end").InnerText);
-                                    eventString.AppendLine(dta1.ToString("ddd d/MM/yyy") + " (" + dta1.ToString("h:mm tt") + "): " + nodes.Item(i1for).SelectSingleNode("title").InnerText + " [" + nodes.Item(i1for).SelectSingleNode("url").InnerText + "]"); // + " [" + pfn_events.url.ToString() + "]");
-                                    eventString.AppendLine(dta2.ToString("ddd d/MM/yyy") + " (" + dta2.ToString("h:mm tt"));
+                                    eventString.AppendLine(nodes.Item(i1for).SelectSingleNode("title").InnerText + " [" + nodes.Item(i1for).SelectSingleNode("url").InnerText + "]");
+                                    eventString.AppendLine("Convention starts: " + dta1.ToString("ddd d/MM/yyy") + " (" + dta1.ToString("h:mm tt") + ")");
+                                    eventString.AppendLine("Convention ends: " + dta2.ToString("ddd d/MM/yyy") + " (" + dta2.ToString("h:mm tt") + ")");
+                                    eventString.AppendLine("");
                                 }
 
                                 replyTextEvent = eventString.ToString();
@@ -1679,35 +1706,7 @@ namespace nwTelegramBot
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-                                XmlDocument dook = new XmlDocument();
-                                dook.Load(ehoh.Directory.GetCurrentDirectory() + @"/data/events.xml");
-                                DateTime dta = new DateTime(2016, 4, 1);
-                                dta = DateTime.Now;
-
-                                // Get our nodes
-                                XmlNodeList nodes;
-                                nodes = dook.GetElementsByTagName("event");
-
-                                // Create a new string builder
-                                StringBuilder eventString = new StringBuilder();
-                                eventString.AppendLine("Here is a list of upcoming (public) events. Times are in GMT +8:00.");
-
-                                // Iterate through available events
-                                for (var i1for = 0; i1for < nodes.Count; i1for++)
-                                {
-                                    dta = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("start").InnerText);
-                                    eventString.AppendLine(dta.ToString("ddd d/MM/yyy") + " (" + dta.ToString("h:mm tt") + "): " + nodes.Item(i1for).SelectSingleNode("title").InnerText + " [" + nodes.Item(i1for).SelectSingleNode("url").InnerText + "]"); // + " [" + pfn_events.url.ToString() + "]");
-                                }
-
-                                replyTextEvent = eventString.ToString();
-
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+                            replyTextEvent = nwReturnEventInfo(dt);
 
                             break;
 
@@ -3509,7 +3508,10 @@ namespace nwTelegramBot
                         else
                             nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + s_replyToUser);
 
-                        await bot.SendTextMessageAsync(update.Message.Chat.Id, s_replyToUser, false,false, update.Message.MessageId);
+                        int msgid = 0;
+                        msgid = update.Message.MessageId;
+
+                        await bot.SendTextMessageAsync(update.Message.Chat.Id, s_replyToUser, false, false, msgid);
 
                         using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
@@ -3629,23 +3631,78 @@ namespace nwTelegramBot
             }
             catch (ehoh.IOException ex)
             {
+                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: System has caught an error! " + ex.Message);
                 nwErrorCatcher(ex);
             }
             catch (AggregateException ex)
             {
+                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: System has caught an error! " + ex.Message);
                 nwErrorCatcher(ex);
             }
             catch (FormatException ex)
             {
+                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: System has caught an error! " + ex.Message);
                 nwErrorCatcher(ex);
             }
             catch (NullReferenceException ex)
             {
+                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: System has caught an error! " + ex.Message);
                 nwErrorCatcher(ex);
             }
             catch (Exception ex)
             {
+                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: System has caught an error! " + ex.Message);
                 nwErrorCatcher(ex);
+            }
+        }
+
+        /// <summary>
+        /// Returns event information from the events xml document.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="days"></param>
+        /// <returns></returns>
+        private static string nwReturnEventInfo(DateTime dt, int days = 15)
+        {
+            if (nwCheckInReplyTimer(dt) != false)
+            {
+
+                // Current date / time
+                DateTime dta = DateTime.Now;
+
+                //Load xml
+                XDocument xdoc = XDocument.Load(ehoh.Directory.GetCurrentDirectory() + @"/data/events.xml"); //you'll have to edit your path
+
+                //Run query
+                var lv1s = from item in xdoc.Descendants("event")
+                           where (Convert.ToDateTime(item.Element("start").Value) - dta).TotalDays < days
+                           select new
+                           {
+                               title = item.Element("title").Value,
+                               location = item.Element("location").Value,
+                               url = item.Element("url").Value,
+                               start = item.Element("start").Value,
+                           };
+
+                StringBuilder result = new StringBuilder(); //had to add this to make the result work
+                result.AppendLine("Here is a list of upcoming (public) events, limited to those in the next " + days + " days. Times are in GMT +8:00.");
+
+                //Loop through results
+                foreach (var item in lv1s)
+                {
+                    result.AppendLine(item.title + " (" + item.url + ")");
+                    result.AppendLine(Convert.ToDateTime(item.start).ToString("ddd d/MM/yyy h:mm tt"));
+                    result.AppendLine(item.location);
+                }
+
+                Console.WriteLine(result.ToString());
+
+                return result.ToString();
+
+            }
+            else
+            {
+                return "The /event command failed as it took too long to process.";
             }
         }
 
