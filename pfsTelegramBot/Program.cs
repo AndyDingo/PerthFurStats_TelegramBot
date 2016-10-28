@@ -1706,7 +1706,27 @@ namespace nwTelegramBot
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            replyTextEvent = nwReturnEventInfo(dt);
+                            if (body == string.Empty || body == " " || body == "@" || body == null)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                replyTextEvent = nwReturnEventInfo(dt);
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /event [number]" + Environment.NewLine + "The optional parameter number can be omitted, in which it just returns events for last 15 days by default." + Environment.NewLine + "Type '/event help' to see this message again.";
+
+                                break;
+
+                            }
+                            else
+                            {
+                                replyTextEvent = nwReturnEventInfo(dt,Convert.ToInt32(body));
+                            }
 
                             break;
 
@@ -3545,7 +3565,7 @@ namespace nwTelegramBot
                         else
                             nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyTextEvent);
 
-                        await bot.SendTextMessageAsync(update.Message.Chat.Id, replyTextEvent, true);
+                        await bot.SendTextMessageAsync(update.Message.Chat.Id, replyTextEvent, true, false, 0, null, ParseMode.Html);
 
                         using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
                         {
@@ -3660,8 +3680,8 @@ namespace nwTelegramBot
         /// Returns event information from the events xml document.
         /// </summary>
         /// <param name="dt"></param>
-        /// <param name="days"></param>
-        /// <returns></returns>
+        /// <param name="days">Number of days to show events for.</param>
+        /// <returns>A string with the information requested.</returns>
         private static string nwReturnEventInfo(DateTime dt, int days = 15)
         {
             if (nwCheckInReplyTimer(dt) != false)
@@ -3690,9 +3710,8 @@ namespace nwTelegramBot
                 //Loop through results
                 foreach (var item in lv1s)
                 {
-                    result.AppendLine(item.title + " (" + item.url + ")");
-                    result.AppendLine(Convert.ToDateTime(item.start).ToString("ddd d/MM/yyy h:mm tt"));
-                    result.AppendLine(item.location);
+                    result.AppendLine("<b>" + item.title + "</b> (<a href=\"" + item.url + "\">link</a>)");
+                    result.AppendLine(Convert.ToDateTime(item.start).ToString("ddd d/MM/yyy h:mm tt") + " at <i>" + item.location + "</i>");
                 }
 
                 Console.WriteLine(result.ToString());

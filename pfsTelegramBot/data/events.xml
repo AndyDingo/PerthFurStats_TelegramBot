@@ -1,27 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <events version="0.9" botver="1.0.0.102">
 	<event>
-		<id>116</id>
-		<url>http://www.perthfurs.net/events/view/116</url>
-		<title>Quay Furs 7</title>
-		<location>Elizabeth Quay</location>
-		<start>2016-10-18 18:30:00</start>
-	</event>
-	<event>
-		<id>117</id>
-		<url>http://www.perthfurs.net/events/view/117</url>
-		<title>Perth Furs Monthly - Quay Furs Weekend Edition</title>
-		<location>Elizabeth Quay</location>
-		<start>2016-10-23 14:00:00</start>
-	</event>
-	<event>
-		<id>125</id>
-		<url>http://www.perthfurs.net/events/view/125</url>
-		<title>Quay Furs 8 - Perth Furs Elizabeth Quay Meet</title>
-		<location>Elizabeth Quay</location>
-		<start>2016-10-25 18:30:00</start>
-	</event>
-	<event>
 		<id>119</id>
 		<url>http://www.perthfurs.net/events/view/119</url>
 		<title>Mammals in Mandurah. (Birds and Scales too!)</title>
@@ -35,6 +14,13 @@
     <location>Miss Maud Carillon City Arcade</location>
     <start>2016-10-30 11:30:00</start>
   </event>
+<event>
+<id>128</id>
+<url>http://www.perthfurs.net/events/view/128</url>
+<title>Quay furs 9 - Perth furs Elizabeth Quay Meet</title>
+<location>Elizabeth Quay</location>
+<start>2016-11-01 18:30:00</start>
+</event>
 	<event>
 		<id>120</id>
 		<url>http://www.perthfurs.net/events/view/120</url>
@@ -54,7 +40,7 @@
     <url>http://www.perthfurs.net/events/view/108</url>
     <title>F.A.R. 6 (18+)</title>
     <location>Court Hotel</location>
-    <start>2016-11-05 14:00:00</start>
+    <start>2016-11-13 14:00:00</start>
   </event>
 	<event>
 		<id>118</id>
@@ -77,6 +63,22 @@
     <location>Court Hotel</location>
     <start>2016-12-03 14:00:00</start>
   </event>
+	<event>
+		<id>127</id>
+		<url>http://www.perthfurs.net/events/view/127</url>
+		<title>Furvasion 2.0 ft Repaired Toilet</title>
+		<location>Seabrook Grv, Clarkson WA 6030, Australia</location>
+		<start>2016-12-17 18:00:00</start>
+		<end>2016-12-18 12:00:00</end>
+	</event>
+	<event>
+		<id>126</id>
+		<url>http://www.perthfurs.net/events/view/126</url>
+		<title>Quay Furs 16 - SECRET SANTA FURS</title>
+		<location>Elizabeth Quay</location>
+		<start>2016-12-20 18:30:00</start>
+		<end>2016-12-20 21:30:00</end>
+	</event>
   <event>
     <id>0</id>
     <url>URL TBA</url>
