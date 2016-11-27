@@ -20,13 +20,17 @@ namespace nwTelegramBot
     /// </summary>
     public class cSettings
     {
+        /// <summary>
+        /// Phat instance, with all the loot.
+        /// </summary>
         public static cSettings Instance = new cSettings();
 
         /// <summary>
-        /// 
+        /// Get max commands for a given user globally and per user.
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
+        /// <param name="filename">The filename.</param>
+        /// <param name="user_key"></param>
+        /// <param name="global_key"></param>
         /// <returns></returns>
         public int[] nwGetMaxCmds(string filename, string user_key, string global_key)
         {
@@ -56,6 +60,7 @@ namespace nwTelegramBot
         /// <summary>
         /// Settings file grabber
         /// </summary>
+        /// <param name="filename">name of the file to grab setting from.</param>
         /// <param name="key">the setting key to grab.</param>
         /// <returns>The value of the settings key. On error, it will return -1.</returns>
         /// <remarks>Very BETA.</remarks>
@@ -79,7 +84,7 @@ namespace nwTelegramBot
         /// <summary>
         /// Set a user setting.
         /// </summary>
-        /// <param name="filename"></param>
+        /// <param name="filename">name of the file to grab setting from.</param>
         /// <param name="key"></param>
         /// <param name="value"></param>
         public static void nwSetUserString(string filename, string key, string value)
@@ -109,7 +114,7 @@ namespace nwTelegramBot
         /// <summary>
         /// Set a global setting.
         /// </summary>
-        /// <param name="filename"></param>
+        /// <param name="filename">name of the file to grab setting from.</param>
         /// <param name="key"></param>
         /// <param name="value"></param>
         public static void nwSetGlobalString(string filename, string key, string value)

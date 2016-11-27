@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.78
+ * Version   : 1.0.0.104
  */
 
 using ICSharpCode.SharpZipLib.Core;
@@ -21,6 +21,9 @@ namespace nwTelegramBot
     /// </summary>
     public class cZipBackup
     {
+        /// <summary>
+        /// Phat instance, with all the loot.
+        /// </summary>
         public static cZipBackup Instance = new cZipBackup();
 
         // Compresses the files in the nominated folder, and creates a zip file on disk named as outPathname.

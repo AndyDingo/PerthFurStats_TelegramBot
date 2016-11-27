@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.99
+ * Version   : 1.0.0.106
  */
 
 using Newtonsoft.Json.Linq;
@@ -24,7 +24,6 @@ using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
 using Tweetinvi;
 using ehoh = System.IO;
 using File = System.IO.File;
@@ -3712,6 +3711,7 @@ namespace nwTelegramBot
                 {
                     result.AppendLine("<b>" + item.title + "</b> (<a href=\"" + item.url + "\">link</a>)");
                     result.AppendLine(Convert.ToDateTime(item.start).ToString("ddd d/MM/yyy h:mm tt") + " at <i>" + item.location + "</i>");
+                    result.AppendLine("");
                 }
 
                 Console.WriteLine(result.ToString());
@@ -3775,8 +3775,7 @@ namespace nwTelegramBot
 
                         s_returnedImage = string.Format("Image: <a href=\"{1}\">{0}</a>" + Environment.NewLine +
                             "Post: https://e621.net/post/show/" + "{7}" + Environment.NewLine +
-                            "Artist: <b>{2}</b>" + Environment.NewLine +
-                            "Source: {3}" + Environment.NewLine +
+                            "Artist: <b>{2}</b> Source: (<a href=\"{3}\">link</a>)" + Environment.NewLine +
                             "Score: <b>{4}</b> Favorites: <b>{5}</b> Rating: <b>{6}</b>", filename, xdoc.SelectSingleNode("post/file_url").InnerText, xdoc.SelectSingleNode("post/artist/artist").InnerText, xdoc.SelectSingleNode("post/source").InnerText, xdoc.SelectSingleNode("post/score").InnerText, xdoc.SelectSingleNode("post/fav_count").InnerText, s_rating, xdoc.SelectSingleNode("post/id").InnerText);
 
                         //+Environment.NewLine +

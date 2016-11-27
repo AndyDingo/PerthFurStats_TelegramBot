@@ -1,7 +1,7 @@
 ﻿NW's TELEGRAM BOT -Readme-
 ============================================================================================
 
-VERSION: 1.0.0.98
+VERSION: 1.0.0.106
 FOR: WINDOWS 8/10+
 LAST UPDATED ON: 
 LAST UPDATED BY: ANDYDINGOWOLF

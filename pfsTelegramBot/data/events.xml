@@ -1,75 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<events version="0.9" botver="1.0.0.102">
+<events version="0.9" botver="1.0.0.106">
 	<event>
-		<id>119</id>
-		<url>http://www.perthfurs.net/events/view/119</url>
-		<title>Mammals in Mandurah. (Birds and Scales too!)</title>
-		<location>Henson Park</location>
-		<start>2016-10-29 11:00:00</start>
-	</event>
-  <event>
-    <id>109</id>
-    <url>http://www.perthfurs.net/events/view/109</url>
-    <title>CaFURnated XVII: Virtual CaFURnation</title>
-    <location>Miss Maud Carillon City Arcade</location>
-    <start>2016-10-30 11:30:00</start>
-  </event>
-<event>
-<id>128</id>
-<url>http://www.perthfurs.net/events/view/128</url>
-<title>Quay furs 9 - Perth furs Elizabeth Quay Meet</title>
-<location>Elizabeth Quay</location>
-<start>2016-11-01 18:30:00</start>
-</event>
-	<event>
-		<id>120</id>
-		<url>http://www.perthfurs.net/events/view/120</url>
-		<title>Nopevember</title>
-		<location>Rockingham Beach Foreshore</location>
-		<start>2016-11-05 10:30:00</start>
-	</event>
-	<event>
-		<id>123</id>
-		<url>http://www.perthfurs.net/events/view/123</url>
-		<title>IKEA Furs</title>
-		<location>6 Sunray Drive</location>
-		<start>2016-11-05 12:00:00</start>
-	</event>
-  <event>
-    <id>108</id>
-    <url>http://www.perthfurs.net/events/view/108</url>
-    <title>F.A.R. 6 (18+)</title>
-    <location>Court Hotel</location>
-    <start>2016-11-13 14:00:00</start>
-  </event>
-	<event>
-		<id>118</id>
-		<url>http://www.perthfurs.net/events/view/118</url>
-		<title>Furries on the foreshore</title>
-		<location>South Perth Foreshore</location>
-		<start>2016-11-26 11:00:00</start>
-	</event>
-	<event>
-		<id>110</id>
-		<url>http://www.perthfurs.net/events/view/110</url>
-		<title>CaFURnated XVIII: Hangover Cure</title>
-		<location>Miss Maud Carillon City Arcade</location>
-		<start>2016-11-27 12:30:00</start>
-	</event>
-  <event>
-    <id>114</id>
-    <url>http://www.perthfurs.net/events/view/114</url>
-    <title>F.A.R. 7 (18+)</title>
-    <location>Court Hotel</location>
-    <start>2016-12-03 14:00:00</start>
-  </event>
-	<event>
-		<id>127</id>
-		<url>http://www.perthfurs.net/events/view/127</url>
-		<title>Furvasion 2.0 ft Repaired Toilet</title>
-		<location>Seabrook Grv, Clarkson WA 6030, Australia</location>
-		<start>2016-12-17 18:00:00</start>
-		<end>2016-12-18 12:00:00</end>
+		<id>133</id>
+		<url>http://www.perthfurs.net/events/view/133</url>
+		<title>West Aussie Fur Frenzy</title>
+		<location>Pagoda Resort & Spa</location>
+		<start>2017-03-25 09:00:00</start>
 	</event>
 	<event>
 		<id>126</id>
@@ -79,18 +15,4 @@
 		<start>2016-12-20 18:30:00</start>
 		<end>2016-12-20 21:30:00</end>
 	</event>
-  <event>
-    <id>0</id>
-    <url>URL TBA</url>
-    <title>F.A.R. 8 (18+)</title>
-    <location>Court Hotel</location>
-    <start>2017-01-07 14:00:00</start>
-  </event>
-  <event>
-    <id>0</id>
-    <url>URL TBA</url>
-    <title>CaFURnated XIX: Final CaFURnation</title>
-    <location>Miss Maud Carillon City</location>
-    <start>2017-01-29 14:00:00</start>
-  </event>
 </events>

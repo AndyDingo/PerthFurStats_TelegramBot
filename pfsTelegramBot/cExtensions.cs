@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.78
+ * Version   : 1.0.0.104
  */
 
 using System;
@@ -49,11 +49,18 @@ namespace nwTelegramBot
             return number == 0;
         }
 
+        /// <summary>
+        /// Is this awesome?
+        /// </summary>
+        /// <returns>true, if it is indeed, or false.</returns>
         public static bool IsAwesome(this int number)
         {
             return IsNegative(number) && IsPositive(number) && IsZero(number);
         }
 
+        /// <summary>
+        /// Get file version.
+        /// </summary>
         public static FileVersionInfo nwGetFileVersionInfo
         {
             get
