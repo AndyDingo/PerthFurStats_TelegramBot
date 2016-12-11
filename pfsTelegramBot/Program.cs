@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.106
+ * Version   : 1.0.0.109
  */
 
 using Newtonsoft.Json.Linq;
@@ -2864,6 +2864,89 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "/shibe":
+                        case "/shiba":
+
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /shibe";
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /shibe" + Environment.NewLine + "Type '/shibe help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                retryme:
+
+                                // list of urls.
+                                string html = null;
+
+                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                    html = GetHtmlCode("shiba inu", false, true);
+                                else
+                                    html = GetHtmlCode("shiba inu", false, false);
+
+                                List<string> urls = GetUrls(html);
+                                var rnd = new Random();
+
+                                int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                // Select url from url list.
+                                string luckyUrl = urls[randomUrl];
+
+                                // Check if the file is valid, or throws an unwanted status code.
+                                if (!string.IsNullOrEmpty(luckyUrl))
+                                {
+                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.NotFound)
+                                    {
+                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.OK)
+                                    {
+                                        Console.WriteLine("URL appears to be good.");
+                                    }
+                                    else //There are a lot of other status codes you could check for...
+                                    {
+                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                   response.StatusCode.ToString()));
+                                    }
+
+                                }
+
+                                if (luckyUrl.Contains(" ") == true)
+                                    luckyUrl.Replace(" ", "%20");
+
+                                replyImage = luckyUrl;
+
+                                break;
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
+
+                            break;
+
                         case "/say":
 
                             //int n_sayuse = nwGrabGlobalUsageDB("say");
@@ -2919,6 +3002,132 @@ namespace nwTelegramBot
                                         {
                                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
+                                            //string[] s_splitfile = new string[] { "-" };
+                                            //string[] boob = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
+
+                                            //StringBuilder saysb = new StringBuilder();
+
+                                            //if (Regex.IsMatch(boob[0], @"\bsfw\b", RegexOptions.IgnoreCase) == true)
+                                            //{
+
+                                            //    boob[0] = boob[0].Replace("sfw", "");
+
+                                            //    //foreach (string s_meow in boob)
+                                            //    //{
+                                            //    //    saysb.Append(s_meow);
+                                            //    //}
+
+                                            //    //if (boob[1] == null) { replyText = "You didn't use the prefix, silly"; }
+
+                                                if (nwCheckInReplyTimer(dt) != false)
+                                                    await bot.SendTextMessageAsync(-1001032131694, body);
+
+
+
+                                            //}
+                                            //else if (Regex.IsMatch(boob[0], @"\bnsfw\b", RegexOptions.IgnoreCase) == true)
+                                            //{
+                                            //    boob[0] = boob[0].Replace("nsfw", "");
+
+                                            //    //foreach (string s_meow in boob)
+                                            //    //{
+                                            //    //    saysb.Append(s_meow);
+                                            //    //}
+
+                                            //    if (boob[1] == null) { replyText = "You didn't use the prefix, silly"; }
+
+                                            //    if (nwCheckInReplyTimer(dt) != false)
+                                            //        await bot.SendTextMessageAsync(-1001052518605, boob[1].ToString());
+                                            //}
+                                            //boob.
+
+                                            //if boob.
+
+                                            
+
+                                            break;
+
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+                            else
+                            {
+
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    //replyText2 = body;
+                                    await bot.SendTextMessageAsync(update.Message.Chat.Id, "Not working.");
+                                break;
+
+                            }
+
+                            //if (body.Length > 2)
+                            //{
+                            //    break;
+                            //}
+
+                            //nwSetGlobalUsage("say", n_sayuse++); // Write new value. // set global usage incrementally
+
+                            break;
+
+                        case "/sayhtml":
+
+                            //int n_sayuse = nwGrabGlobalUsageDB("say");
+                            //int n_say_gmax = nwGrabGlobalMax("say");
+
+                            // if (n_sayuse == n_say_gmax)
+                            //  {
+                            //      if (nwCheckInReplyTimer(dt) != false)
+                            //          s_replyToUser = "Sorry, the /say command has been used too many times.";
+                            //      break;
+                            //  }
+
+                            if (ct == ChatType.Private)
+                            {
+
+                                string[] stuff = nwGrabAdminsFromList(Environment.CurrentDirectory + @"\data\adminlist.txt");
+
+
+                                foreach (string x in stuff)
+                                {
+
+                                    if (x.Contains(s_username) != true)
+                                    {
+
+                                        if (nwCheckInReplyTimer(dt) != false)
+                                            replyText = "You have insufficient permissions to access this command.";
+                                        break;
+
+                                    }
+                                    else
+                                    {
+
+                                        if (body == string.Empty || body == " ")
+                                        {
+                                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(dt) != false)
+                                                s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular usage: /stats [week|fortnight|month|year|alltime|archive|commands]";
+
+                                            break;
+
+                                        }
+                                        else if (body == "help")
+                                        {
+                                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            s_replyToUser = "Usage: /sayhtml [thing to say]" + Environment.NewLine + "Type '/sayhtml help' to see this message again.";
+
+                                            break;
+
+                                        }
+                                        else
+                                        {
+                                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
                                             string[] s_splitfile = new string[] { "-" };
                                             string[] boob = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
 
@@ -2937,7 +3146,7 @@ namespace nwTelegramBot
                                                 //if (boob[1] == null) { replyText = "You didn't use the prefix, silly"; }
 
                                                 if (nwCheckInReplyTimer(dt) != false)
-                                                    await bot.SendTextMessageAsync(-1001032131694, boob[0].ToString());
+                                                    await bot.SendTextMessageAsync(-1001032131694, boob[0].ToString(), true, false, 0, null, ParseMode.Html);
 
 
 
@@ -2954,13 +3163,13 @@ namespace nwTelegramBot
                                                 if (boob[1] == null) { replyText = "You didn't use the prefix, silly"; }
 
                                                 if (nwCheckInReplyTimer(dt) != false)
-                                                    await bot.SendTextMessageAsync(-1001052518605, boob[1].ToString());
+                                                    await bot.SendTextMessageAsync(-1001052518605, boob[1].ToString(), true, false, 0, null, ParseMode.Html);
                                             }
                                             //boob.
 
                                             //if boob.
 
-                                            
+
 
                                             break;
 
@@ -4181,6 +4390,8 @@ namespace nwTelegramBot
         private static string GetHtmlCode(string s_topic, bool isgif, bool isnsfw)
         {
 
+            meow:
+
             string url = "https://www.google.com/search?q=" + s_topic + "&safe=active&tbm=isch";
 
             if (isnsfw == true)
@@ -4200,6 +4411,11 @@ namespace nwTelegramBot
             request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko";
 
             var response = (HttpWebResponse)request.GetResponse();
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                goto meow;
+            if (response.StatusCode == HttpStatusCode.Forbidden)
+                goto meow;
 
             using (ehoh.Stream dataStream = response.GetResponseStream())
             {

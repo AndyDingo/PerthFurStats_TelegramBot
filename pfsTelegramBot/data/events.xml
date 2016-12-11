@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<events version="0.9" botver="1.0.0.106">
+<events version="0.9" botver="1.0.0.109">
 	<event>
 		<id>133</id>
 		<url>http://www.perthfurs.net/events/view/133</url>
 		<title>West Aussie Fur Frenzy</title>
-		<location>Pagoda Resort & Spa</location>
+		<location>Pagoda Resort and Spa</location>
 		<start>2017-03-25 09:00:00</start>
 	</event>
 	<event>
