@@ -1,18 +1,56 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <events version="0.9" botver="1.0.0.109">
 	<event>
-		<id>133</id>
-		<url>http://www.perthfurs.net/events/view/133</url>
-		<title>West Aussie Fur Frenzy</title>
-		<location>Pagoda Resort and Spa</location>
-		<start>2017-03-25 09:00:00</start>
-	</event>
-	<event>
 		<id>126</id>
 		<url>http://www.perthfurs.net/events/view/126</url>
 		<title>Quay Furs 16 - SECRET SANTA FURS</title>
 		<location>Elizabeth Quay</location>
 		<start>2016-12-20 18:30:00</start>
 		<end>2016-12-20 21:30:00</end>
+	</event>
+	<event>
+		<id>000</id>
+		<url>https://www.facebook.com/events/374907942861578/</url>
+		<title>Furries on Ice</title>
+		<location>Cockburn Ice Arena</location>
+		<start>2016-12-20 20:00:00</start>
+	</event>
+	<event>
+		<id>1</id>
+		<url>http://www.confurgence.com/</url>
+		<title>ConFurgence 2017</title>
+		<location>Melbourne</location>
+		<start>2017-01-06 09:00:00</start>
+	</event>
+  <event>
+		<id>000</id>
+		<url>https://www.facebook.com/events/1163737747041412/</url>
+		<title>Pool Furs 2</title>
+		<location>Somserset Leisure Centre, Victoria Park</location>
+		<start>2017-01-07 20:00:00</start>
+	</event>
+	<event>
+		<id>133</id>
+		<url>http://www.perthfurs.net/events/view/133</url>
+		<title>West Aussie Fur Frenzy</title>
+		<location>Pagoda Resort and Spa</location>
+    <start>2017-03-25 09:00:00</start>
+    <end>2017-03-26 22:00:00</end>
+	</event>
+	<event>
+		<id>3</id>
+		<url>http://www.furdu.com.au/</url>
+		<title>FurDU 2017</title>
+		<location>Gold Coast</location>
+		<start>2017-05-05 9:00:00</start>
+		<end>2017-05-07 23:59:00</end>
+	</event>
+	<event>
+		<id>4</id>
+		<url>https://www.furcon.com.au/</url>
+		<title>Harbour City Furcon</title>
+		<location>Sydney</location>
+		<start>2017-07-21 14:00:00</start>
+		<end>2017-07-23 23:59:00</end>
 	</event>
 </events>

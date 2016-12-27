@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<events>
+<events version="0.9" botver="1.0.0.110">
 	<event>
 		<id>1</id>
 		<url>http://www.confurgence.com/</url>
@@ -9,7 +9,15 @@
 		<end>2017-01-08 23:59:00</end>
 	</event>
 	<event>
-		<id>2</id>
+    <id>2</id>
+    <url>http://www.waff.net.au/</url>
+    <title>West Aussie Fur Frenzy</title>
+    <location>Pagoda Resort and Spa</location>
+    <start>2017-03-25 09:00:00</start>
+    <end>2017-03-26 22:00:00</end>
+  </event>
+	<event>
+		<id>3</id>
 		<url>http://www.furdu.com.au/</url>
 		<title>FurDU 2017</title>
 		<location>Gold Coast</location>
@@ -17,7 +25,7 @@
 		<end>2017-05-07 23:59:00</end>
 	</event>
 	<event>
-		<id>3</id>
+		<id>4</id>
 		<url>https://www.furcon.com.au/</url>
 		<title>Harbour City Furcon</title>
 		<location>Sydney</location>

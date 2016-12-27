@@ -611,6 +611,15 @@ namespace nwTelegramBot
                                     // If we have easter eggs enabled.
                                     if (nwGrabString("eastereggs") == "true")
                                     {
+                                        if (Regex.IsMatch(umt, @"\b" + update.Message.From.Username + "\b", RegexOptions.IgnoreCase) == true || umt.Contains(update.Message.From.Username))
+                                        {
+
+                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                            if (nwCheckInReplyTimer(m) != false)
+                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "Narcissist Alert! :P", false, false, update.Message.MessageId);
+
+                                        }
 
                                         if (Regex.IsMatch(umt, @"\bmow\b", RegexOptions.IgnoreCase) == true || umt.Contains("mrew") == true || umt.Contains("mjau") == true || umt.Contains("maow") == true || umt.Contains("meow") == true)
                                         {
@@ -1665,7 +1674,7 @@ namespace nwTelegramBot
                                 {
                                     dta1 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("start").InnerText);
                                     dta2 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("end").InnerText);
-                                    eventString.AppendLine(nodes.Item(i1for).SelectSingleNode("title").InnerText + " [" + nodes.Item(i1for).SelectSingleNode("url").InnerText + "]");
+                                    eventString.AppendLine("<b>"+nodes.Item(i1for).SelectSingleNode("title").InnerText + "</b> [" + nodes.Item(i1for).SelectSingleNode("url").InnerText + "]");
                                     eventString.AppendLine("Convention starts: " + dta1.ToString("ddd d/MM/yyy") + " (" + dta1.ToString("h:mm tt") + ")");
                                     eventString.AppendLine("Convention ends: " + dta2.ToString("ddd d/MM/yyy") + " (" + dta2.ToString("h:mm tt") + ")");
                                     eventString.AppendLine("");
@@ -1879,6 +1888,88 @@ namespace nwTelegramBot
                                     html = GetHtmlCode("dog", false, true);
                                 else
                                     html = GetHtmlCode("dog", false, false);
+
+                                List<string> urls = GetUrls(html);
+                                var rnd = new Random();
+
+                                int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                // Select url from url list.
+                                string luckyUrl = urls[randomUrl];
+
+                                // Check if the file is valid, or throws an unwanted status code.
+                                if (!string.IsNullOrEmpty(luckyUrl))
+                                {
+                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.NotFound)
+                                    {
+                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.OK)
+                                    {
+                                        Console.WriteLine("URL appears to be good.");
+                                    }
+                                    else //There are a lot of other status codes you could check for...
+                                    {
+                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                   response.StatusCode.ToString()));
+                                    }
+
+                                }
+
+                                if (luckyUrl.Contains(" ") == true)
+                                    luckyUrl.Replace(" ", "%20");
+
+                                replyImage = luckyUrl;
+
+                                break;
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
+
+                            break;
+
+                        case "/corgi":
+
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /corgi";
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /corgi" + Environment.NewLine + "Type '/corgi help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                retryme:
+
+                                // list of urls.
+                                string html = null;
+
+                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                    html = GetHtmlCode("corgi", false, true);
+                                else
+                                    html = GetHtmlCode("corgi", false, false);
 
                                 List<string> urls = GetUrls(html);
                                 var rnd = new Random();
@@ -4416,6 +4507,12 @@ namespace nwTelegramBot
                 goto meow;
             if (response.StatusCode == HttpStatusCode.Forbidden)
                 goto meow;
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+                goto meow;
+            if (response.StatusCode == HttpStatusCode.BadGateway)
+                goto meow;
+            if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
+                goto meow;
 
             using (ehoh.Stream dataStream = response.GetResponseStream())
             {
@@ -4535,7 +4632,7 @@ namespace nwTelegramBot
         }
 
         /// <summary>
-        /// Returns whether or not we are in the 10 min grace period for commands.
+        /// Returns whether or not we are in the 2 min grace period for commands.
         /// </summary>
         /// <param name="dt">A DateTime object.</param>
         /// <returns>TRUE, or FALSE.</returns>
@@ -4548,14 +4645,14 @@ namespace nwTelegramBot
 
             nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: CHECK IN REPLY EVENT TRIGGERED.");
 
-            if (span.Minutes <= 10 || span.Minutes == 0)
+            if (span.Minutes <= 2 || span.Minutes == 0)
             {
-                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: LESS THAN OR EQUAL TO 10, PROCEED.");
+                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: LESS THAN OR EQUAL TO 2 MINUTES, PROCEED.");
                 return true;
             }
             else
             {
-                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: NOT LESS THAN OR EQUAL TO 10, DO NOT PROCEED. [" + span.Minutes + "]");
+                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: NOT LESS THAN OR EQUAL TO 2 MINUTES, DO NOT PROCEED. [" + span.Minutes + "]");
                 return false;
             }
         }
