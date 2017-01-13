@@ -1,9 +1,9 @@
 ﻿NW's TELEGRAM BOT -Changelog-
 ============================================================================================
 
-VERSION: 1.0.0.110
+VERSION: 1.0.0.112
 FOR: WINDOWS 8/10+
-LAST UPDATED ON: 29/10/2016
+LAST UPDATED ON: 02/01/2017
 LAST UPDATED BY: ANDYDINGOWOLF
 
 Please use "Word Wrap" if using notepad or wordpad to view this file.
@@ -13,10 +13,13 @@ Note: All changes go in this log file under the version those
 changes were made for. Newest Changes generally go first.
 +==================================+
 
-Version 0.110 BETA
+Version 0.112 BETA
 ------------------------------------
 - Added more easter eggs. [AndyDingo]
-- Fixed an erroneous console message.
+- Fixed an erroneous console message. [AndyDingo]
+- remove sqlite support. [AndyDingo]
+- add mysql support. [AndyDingo]
+- fix opt out command. [AndyDingo]
 - Bug fixes. [AndyDingo]
 
 Version 0.104 BETA

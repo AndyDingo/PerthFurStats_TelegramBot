@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
   <!--PerthFurStats Command configuration File-->
   <!--This file is generated (mostly) automatically, please don't edit manually-->
-<commands version="0.1" botver="1.0.0.62">
+<commands version="0.1" botver="1.0.0.112">
   <cmd_usage>
     <img>0</img>
     <cat>0</cat>

@@ -4,10 +4,11 @@
  * Please read docs/gpl.txt for licensing information.
  * ---------------------------------------------------------------
  * -- CREATOR INFORMATION --
- * Created by: Microsoft Visual Studio 2015.
- * User      : AndyDingoWolf
+ * Created by   : Microsoft Visual Studio 2015.
+ * User         : AndyDingoWolf
+ * Last Updated : 02/01/2017 by AndyDingo
  * -- VERSION --
- * Version   : 1.0.0.109
+ * Version      : 1.0.0.112
  */
 
 using Newtonsoft.Json.Linq;
@@ -28,6 +29,10 @@ using Tweetinvi;
 using ehoh = System.IO;
 using File = System.IO.File;
 using Mew = System.Data.SQLite;
+using System.Data;
+using MySql.Data;
+using MySql.Data.MySqlClient;
+using System.Net.Mail;
 
 namespace nwTelegramBot
 {
@@ -543,6 +548,7 @@ namespace nwTelegramBot
                             if (s_mffn.Contains(" ") == true)
                                 s_mffn.Replace(" ", string.Empty);
 
+
                             // Do stuff if we are a text message
                             switch (message.Type)
                             {
@@ -608,6 +614,43 @@ namespace nwTelegramBot
                                         //}
                                     }
 
+                                    #region Animal Noises
+
+                                    if (Regex.IsMatch(umt, @"\bmow\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bmew\b", RegexOptions.IgnoreCase) == true || umt.Contains("mrew") == true || umt.Contains("mjau") == true || umt.Contains("maow") == true || umt.Contains("meow") == true)
+                                    {
+
+                                        //int n_cat = nwCountCatNoises();
+                                        nwSetCatNoiseCount(update.Message.From.Username);
+
+                                        if (nwGrabString("debugmode") == "true")
+                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has mowed, increase mow count.");
+
+                                    }
+
+                                    if (Regex.IsMatch(umt, @"\baroo\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bawoo\b", RegexOptions.IgnoreCase) == true || umt.Contains("aruu") == true || umt.Contains("awuu") == true || umt.Contains("bark") == true || umt.Contains("bork") == true)
+                                    {
+
+                                        //int n_dog = nwCountDogNoises();
+                                        nwSetDogNoiseCount(update.Message.From.Username);
+
+                                        if (nwGrabString("debugmode") == "true")
+                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
+
+                                    }
+
+                                    if (Regex.IsMatch(umt, @"\bskree\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\brawr\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bsqueak\b", RegexOptions.IgnoreCase) == true)
+                                    {
+
+                                        //int n_dog = nwCountDogNoises();
+                                        nwSetDragonNoiseCount(update.Message.From.Username);
+
+                                        if (nwGrabString("debugmode") == "true")
+                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has made dragon noises, increase dragon noise count.");
+
+                                    }
+
+                                    #endregion
+
                                     // If we have easter eggs enabled.
                                     if (nwGrabString("eastereggs") == "true")
                                     {
@@ -618,34 +661,6 @@ namespace nwTelegramBot
 
                                             if (nwCheckInReplyTimer(m) != false)
                                                 Bot.SendTextMessageAsync(update.Message.Chat.Id, "Narcissist Alert! :P", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        if (Regex.IsMatch(umt, @"\bmow\b", RegexOptions.IgnoreCase) == true || umt.Contains("mrew") == true || umt.Contains("mjau") == true || umt.Contains("maow") == true || umt.Contains("meow") == true)
-                                        {
-
-                                            int n_cat = nwCountCatNoises();
-                                            nwSetCatNoiseCount(n_cat++, s_mffn);
-
-                                            if (nwGrabString("debugmode") == "true")
-                                                nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has mowed, increase mow count.");
-
-                                            //if (nwCheckInReplyTimer(m) != false)
-                                            //    Bot.SendTextMessageAsync(update.Message.Chat.Id, ">:|", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        if (Regex.IsMatch(umt, @"\baroo\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bawoo\b", RegexOptions.IgnoreCase) == true || umt.Contains("aruu") == true || umt.Contains("awuu") == true || umt.Contains("bark") == true || umt.Contains("bork") == true)
-                                        {
-
-                                            int n_dog = nwCountDogNoises();
-                                            nwSetDogNoiseCount(n_dog++, s_mffn);
-
-                                            if (nwGrabString("debugmode") == "true")
-                                                nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
-
-                                            //if (nwCheckInReplyTimer(m) != false)
-                                            //    Bot.SendTextMessageAsync(update.Message.Chat.Id, ">:|", false, false, update.Message.MessageId);
 
                                         }
 
@@ -970,6 +985,31 @@ namespace nwTelegramBot
                                 
                                 case MessageType.StickerMessage: // Do stuff if we are a sticker message
 
+                                    if (update.Message.Sticker.Emoji == "😺")
+                                    {
+                                        nwSetCatNoiseCount(update.Message.From.Username);
+
+                                        if (nwGrabString("debugmode") == "true")
+                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has mowed, increase mow count.");
+                                    }
+
+                                    if (update.Message.Sticker.Emoji == "🐺")
+                                    {
+                                        nwSetDogNoiseCount(update.Message.From.Username);
+
+                                        if (nwGrabString("debugmode") == "true")
+                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
+                                    }
+
+                                    if (update.Message.Sticker.Emoji == "🐲")
+                                    {
+                                        nwSetDragonNoiseCount(update.Message.From.Username);
+
+                                        if (nwGrabString("debugmode") == "true")
+                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has done a dragon call, increase squeak count.");
+                                    }
+
+
                                     using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
                                     {
                                         // download the emoji for the image, if there is one. Added in May API update.
@@ -981,6 +1021,7 @@ namespace nwTelegramBot
                                             Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
 
                                         await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
+
                                     }
 
                                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
@@ -1133,6 +1174,123 @@ namespace nwTelegramBot
 
         }
 
+        private static void nwSetDragonNoiseCount(string username)
+        {
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
+
+                MySqlCommand chkUser = new MySqlCommand("SELECT * FROM tbl_miscstats WHERE (username = @user)", conn);
+                chkUser.Parameters.AddWithValue("@user", username);
+                MySqlDataReader reader = chkUser.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    //User Exists
+                    int mews = nwCountDragonNoises(username);
+
+                    mews++;
+
+                    nwUpdateDragonNoises(mews, username);
+                }
+                else
+                {
+                    //User NOT Exists
+                    nwInsertDragonNoises(username);
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
+        }
+
+        private static void nwInsertDragonNoises(string username)
+        {
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
+
+                string sql = "INSERT INTO tbl_miscstats (username, totalsqueaks) VALUES ('" + username + "', '" + 1 + "')";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.ExecuteNonQuery();
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
+        }
+
+        private static void nwUpdateDragonNoises(int mews, string username)
+        {
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
+
+                string sql = "UPDATE tbl_miscstats SET totalsqueaks='" + mews + "' WHERE username='" + username + "';";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.ExecuteNonQuery();
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
+        }
+
+        private static int nwCountDragonNoises(string username)
+        {
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
+
+                string sq = "SELECT totalsqueaks FROM tbl_miscstats WHERE username='" + username + "'";
+                MySqlCommand msc = new MySqlCommand(sq, conn);
+                int mews = Convert.ToInt32(msc.ExecuteScalar());
+
+                return mews;
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return 0;
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
+        }
+
         private static string nwGenRandomPhrase2()
         {
             int i = cDiceBag.Instance.d4(1);
@@ -1190,89 +1348,275 @@ namespace nwTelegramBot
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="value"></param>
         /// <param name="lastuser"></param>
-        private static void nwSetDogNoiseCount(int value, string lastuser)
+        private static void nwSetDogNoiseCount(string lastuser)
         {
 
-            Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
 
-            conn.Open();
-
-            using (var cmd_contents = conn.CreateCommand())
+            try
             {
-                cmd_contents.CommandText = "UPDATE [tbl_miscstats] SET [count]=\"" + value + "\" WHERE [name]==\"awoo\";";
-                var r = cmd_contents.ExecuteNonQuery();
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
 
-                Console.WriteLine(r.ToString());
+                MySqlCommand chkUser = new MySqlCommand("SELECT * FROM tbl_miscstats WHERE (username = @user)", conn);
+                chkUser.Parameters.AddWithValue("@user", lastuser);
+                MySqlDataReader reader = chkUser.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    //User Exists
+                    int mews = nwCountDogNoises(lastuser);
+
+                    mews++;
+
+                    nwUpdateDogNoises(mews, lastuser);
+                }
+                else
+                {
+                    //User NOT Exists
+                    nwInsertDogNoises(lastuser);
+                }
+
+
+
+
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
 
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="value"></param>
         /// <param name="lastuser"></param>
-        private static void nwSetCatNoiseCount(int value, string lastuser)
+        private static void nwSetCatNoiseCount(string lastuser)
         {
 
-            Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
+            //Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
 
-            conn.Open();
+            //conn.Open();
 
-            using (var cmd_contents = conn.CreateCommand())
-            {
-                cmd_contents.CommandText = "UPDATE [tbl_miscstats] SET [count]=\"" + value + "\" WHERE [name]==\"mow\";";
-                var r = cmd_contents.ExecuteNonQuery();
+            //using (var cmd_contents = conn.CreateCommand())
+            //{
+            //    cmd_contents.CommandText = "UPDATE [tbl_miscstats] SET [count]=\"" + value + "\" WHERE [name]==\"mow\";";
+            //    var r = cmd_contents.ExecuteNonQuery();
                 
-                    Console.WriteLine(r.ToString());
+            //        Console.WriteLine(r.ToString());
+            //}
+
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
+
+                MySqlCommand chkUser = new MySqlCommand("SELECT * FROM tbl_miscstats WHERE (username = @user)", conn);
+                chkUser.Parameters.AddWithValue("@user", lastuser);
+                MySqlDataReader reader = chkUser.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    //User Exists
+                    int mews = nwCountCatNoises(lastuser);
+
+                    mews++;
+
+                    nwUpdateCatNoises(mews, lastuser);
+                }
+                else
+                {
+                    //User NOT Exists
+                    nwInsertCatNoises(lastuser);
+                    
+                }
+                
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
 
         }
 
-        private static int nwCountDogNoises()
+        /// <summary>
+        /// Insert cat noises into database.
+        /// </summary>
+        private static void nwInsertCatNoises(string lastuser)
         {
-            Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
 
-            conn.Open();
-
-            int catnoisecount=0;
-
-            using (var cmd_contents = conn.CreateCommand())
+            try
             {
-                cmd_contents.CommandText = "SELECT [count] FROM [tbl_miscstats] WHERE [name]==\"awoo\";";
-                var r = cmd_contents.ExecuteReader();
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
 
-                while (r.Read())
-                {
-                    catnoisecount = Convert.ToInt32(r["count"]);
-                }
+                string sql = "INSERT INTO tbl_miscstats (username, totalmows) VALUES ('" + lastuser + "', '" + 1 + "')";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.ExecuteNonQuery();
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
             }
 
-            return catnoisecount;
+            conn.Close();
+            Console.WriteLine("Done.");
         }
 
-        private static int nwCountCatNoises()
+        /// <summary>
+        /// Insert cat noises into database.
+        /// </summary>
+        private static void nwUpdateCatNoises(int mews, string lastuser)
         {
-            Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
 
-            conn.Open();
-
-            int catnoisecount=0;
-
-            using (var cmd_contents = conn.CreateCommand())
+            try
             {
-                cmd_contents.CommandText = "SELECT [count] FROM [tbl_miscstats] WHERE [name]==\"mow\";";
-                var r = cmd_contents.ExecuteReader();
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
 
-                while (r.Read())
-                {
-                    catnoisecount = Convert.ToInt32(r["count"]);
-                }
+                string sql = "UPDATE tbl_miscstats SET totalmows='" + mews + "' WHERE username='" + lastuser + "';";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.ExecuteNonQuery();
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
             }
 
-            return catnoisecount;
+            conn.Close();
+            Console.WriteLine("Done.");
+        }
+
+        private static int nwCountCatNoises(string lastuser)
+        {
+
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
+
+                string sq = "SELECT totalwoofs FROM tbl_miscstats WHERE username='" + lastuser + "'";
+                MySqlCommand msc = new MySqlCommand(sq, conn);
+                int mews = Convert.ToInt32(msc.ExecuteScalar());
+
+                return mews;
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return 0;
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
+        }
+
+        /// <summary>
+        /// Insert dog noises into database.
+        /// </summary>
+        private static void nwInsertDogNoises(string lastuser)
+        {
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
+
+                string sql = "INSERT INTO tbl_miscstats (username, totalwoofs) VALUES ('" + lastuser + "', '" + 1 + "')";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.ExecuteNonQuery();
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
+        }
+
+        /// <summary>
+        /// Insert dog noises into database.
+        /// </summary>
+        private static void nwUpdateDogNoises(int mews, string lastuser)
+        {
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
+
+                string sql = "UPDATE tbl_miscstats SET totalwoofs='" + mews + "' WHERE username='" + lastuser + "';";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.ExecuteNonQuery();
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
+        }
+
+        private static int nwCountDogNoises(string lastuser)
+        {
+
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
+
+                string sq = "SELECT totalwoofs FROM tbl_miscstats WHERE username='" + lastuser + "'";
+                MySqlCommand msc = new MySqlCommand(sq, conn);
+                int mews = Convert.ToInt32(msc.ExecuteScalar());
+
+                return mews;
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return 0;
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
         }
 
         /// <summary>
@@ -1819,6 +2163,11 @@ namespace nwTelegramBot
                                     UriBuilder uriBuilder = new UriBuilder(luckyUrl);
                                     HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
                                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.BadRequest)
+                                    {
+                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                                        goto retryme;
+                                    }
                                     if (response.StatusCode == HttpStatusCode.NotFound)
                                     {
                                         Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
@@ -1903,6 +2252,11 @@ namespace nwTelegramBot
                                     UriBuilder uriBuilder = new UriBuilder(luckyUrl);
                                     HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
                                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.BadRequest)
+                                    {
+                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                                        goto retryme;
+                                    }
                                     if (response.StatusCode == HttpStatusCode.NotFound)
                                     {
                                         Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
@@ -1985,6 +2339,11 @@ namespace nwTelegramBot
                                     UriBuilder uriBuilder = new UriBuilder(luckyUrl);
                                     HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
                                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.BadRequest)
+                                    {
+                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                                        goto retryme;
+                                    }
                                     if (response.StatusCode == HttpStatusCode.NotFound)
                                     {
                                         Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
@@ -2067,6 +2426,11 @@ namespace nwTelegramBot
                                     UriBuilder uriBuilder = new UriBuilder(luckyUrl);
                                     HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
                                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.BadRequest)
+                                    {
+                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                                        goto retryme;
+                                    }
                                     if (response.StatusCode == HttpStatusCode.NotFound)
                                     {
                                         Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
@@ -2149,6 +2513,11 @@ namespace nwTelegramBot
                                     UriBuilder uriBuilder = new UriBuilder(luckyUrl);
                                     HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
                                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.BadRequest)
+                                    {
+                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                                        goto retryme;
+                                    }
                                     if (response.StatusCode == HttpStatusCode.NotFound)
                                     {
                                         Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
@@ -2286,6 +2655,11 @@ namespace nwTelegramBot
                                     UriBuilder uriBuilder = new UriBuilder(luckyUrl);
                                     HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
                                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.BadRequest)
+                                    {
+                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                                        goto retryme;
+                                    }
                                     if (response.StatusCode == HttpStatusCode.NotFound)
                                     {
                                         Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
@@ -2372,7 +2746,12 @@ namespace nwTelegramBot
                                             Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
                                             goto retryme;
                                         }
-                                        if (response.StatusCode == HttpStatusCode.OK)
+                                    if (response.StatusCode == HttpStatusCode.BadRequest)
+                                    {
+                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.OK)
                                         {
                                             Console.WriteLine("URL appears to be good.");
                                         }
@@ -2406,6 +2785,73 @@ namespace nwTelegramBot
                             // usage /jelly [yes|no] leave blank and bot will repeat query.
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "This command is not yet implemented.";
+
+                            break;
+
+                        case "/bio":
+
+                            if (body == string.Empty || body == " " || body == "@" || body == null)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = nwShowBio(update.Message.From.Username);
+
+                                break;
+
+                            }
+                            if (body.Contains("@"))
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = nwShowBio(body);
+
+                                break;
+
+                            }
+                            else if (body == "help")
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /bio [username or blank]" + Environment.NewLine + "Type '/bio help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            break;
+
+                        case "/setbio":
+
+                            if (body == string.Empty || body == " " || body == "@" || body == null)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "You haven't given me a message to put in your bio.";
+
+                                break;
+
+                            }
+                            else
+                            {
+                                
+                                nwSetBio(update.Message.From.Username, body);
+                            }
+
+
+                            if (body == "help")
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /setbio [text to send]" + Environment.NewLine + "Type '/setbio help' to see this message again.";
+
+                                break;
+
+                            }
 
                             break;
 
@@ -2448,68 +2894,73 @@ namespace nwTelegramBot
 
                                 }
 
-                                if (nwCheckInReplyTimer(dt) != false)
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                retryme:
+
+                                // list of urls.
+                                string html = null;
+
+                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                    html = GetHtmlCode(body, false, true);
+                                else
+                                    html = GetHtmlCode(body, false, false);
+
+                                List<string> urls = GetUrls(html);
+                                var rnd = new Random();
+
+                                int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                // Select url from url list.
+                                string luckyUrl = urls[randomUrl];
+
+                                // Check if the file is valid, or throws an unwanted status code.
+                                if (!string.IsNullOrEmpty(luckyUrl))
                                 {
-
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
-
-                                    retryme:
-
-                                    // list of urls.
-                                    string html = null;
-
-                                    // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                                    if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                        html = GetHtmlCode(body, false, true);
-                                    else
-                                        html = GetHtmlCode(body, false, false);
-
-                                    List<string> urls = GetUrls(html);
-                                    var rnd = new Random();
-
-                                    int randomUrl = rnd.Next(0, urls.Count - 1);
-
-                                    // Select url from url list.
-                                    string luckyUrl = urls[randomUrl];
-
-                                    // Check if the file is valid, or throws an unwanted status code.
-                                    if (!string.IsNullOrEmpty(luckyUrl))
+                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.BadRequest)
                                     {
-                                        UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                        if (response.StatusCode == HttpStatusCode.NotFound)
-                                        {
-                                            Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                            goto retryme;
-                                        }
-                                        if (response.StatusCode == HttpStatusCode.OK)
-                                        {
-                                            Console.WriteLine("URL appears to be good.");
-                                        }
-                                        else //There are a lot of other status codes you could check for...
-                                        {
-                                            Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                       response.StatusCode.ToString()));
-                                        }
-
+                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.NotFound)
+                                    {
+                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.OK)
+                                    {
+                                        Console.WriteLine("URL appears to be good.");
+                                    }
+                                    else //There are a lot of other status codes you could check for...
+                                    {
+                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                   response.StatusCode.ToString()));
                                     }
 
-                                    if (luckyUrl.Contains(" ") == true)
-                                        luckyUrl.Replace(" ", "%20");
-
-                                    replyImage = luckyUrl;
-
-                                    nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
-                                                                           //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
-
-                                    break;
-
                                 }
-                                else
-                                {
-                                    Console.WriteLine("The " + command + " failed as it took too long to process.");
-                                }
+
+                                if (luckyUrl.Contains(" ") == true)
+                                    luckyUrl.Replace(" ", "%20");
+
+                                replyImage = luckyUrl;
+
+                                nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
+                                                                       //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
+
+                                break;
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
 
                             break;
 
@@ -2572,7 +3023,39 @@ namespace nwTelegramBot
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                             if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following form to opt-out from stats collection. Bare in mind that your request might not be implemented till the next stats run, as it requires manual intervention. URL: http://www.perthfurstats.net/node/10";
+                            {
+                                //s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following form to opt-out from stats collection. Bare in mind that your request might not be implemented till the next stats run, as it requires manual intervention. URL: http://www.perthfurstats.net/node/10";
+
+                                if (body == string.Empty || body == " " || body == "@" || body == null)
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "Usage: /oo [reason for the]";
+
+                                    break;
+                                }
+                                else if (body == "help")
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "Usage: /oo [reason, leave blank if you want]" + Environment.NewLine + "Type '/oo help' to see this message again.";
+
+                                    break;
+
+                                }
+
+
+                                // write request to database
+                                nwWriteORToDB(update.Message.From.Username, body);
+
+                                // write and send email
+                                nwSendEmail(update.Message.From.Username, body);
+
+                                // final
+
+
+
+                            }
 
                             break;
 
@@ -2663,13 +3146,24 @@ namespace nwTelegramBot
                         case "/roll":
                         case "/diceroll":
 
-                            string s = "";
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
 
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+                                string s = "";
 
-                            // Roll our dice.
-                            s = nwRollDice(s_username, dt, body);
-                            replyText = s;
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                // Roll our dice.
+                                s = nwRollDice(s_username, dt, body);
+                                replyText = s;
+
+                            }
+                            else
+                            {
+
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+
+                            }
 
                             break;
 
@@ -3975,6 +4469,183 @@ namespace nwTelegramBot
             }
         }
 
+        private static void nwWriteORToDB(string username, string body)
+        {
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                Console.WriteLine("Connecting to MySQL...");
+                conn.Open();
+
+                string sql = "INSERT INTO tbl_oo (username, reason) VALUES ('" + username + "', '" + body + "')";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
+        }
+
+        private static void nwSendEmail(string username,string reason)
+        {
+            MailMessage mail = new MailMessage();
+            mail.To.Add("nwcreations@gmail.com");
+            mail.From = new MailAddress("perthfurstats@hotmail.com", "OptOut request", System.Text.Encoding.UTF8);
+            mail.Subject = "This mail is send from asp.net application";
+            mail.SubjectEncoding = System.Text.Encoding.UTF8;
+            mail.Body = "A user has requested to be opted out of stats generation: " + username + Environment.NewLine + "Reason: " + reason;
+            mail.BodyEncoding = System.Text.Encoding.UTF8;
+            mail.IsBodyHtml = true;
+            mail.Priority = MailPriority.High;
+            SmtpClient client = new SmtpClient();
+            client.Credentials = new NetworkCredential("perthfurstats@hotmail.com", "OrangeMango321");
+            client.Port = 587;
+            client.Host = "smtp-mail.outlook.com";
+            client.EnableSsl = true;
+            try
+            {
+                client.Send(mail);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private static void nwSetBio(string username,string bio)
+        {
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                Console.WriteLine("Connecting to MySQL...");
+                conn.Open();
+
+                MySqlCommand chkUser = new MySqlCommand("SELECT * FROM tbl_bio WHERE (username = @user)", conn);
+                chkUser.Parameters.AddWithValue("@user", username);
+                MySqlDataReader reader = chkUser.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    nwUpdateBio(username, bio);
+                }
+                else
+                {
+                    //User NOT Exists
+                    nwInsertBio(username, bio);
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
+        }
+
+        private static void nwUpdateBio(string username, string bio)
+        {
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
+
+                string sql = "UPDATE tbl_bio SET bio='" + bio + "' WHERE username='" + username + "';";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.ExecuteNonQuery();
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
+        }
+
+        private static void nwInsertBio(string username, string bio)
+        {
+
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
+
+                string sql = "INSERT INTO tbl_bio (username, bio) VALUES ('" + username + "', '" + bio + "')";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.ExecuteNonQuery();
+
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.ToString());
+
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
+
+        }
+
+        private static string nwShowBio(string username)
+        {
+            string conn = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+
+            MySqlConnection msc = new MySqlConnection(conn);
+
+            try
+            {
+                string str="";
+                Console.WriteLine("Connecting to MySQL...");
+                msc.Open();
+
+                string sql = "SELECT bio FROM tbl_bio WHERE username='" + username + "'";
+                MySqlCommand cmd = new MySqlCommand(sql, msc);
+                MySqlDataReader rdr = cmd.ExecuteReader();
+
+                while (rdr.Read())
+                {
+                    str= Convert.ToString(rdr[0]);
+                    Console.WriteLine(str);
+                }
+
+                rdr.Close();
+
+                return "@" + username + ": " + str;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return "";
+            }
+
+            msc.Close();
+
+            Console.WriteLine("Done.");
+            
+        }
+
         /// <summary>
         /// Returns event information from the events xml document.
         /// </summary>
@@ -4325,16 +4996,41 @@ namespace nwTelegramBot
                 if (nwCheckInReplyTimer(dt) != false)
                     return "Usage: /roll [number of sides] [amount of dice]";
             }
-            
+
+            if (Regex.IsMatch(body, @"^\d+$"))
+            {
+                return "There's a problem with the input:"+Environment.NewLine+"Usage: /roll [number of sides] [amount of dice]";
+            }
+
             string[] mysplit = new string[] { "1", "1", "1" };
              mysplit = body.Split(' ');
 
             string ms1 = mysplit[0];
             string ms2 = mysplit[1];
 
+            if (Regex.IsMatch(ms1, @"^\d+$"))
+            {
+                return "Sides must actually be a number";
+            }
+
+            if (Regex.IsMatch(ms2, @"^\d+$"))
+            {
+                return "Dice must actually be a number";
+            }
+
             int i, j;
             i = Convert.ToInt32(ms1);
             j = Convert.ToInt32(ms2);
+
+            if (i >= 0)
+            {
+                return "Sides must be a positive number.";
+            }
+
+            if (j >= 0)
+            {
+                return "Dice must be a positive number.";
+            }
 
             if (j <= 5)
             {
@@ -4503,6 +5199,8 @@ namespace nwTelegramBot
 
             var response = (HttpWebResponse)request.GetResponse();
 
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+                goto meow;
             if (response.StatusCode == HttpStatusCode.NotFound)
                 goto meow;
             if (response.StatusCode == HttpStatusCode.Forbidden)

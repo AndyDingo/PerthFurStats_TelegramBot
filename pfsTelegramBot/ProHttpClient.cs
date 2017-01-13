@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : Unknown
  * -- VERSION --
- * Version   : 1.0.0.78
+ * Version   : 1.0.0.112
  */
 
 using System;
@@ -17,8 +17,15 @@ using System.Threading.Tasks;
 
 namespace nwTelegramBot
 {
+    /// <summary>
+    /// A http client
+    /// </summary>
     public class ProHttpClient : HttpClient
     {
+
+        /// <summary>
+        /// http client constructor
+        /// </summary>
         public ProHttpClient()
         {
             Timeout = new TimeSpan(0, 0, 30);

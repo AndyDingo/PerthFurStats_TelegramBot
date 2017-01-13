@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.111
+ * Version   : 1.0.0.112
  */
 
 using System.Reflection;
@@ -23,7 +23,7 @@ using System.Resources;
 [assembly: AssemblyConfiguration("Debug")]
 [assembly: AssemblyCompany("Nytewolf Creations")]
 [assembly: AssemblyProduct("PerthFurStats Chat Command Bot")]
-[assembly: AssemblyCopyright("Copyright © 2016 Nytewolf Creations")]
+[assembly: AssemblyCopyright("Copyright © 2016, 2017 Nytewolf Creations")]
 [assembly: AssemblyTrademark("Telegram is a cloud-based mobile and desktop messaging app with a focus on security and speed.")]
 [assembly: AssemblyCulture("")]
 
@@ -45,9 +45,9 @@ using System.Resources;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.111")]
-[assembly: AssemblyFileVersion("1.0.0.111")]
-[assembly: AssemblyInformationalVersion("1.0.0.111")]
+[assembly: AssemblyVersion("1.0.0.112")]
+[assembly: AssemblyFileVersion("1.0.0.112")]
+[assembly: AssemblyInformationalVersion("1.0.0.112")]
 [assembly: NeutralResourcesLanguageAttribute("en-AU")]
 
 //[assembly: PermissionSetAttribute(SecurityAction.RequestMinimum, Name = "FullTrust")]
