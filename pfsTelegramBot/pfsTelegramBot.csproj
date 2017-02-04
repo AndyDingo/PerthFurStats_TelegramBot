@@ -167,7 +167,7 @@
   <ItemGroup>
     <Content Include="data\commandlist.xml" />
     <Content Include="data\events.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
     <None Include="data\pfsUserCmdConfig.cfg">

@@ -1,56 +1,48 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<events version="0.9" botver="1.0.0.112">
-	<event>
-		<id>126</id>
-		<url>http://www.perthfurs.net/events/view/126</url>
-		<title>Quay Furs 16 - SECRET SANTA FURS</title>
-		<location>Elizabeth Quay</location>
-		<start>2016-12-20 18:30:00</start>
-		<end>2016-12-20 21:30:00</end>
-	</event>
-	<event>
-		<id>000</id>
-		<url>https://www.facebook.com/events/374907942861578/</url>
-		<title>Furries on Ice</title>
-		<location>Cockburn Ice Arena</location>
-		<start>2016-12-20 20:00:00</start>
-	</event>
-	<event>
-		<id>1</id>
-		<url>http://www.confurgence.com/</url>
-		<title>ConFurgence 2017</title>
-		<location>Melbourne</location>
-		<start>2017-01-06 09:00:00</start>
-	</event>
-  <event>
-		<id>000</id>
-		<url>https://www.facebook.com/events/1163737747041412/</url>
-		<title>Pool Furs 2</title>
-		<location>Somserset Leisure Centre, Victoria Park</location>
-		<start>2017-01-07 20:00:00</start>
-	</event>
+<events>
 	<event>
 		<id>133</id>
 		<url>http://www.perthfurs.net/events/view/133</url>
 		<title>West Aussie Fur Frenzy</title>
 		<location>Pagoda Resort and Spa</location>
-    <start>2017-03-25 09:00:00</start>
-    <end>2017-03-26 22:00:00</end>
+		<start>2017-09-02 09:00:00</start>
+		<end>2017-09-03 22:00:00</end>
 	</event>
 	<event>
-		<id>3</id>
-		<url>http://www.furdu.com.au/</url>
-		<title>FurDU 2017</title>
-		<location>Gold Coast</location>
-		<start>2017-05-05 9:00:00</start>
-		<end>2017-05-07 23:59:00</end>
+		<id>141</id>
+		<url>http://www.perthfurs.net/events/view/141</url>
+		<title>Quay Furs 23</title>
+		<location>Elizabeth Quay Carousel (Near the Transperth Ferry dock)</location>
+		<start>2017-02-07 18:30:00</start>
+		<end>2017-02-07 21:00:00</end>
 	</event>
 	<event>
-		<id>4</id>
-		<url>https://www.furcon.com.au/</url>
-		<title>Harbour City Furcon</title>
-		<location>Sydney</location>
-		<start>2017-07-21 14:00:00</start>
-		<end>2017-07-23 23:59:00</end>
+		<id>142</id>
+		<url>http://www.perthfurs.net/events/view/142</url>
+		<title>Quay Furs 24</title>
+		<location>Elizabeth Quay Carousel (Near the Transperth Ferry dock)</location>
+		<start>2017-02-14 18:30:00</start>
+	</event>
+	<event>
+		<id>138</id>
+		<url>http://www.perthfurs.net/events/view/138</url>
+		<title>Furries On The Foreshore</title>
+		<location>South Perth Foreshore</location>
+		<start>2017-02-18 11:00:00</start>
+	</event>
+	<event>
+		<id>139</id>
+		<url>http://www.perthfurs.net/events/view/139</url>
+		<title>GRR V10.0 (Games, Revelry and Relaxation)</title>
+		<location>42 Sandleford Way, Morley WA 6062, Australia</location>
+		<start>2017-02-18 17:00:00</start>
+		<end>2017-02-19 00:00:00</end>
+	</event>
+	<event>
+		<id>140</id>
+		<url>http://www.perthfurs.net/events/view/140</url>
+		<title>CaFURnated Reborn</title>
+		<location>Miss Maud Carillon City Arcade</location>
+		<start>2017-02-25 11:30:00</start>
 	</event>
 </events>

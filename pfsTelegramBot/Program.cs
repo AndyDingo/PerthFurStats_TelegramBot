@@ -5008,26 +5008,26 @@ namespace nwTelegramBot
             string ms1 = mysplit[0];
             string ms2 = mysplit[1];
 
-            if (Regex.IsMatch(ms1, @"^\d+$"))
-            {
-                return "Sides must actually be a number";
-            }
+            //if (Regex.IsMatch(ms1, @"^\d+$"))
+            //{
+            //    return "Sides must actually be a number";
+            //}
 
-            if (Regex.IsMatch(ms2, @"^\d+$"))
-            {
-                return "Dice must actually be a number";
-            }
+            //if (Regex.IsMatch(ms2, @"^\d+$"))
+            //{
+            //    return "Dice must actually be a number";
+            //}
 
             int i, j;
             i = Convert.ToInt32(ms1);
             j = Convert.ToInt32(ms2);
 
-            if (i >= 0)
+            if (i <= 0)
             {
                 return "Sides must be a positive number.";
             }
 
-            if (j >= 0)
+            if (j <= 0)
             {
                 return "Dice must be a positive number.";
             }
