@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<events>
+<events version="0.9" botver="1.0.0.113">
 	<event>
 		<id>133</id>
 		<url>http://www.perthfurs.net/events/view/133</url>
@@ -38,6 +38,13 @@
 		<start>2017-02-18 17:00:00</start>
 		<end>2017-02-19 00:00:00</end>
 	</event>
+  <event>
+    <id>000</id>
+    <url></url>
+    <title>Quay Furs 25</title>
+    <location>Elizabeth Quay Carousel (Near the Transperth Ferry dock)</location>
+    <start>2017-02-21 18:30:00</start>
+  </event>
 	<event>
 		<id>140</id>
 		<url>http://www.perthfurs.net/events/view/140</url>
@@ -45,4 +52,27 @@
 		<location>Miss Maud Carillon City Arcade</location>
 		<start>2017-02-25 11:30:00</start>
 	</event>
+  <event>
+    <id>000</id>
+    <url></url>
+    <title>Quay Furs 26</title>
+    <location>Elizabeth Quay Carousel (Near the Transperth Ferry dock)</location>
+    <start>2017-02-28 18:30:00</start>
+  </event>
+  <event>
+    <id>4</id>
+    <url>http://www.furoutwest.com/</url>
+    <title>Fur Out West</title>
+    <location>Atrium Hotel Mandurah</location>
+    <start>2017-11-24 09:00:00</start>
+    <end>2017-11-26 23:59:00</end>
+  </event>
+  <event>
+    <id>5</id>
+    <url>http://www.confurgence.com/</url>
+    <title>Confurgence 2018</title>
+    <location>Amora Hotel Melbourne Riverwalk</location>
+    <start>2018-02-23 10:00:00</start>
+    <end>2018-02-25 23:30:00</end>
+  </event>
 </events>

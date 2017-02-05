@@ -1,10 +1,10 @@
 ﻿NW's TELEGRAM BOT -Changelog-
 ============================================================================================
 
-VERSION: 1.0.0.112
+VERSION: 1.0.0.113
 FOR: WINDOWS 8/10+
-LAST UPDATED ON: 02/01/2017
-LAST UPDATED BY: ANDYDINGOWOLF
+LAST UPDATED ON: 05/02/2017
+LAST UPDATED BY: AnwenEira
 
 Please use "Word Wrap" if using notepad or wordpad to view this file.
 
@@ -12,6 +12,11 @@ Please use "Word Wrap" if using notepad or wordpad to view this file.
 Note: All changes go in this log file under the version those
 changes were made for. Newest Changes generally go first.
 +==================================+
+
+Version 0.113 BETA
+------------------------------------
+- Remove experimental Twitter code. [AnwenEira]
+- Disable sqlite code to replace with mysql. [AnwenEira]
 
 Version 0.112 BETA
 ------------------------------------

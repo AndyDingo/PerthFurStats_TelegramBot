@@ -1,5 +1,5 @@
 ﻿/* 
- * All contents copyright 2016, Andy Dingo and Contributors
+ * All contents copyright 2016 - 2017, Andy Dingo and Contributors
  * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
  * Please read docs/gpl.txt for licensing information.
  * ---------------------------------------------------------------
@@ -8,7 +8,7 @@
  * User         : AndyDingoWolf
  * Last Updated : 02/01/2017 by AndyDingo
  * -- VERSION --
- * Version      : 1.0.0.112
+ * Version      : 1.0.0.113
  */
 
 using Newtonsoft.Json.Linq;
@@ -25,10 +25,8 @@ using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Tweetinvi;
 using ehoh = System.IO;
 using File = System.IO.File;
-using Mew = System.Data.SQLite;
 using System.Data;
 using MySql.Data;
 using MySql.Data.MySqlClient;
@@ -297,57 +295,57 @@ namespace nwTelegramBot
             else { return -1; }
         }
 
-        private static int nwGrabGlobalUsageDB(string command)
-        {
-            var output = 0;
+        //private static int nwGrabGlobalUsageDB(string command)
+        //{
+        //    var output = 0;
 
-            Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
-            //Mew.SQLiteCommand cmd = new Mew.SQLiteCommand(conn);
-            //Mew.SQLiteDataAdapter da = new Mew.SQLiteDataAdapter("SELECT [count] FROM [tbl_cmduse_global] WHERE [command]==" + command + ";", conn);
-            //DataSet ds = new DataSet("mew");
-            //da.Fill(ds);
-            //Console.WriteLine(ds.Tables[0].Rows[0].ToString());
+        //    //Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
+        //    //Mew.SQLiteCommand cmd = new Mew.SQLiteCommand(conn);
+        //    //Mew.SQLiteDataAdapter da = new Mew.SQLiteDataAdapter("SELECT [count] FROM [tbl_cmduse_global] WHERE [command]==" + command + ";", conn);
+        //    //DataSet ds = new DataSet("mew");
+        //    //da.Fill(ds);
+        //    //Console.WriteLine(ds.Tables[0].Rows[0].ToString());
 
-            conn.Open();
+        //    conn.Open();
 
-            using (var cmd_contents = conn.CreateCommand())
-            {
-                cmd_contents.CommandText = "SELECT [count] FROM [tbl_cmduse_global] WHERE [command]==\"" + command + "\";";
-                var r = cmd_contents.ExecuteReader();
+        //    using (var cmd_contents = conn.CreateCommand())
+        //    {
+        //        cmd_contents.CommandText = "SELECT [count] FROM [tbl_cmduse_global] WHERE [command]==\"" + command + "\";";
+        //        var r = cmd_contents.ExecuteReader();
 
-                while (r.Read())
-                {
-                    output = Convert.ToInt32(r["count"]);
-                }
-                return output;
-            }
-        }
+        //        while (r.Read())
+        //        {
+        //            output = Convert.ToInt32(r["count"]);
+        //        }
+        //        return output;
+        //    }
+        //}
 
-        private static void nwSetGlobalUsageDB(string command, int value)
-        {
-            var output = 0;
+        //private static void nwSetGlobalUsageDB(string command, int value)
+        //{
+        //    var output = 0;
 
-            Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
-            //Mew.SQLiteCommand cmd = new Mew.SQLiteCommand(conn);
-            //Mew.SQLiteDataAdapter da = new Mew.SQLiteDataAdapter("SELECT [count] FROM [tbl_cmduse_global] WHERE [command]==" + command + ";", conn);
-            //DataSet ds = new DataSet("mew");
-            //da.Fill(ds);
-            //Console.WriteLine(ds.Tables[0].Rows[0].ToString());
+        //    Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
+        //    //Mew.SQLiteCommand cmd = new Mew.SQLiteCommand(conn);
+        //    //Mew.SQLiteDataAdapter da = new Mew.SQLiteDataAdapter("SELECT [count] FROM [tbl_cmduse_global] WHERE [command]==" + command + ";", conn);
+        //    //DataSet ds = new DataSet("mew");
+        //    //da.Fill(ds);
+        //    //Console.WriteLine(ds.Tables[0].Rows[0].ToString());
 
-            conn.Open();
+        //    conn.Open();
 
-            using (var cmd_contents = conn.CreateCommand())
-            {
-                cmd_contents.CommandText = "UPDATE [tbl_cmduse_global] SET [count]==\"" + value + "\" WHERE [command]==\"" + command + "\";";
-                var r = cmd_contents.ExecuteReader();
+        //    using (var cmd_contents = conn.CreateCommand())
+        //    {
+        //        cmd_contents.CommandText = "UPDATE [tbl_cmduse_global] SET [count]==\"" + value + "\" WHERE [command]==\"" + command + "\";";
+        //        var r = cmd_contents.ExecuteReader();
 
-                while (r.Read())
-                {
-                    output = Convert.ToInt32(r["count"]);
-                    Console.WriteLine(output);
-                }
-            }
-        }
+        //        while (r.Read())
+        //        {
+        //            output = Convert.ToInt32(r["count"]);
+        //            Console.WriteLine(output);
+        //        }
+        //    }
+        //}
 
 
         /// <summary>
@@ -1619,6 +1617,139 @@ namespace nwTelegramBot
             Console.WriteLine("Done.");
         }
 
+        #region -=COMMAND TOTALS=-
+
+        /// <summary>Count total commands used.</summary>
+        /// <param name="lastuser">The username to alter data for.</param>
+        private static int nwCountTotalCommands(string lastuser)
+        {
+
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
+
+                string sq = "SELECT totalcommands FROM tbl_miscstats WHERE username='" + lastuser + "'";
+                MySqlCommand msc = new MySqlCommand(sq, conn);
+                int mews = Convert.ToInt32(msc.ExecuteScalar());
+
+                return mews;
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return 0;
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
+        }
+
+        /// <summary>Insert default value in database if none present.</summary>
+        /// <param name="lastuser">The username to alter data for.</param>
+        private static void nwInsertTotalCommands(string lastuser)
+        {
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
+
+                string sql = "INSERT INTO tbl_miscstats (username, totalcommands) VALUES ('" + lastuser + "', '" + 1 + "')";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.ExecuteNonQuery();
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
+        }
+
+        /// <summary>Update total commands used with a given value.</summary>
+        /// <param name="value">Value to add.</param>
+        /// <param name="lastuser">The username to alter data for.</param>
+        private static void nwUpdateTotalCommands(int value, string lastuser)
+        {
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
+
+                string sql = "UPDATE tbl_miscstats SET totalwoofs='" + value + "' WHERE username='" + lastuser + "';";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.ExecuteNonQuery();
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
+        }
+
+
+        /// <summary>
+        /// Set total command usage.
+        /// </summary>
+        /// <param name="lastuser">The username to alter data for.</param>
+        private static void nwSetTotalCommandUsage(string lastuser)
+        {
+            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                nwPrintSystemMessage("System: Connecting to MySQL...");
+                conn.Open();
+
+                MySqlCommand chkUser = new MySqlCommand("SELECT * FROM tbl_miscstats WHERE (username = @user)", conn);
+                chkUser.Parameters.AddWithValue("@user", lastuser);
+                MySqlDataReader reader = chkUser.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    //User Exists
+                    int mews = nwCountTotalCommands(lastuser);
+
+                    mews++;
+
+                    nwUpdateTotalCommands(mews, lastuser);
+                }
+                else
+                {
+                    //User NOT Exists
+                    nwInsertTotalCommands(lastuser);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            conn.Close();
+            Console.WriteLine("Done.");
+        }
+
+        #endregion
+
         /// <summary>
         /// Set the chat message offset.
         /// </summary>
@@ -1829,7 +1960,7 @@ namespace nwTelegramBot
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                            int n_catuse = nwGrabGlobalUsageDB("cat");
+                            //int n_catuse = nwGrabGlobalUsageDB("cat");
                             //int n_cat_uuse = nwGrabUserUsage(s_username, "cat");
                             //int n_cat_gmax = nwGrabGlobalMax("cat");
                             //int n_cat_umax = nwGrabUserMax("cat");
@@ -1851,7 +1982,7 @@ namespace nwTelegramBot
                                 Console.WriteLine("The " + command + " failed as it took too long to process.");
                             }
 
-                            nwSetGlobalUsageDB("cat", n_catuse++); // set global usage incrementally
+                            //nwSetGlobalUsageDB("cat", n_catuse++); // set global usage incrementally
                                                                    //nwSetUserUsage(s_username, "cat", n_cat_uuse++); // set this users usage incrementally
 
                             break;
@@ -2788,7 +2919,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/bio":
+                        case "/bio": // Get a persons bio.
 
                             if (body == string.Empty || body == " " || body == "@" || body == null)
                             {
@@ -2800,6 +2931,21 @@ namespace nwTelegramBot
                                 break;
 
                             }
+                            else if (body == "help")
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: /bio" + Environment.NewLine + "Type '/bio help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            break;
+
+                        case "/getbio":
+
                             if (body.Contains("@"))
                             {
 
@@ -2815,7 +2961,7 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /bio [username or blank]" + Environment.NewLine + "Type '/bio help' to see this message again.";
+                                s_replyToUser = "Usage: /getbio [username]" + Environment.NewLine + "Type '/getbio help' to see this message again.";
 
                                 break;
 
@@ -2823,7 +2969,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/setbio":
+                        case "/setbio": // SET YOUR BIO
 
                             if (body == string.Empty || body == " " || body == "@" || body == null)
                             {
@@ -2863,7 +3009,7 @@ namespace nwTelegramBot
 
                         case "/image": // TODO: Finish this command
 
-                            int n_imguse = nwGrabGlobalUsageDB("img"); // GLOBAL USAGE
+                            //int n_imguse = nwGrabGlobalUsageDB("img"); // GLOBAL USAGE
                             //int n_img_uuse = nwGrabUserUsage(s_username, "img");
                             //int n_img_gmax = nwGrabGlobalMax("img"); // GLOBAL MAXIMUM
                             //int n_img_umax = nwGrabUserMax("img"); // USER MAXIMUM
@@ -2951,7 +3097,7 @@ namespace nwTelegramBot
 
                                 replyImage = luckyUrl;
 
-                                nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
+                                //nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
                                                                        //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
 
                                 break;
@@ -2967,17 +3113,17 @@ namespace nwTelegramBot
                         case "/humour":
                         case "/joke": // TODO: Fix this command
 
-                            int n_jokeuse = nwGrabGlobalUsageDB("joke");
+                            //int n_jokeuse = nwGrabGlobalUsageDB("joke");
                             //int n_joke_uuse = nwGrabUserUsage(s_username, "joke");
                             int n_joke_gmax = nwGrabGlobalMax("joke");
                             //int n_joke_umax = nwGrabUserMax("joke");
 
-                            if (n_jokeuse == n_joke_gmax)//|| n_joke_uuse == n_joke_umax)
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "Sorry, the /joke command has been used too many times.";
-                                break;
-                            }
+                            //if (n_jokeuse == n_joke_gmax)//|| n_joke_uuse == n_joke_umax)
+                            //{
+                            //    if (nwCheckInReplyTimer(dt) != false)
+                            //        s_replyToUser = "Sorry, the /joke command has been used too many times.";
+                            //    break;
+                            //}
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
@@ -3003,7 +3149,7 @@ namespace nwTelegramBot
                                 Console.WriteLine("The " + command + " failed as it took too long to process.");
                             }
 
-                            nwSetGlobalUsageDB("joke", n_jokeuse++); // set global usage incrementally
+                            //nwSetGlobalUsageDB("joke", n_jokeuse++); // set global usage incrementally
                             //nwSetUserUsage(s_username, "joke", n_joke_uuse++); // set this users usage incrementally
 
                             break;
@@ -3257,16 +3403,16 @@ namespace nwTelegramBot
                         case "/sfw":
                         case "/safeforwork":
 
-                            int n_sfwuse = nwGrabGlobalUsageDB("sfw");
+                            //int n_sfwuse = nwGrabGlobalUsageDB("sfw");
                             int n_sfwmax1 = nwGrabGlobalMax("sfw");
                             int n_sfwmax2 = nwGrabUserMax("sfw");
 
-                            if (n_sfwuse == n_sfwmax1 || n_sfwuse == n_sfwmax2)
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "Sorry, the /sfw command has been used too many times.";
-                                break;
-                            }
+                            //if (n_sfwuse == n_sfwmax1 || n_sfwuse == n_sfwmax2)
+                            //{
+                            //    if (nwCheckInReplyTimer(dt) != false)
+                            //        s_replyToUser = "Sorry, the /sfw command has been used too many times.";
+                            //    break;
+                            //}
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadVideo);
                             string s_fname = ehoh.Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
@@ -3286,8 +3432,8 @@ namespace nwTelegramBot
                                 break;
                             }
 
-                            nwSetGlobalUsageDB("sfw", n_sfwuse++); // Write new value. // set global usage incrementally
-                            nwSetUserUsage(s_username, "sfw", n_sfwuse++); // set this users usage incrementally
+                            //nwSetGlobalUsageDB("sfw", n_sfwuse++); // Write new value. // set global usage incrementally
+                            //nwSetUserUsage(s_username, "sfw", n_sfwuse++); // set this users usage incrementally
 
                             break;
 
@@ -3421,31 +3567,6 @@ namespace nwTelegramBot
                                 break;
 
                             }
-
-                            break;
-
-                        case "/twitter":
-
-                            string ckey1, ckey2;
-                            string akey1, akey2;
-
-                            ckey1 = nwGrabTwitterApiKey("ckey");
-                            ckey2 = nwGrabTwitterApiKey("ckeys");
-                            akey1 = nwGrabTwitterApiKey("akey");
-                            akey2 = nwGrabTwitterApiKey("akeys");
-
-
-                            Auth.SetUserCredentials(ckey1, ckey2, akey1, akey2);
-
-                            TweetinviEvents.QueryBeforeExecute += (sender, args) =>
-                            {
-
-                                Console.WriteLine(args.QueryURL);
-
-                            };
-
-                            nwPublishTweet(string.Format("This is a test message posted using PerthFurStats's new Twitter API features! IGNORE."));
-
 
                             break;
 
@@ -4290,9 +4411,8 @@ namespace nwTelegramBot
                     }
 
                     // Add to total command use
-                    int totaluse = nwGrabGlobalUsageDB("total");
-                    totaluse++;
-                    nwSetGlobalUsage("total", totaluse++);
+                    nwSetTotalCommandUsage("global");
+                    nwSetTotalCommandUsage(update.Message.From.Username);
 
                     // Output
                     replyText += stringBuilder.ToString();
@@ -4829,16 +4949,6 @@ namespace nwTelegramBot
 
             }
             else { return ""; }
-        }
-
-        /// <summary>
-        /// Publish the tweet
-        /// </summary>
-        /// <param name="text"></param>
-        private static void nwPublishTweet(string text)
-        {
-            var tweet = Tweet.PublishTweet(text);
-            Console.WriteLine(tweet.IsTweetPublished);
         }
 
         /// <summary>
