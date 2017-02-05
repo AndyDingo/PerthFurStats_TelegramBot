@@ -1377,9 +1377,6 @@ namespace nwTelegramBot
                     nwInsertDogNoises(lastuser);
                 }
 
-
-
-
             }
             catch (Exception ex)
             {
@@ -1577,7 +1574,6 @@ namespace nwTelegramBot
                 MySqlCommand cmd = new MySqlCommand(sql, conn);
                 cmd.ExecuteNonQuery();
 
-
             }
             catch (Exception ex)
             {
@@ -1605,7 +1601,6 @@ namespace nwTelegramBot
 
                 return mews;
 
-
             }
             catch (Exception ex)
             {
@@ -1629,7 +1624,6 @@ namespace nwTelegramBot
 
             try
             {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
                 conn.Open();
 
                 string sq = "SELECT totalcommands FROM tbl_miscstats WHERE username='" + lastuser + "'";
@@ -1637,7 +1631,6 @@ namespace nwTelegramBot
                 int mews = Convert.ToInt32(msc.ExecuteScalar());
 
                 return mews;
-
 
             }
             catch (Exception ex)
@@ -1647,7 +1640,6 @@ namespace nwTelegramBot
             }
 
             conn.Close();
-            Console.WriteLine("Done.");
         }
 
         /// <summary>Insert default value in database if none present.</summary>
@@ -1659,7 +1651,6 @@ namespace nwTelegramBot
 
             try
             {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
                 conn.Open();
 
                 string sql = "INSERT INTO tbl_miscstats (username, totalcommands) VALUES ('" + lastuser + "', '" + 1 + "')";
@@ -1673,7 +1664,6 @@ namespace nwTelegramBot
             }
 
             conn.Close();
-            Console.WriteLine("Done.");
         }
 
         /// <summary>Update total commands used with a given value.</summary>
@@ -1686,13 +1676,11 @@ namespace nwTelegramBot
 
             try
             {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
                 conn.Open();
 
-                string sql = "UPDATE tbl_miscstats SET totalwoofs='" + value + "' WHERE username='" + lastuser + "';";
+                string sql = "UPDATE tbl_miscstats SET totalcommands='" + value + "' WHERE username='" + lastuser + "';";
                 MySqlCommand cmd = new MySqlCommand(sql, conn);
                 cmd.ExecuteNonQuery();
-
 
             }
             catch (Exception ex)
@@ -1701,7 +1689,6 @@ namespace nwTelegramBot
             }
 
             conn.Close();
-            Console.WriteLine("Done.");
         }
 
 
@@ -1716,7 +1703,6 @@ namespace nwTelegramBot
 
             try
             {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
                 conn.Open();
 
                 MySqlCommand chkUser = new MySqlCommand("SELECT * FROM tbl_miscstats WHERE (username = @user)", conn);
@@ -1745,7 +1731,6 @@ namespace nwTelegramBot
             }
 
             conn.Close();
-            Console.WriteLine("Done.");
         }
 
         #endregion
@@ -1992,7 +1977,7 @@ namespace nwTelegramBot
 
                             if (ct == ChatType.Private)
                             {
-                                if (s_username != "AndyDingoFolf")
+                                if (s_username != "AnwenSnowMew")
                                 {
                                     if (nwCheckInReplyTimer(dt) != false)
                                         s_replyToUser = "You have insufficient permissions to access this command.";
@@ -4064,9 +4049,10 @@ namespace nwTelegramBot
                                         break;
                                     case "command":
                                     case "commands":
-                                        int tuse = nwGrabGlobalUsage("total");
+                                        int tuse = nwCountTotalCommands("total");
+                                        int tuse2 = nwCountTotalCommands(update.Message.From.Username);
                                         if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Since inception on Feb 15 2016, this bot has processed " + Convert.ToString(tuse) + " total commands.";
+                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Since inception on Feb 15 2016, this bot has processed " + Convert.ToString(tuse) + " total commands." + Environment.NewLine + "You have personally sent the bot " + Convert.ToString(tuse2) + " total commands.";
                                         break;
                                     default:
                                         if (nwCheckInReplyTimer(dt) != false)
@@ -4638,6 +4624,8 @@ namespace nwTelegramBot
             }
         }
 
+        #region -= Bio command functions =-
+
         private static void nwSetBio(string username,string bio)
         {
             string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
@@ -4766,6 +4754,8 @@ namespace nwTelegramBot
             
         }
 
+        #endregion
+
         /// <summary>
         /// Returns event information from the events xml document.
         /// </summary>
@@ -4827,6 +4817,8 @@ namespace nwTelegramBot
             string s_furl = null;
             string s_randxml;
 
+            meow:
+
             // Check if the file is valid, or throws an unwanted status code.
             if (!string.IsNullOrEmpty(url))
             {
@@ -4836,6 +4828,19 @@ namespace nwTelegramBot
                 request.KeepAlive = true;
                 request.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:44.0) Gecko/20100101 Firefox/44.0 WolingoPaws/1.0";
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                
+                if (response.StatusCode == HttpStatusCode.BadRequest)
+                    goto meow;
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                    goto meow;
+                if (response.StatusCode == HttpStatusCode.Forbidden)
+                    goto meow;
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    goto meow;
+                if (response.StatusCode == HttpStatusCode.BadGateway)
+                    goto meow;
+                if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
+                    goto meow;
 
                 XmlDocument doc1 = new XmlDocument();
 
@@ -4879,7 +4884,6 @@ namespace nwTelegramBot
                     {
                         return "No image was found with the specified tag(s).";
                     }
-
                 }
             }
             return s_returnedImage;
@@ -4906,13 +4910,13 @@ namespace nwTelegramBot
         /// <param name="fchosen">The file.</param>
         /// <param name="body">The user name.</param>
         /// <returns></returns>
-        private static string nwRandomQuoteLine(string file_chosen, string body)
+        private static string nwRandomQuoteLine(string fchosen, string body)
         {
             string chosen = null;
             var rng = new Random();
             int indicator = 0;
 
-            using (var reader = File.OpenText(file_chosen))
+            using (var reader = File.OpenText(fchosen))
             {
                 while (reader.ReadLine() != null)
                 {
