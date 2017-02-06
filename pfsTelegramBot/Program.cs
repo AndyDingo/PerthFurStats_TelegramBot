@@ -776,16 +776,6 @@ namespace nwTelegramBot
 
                                         }
 
-                                        if (Regex.IsMatch(umt, @"\bmorgana\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "That's my masters mundane name!", false, false, update.Message.MessageId);
-
-                                        }
-
                                         if (Regex.IsMatch(umt, @"\bleaving the fandom\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bquitting the fandom\b", RegexOptions.IgnoreCase) == true)
                                         {
 
@@ -793,16 +783,6 @@ namespace nwTelegramBot
 
                                             if (nwCheckInReplyTimer(m) != false)
                                                 Bot.SendTextMessageAsync(update.Message.Chat.Id, "https://www.youtube.com/watch?v=HhI3zf0Pgf4", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        if (Regex.IsMatch(umt, @"\bAnwen\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "That's my masters furry name.", false, false, update.Message.MessageId);
 
                                         }
 
@@ -831,14 +811,6 @@ namespace nwTelegramBot
                                         {
 
                                             Bot.SendTextMessageAsync(update.Message.Chat.Id, "Go back to tumblr with your 'triggers' and 'microaggressions'.", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        // if message contains andy dingo
-                                        if (Regex.IsMatch(update.Message.Text, @"\bAndy Dingo\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(update.Message.Text, @"\bAndy Dingo Wolf\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "That is no longer me :P Am transitioning to a girl, kthanks", false, false, update.Message.MessageId);
 
                                         }
 
@@ -4409,6 +4381,7 @@ namespace nwTelegramBot
 
                     // Add to total command use
                     nwSetTotalCommandUsage("global");
+                    // Add to total command use for a given user
                     nwSetTotalCommandUsage(update.Message.From.Username);
 
                     // Output
