@@ -44,8 +44,6 @@ namespace nwTelegramBot
         //public static string s_logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log"; // error log
         public static string s_cfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.cfg"; // Main config
         public static string s_ucfgfile = Environment.CurrentDirectory + @"\pfsPermConfig.cfg"; // User perm config
-        public static string s_botdb = Environment.CurrentDirectory + @"\data\pfs_tgbot.db"; // User config
-        public static string s_twitterapi = Environment.CurrentDirectory + @"\data\pfsTwitterCfg.cfg"; // Twitter API config
         public static string s_offsetcfg = Environment.CurrentDirectory + @"\data\offset.xml"; // User config
         public static string s_commandcfg = Environment.CurrentDirectory + @"\data\commandlist.xml"; // User config
         #endregion
@@ -545,6 +543,13 @@ namespace nwTelegramBot
 
                             if (s_mffn.Contains(" ") == true)
                                 s_mffn.Replace(" ", string.Empty);
+
+                            // variable for username, if blank, use firstname.
+                            string s_mfun = update.Message.From.Username;
+
+                            if (s_mfun == " " || s_mfun == string.Empty)
+                                s_mfun = s_mffn;
+
 
 
                             // Do stuff if we are a text message
@@ -4918,28 +4923,6 @@ namespace nwTelegramBot
         }
 
         /// <summary>
-        /// Grab Twitter API keys
-        /// </summary>
-        /// <param name="key">the name of the key to grab</param>
-        /// <returns>the keys value.</returns>
-        private static string nwGrabTwitterApiKey(string key)
-        {
-            XmlDocument doc = new XmlDocument();
-            string s = "";
-
-            doc.Load(s_twitterapi);
-
-            if (doc.SelectSingleNode("config/" + key) != null)
-            {
-
-                s = doc.SelectSingleNode("config/" + key).InnerText;
-                return s;
-
-            }
-            else { return ""; }
-        }
-
-        /// <summary>
         /// Adds randomness to the quote command.
         /// </summary>
         /// <returns></returns>
@@ -5146,6 +5129,7 @@ namespace nwTelegramBot
         /// </summary>
         /// <param name="key">the setting key to grab.</param>
         /// <param name="value">The value to write.</param>
+        /// <param name="s_username">the username.</param>
         /// <remarks>Under construction.</remarks>
         private static void nwSetUserUsage(string s_username, string key, int value)
         {
@@ -5223,7 +5207,7 @@ namespace nwTelegramBot
                 case 13:
                     return "Between a rock and a hard place.";
                 case 14:
-                    return "Be careful, you might get a slap in your face!";
+                    return "Don't bet on it.";
                 case 15:
                     return "Listen to your heart. If it's beating you're alive.";
                 case 16:
@@ -5231,9 +5215,9 @@ namespace nwTelegramBot
                 case 17:
                     return "It smells like it.";
                 case 18:
-                    return "Some say 1+1 does not equal two...";
+                    return "Consult me later, experiencing a Guru Meditation error.";
                 case 19:
-                    return "Check the glove compartment of your car.";
+                    return "All signs point to no.";
                 case 20:
                     return "If you grease a few palms.";
                 default:
