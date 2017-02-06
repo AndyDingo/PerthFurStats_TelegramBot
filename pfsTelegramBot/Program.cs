@@ -1793,16 +1793,12 @@ namespace nwTelegramBot
                 var replyDocument = string.Empty;
                 var thischat = bot.GetChatAsync(update.Message.Chat.Id);
 
-                if (text != null && (text.StartsWith("/", StringComparison.Ordinal) || text.StartsWith("!", StringComparison.Ordinal)))
+                if (text != null && (text.StartsWith("!", StringComparison.Ordinal)))
                 {
                     // Log to console
                     Console.WriteLine(update.Message.Chat.Id + " < " + update.Message.From.Username + " - " + text);
 
-                    // Allow ! or /
-                    if (text.StartsWith("!", StringComparison.Ordinal))
-                    {
-                        text = "/" + text.Substring(1);
-                    }
+                    text = "!" + text.Substring(1);
 
                     // Strip @BotName
                     text = text.Replace("@" + me.Username, "");
@@ -1832,8 +1828,8 @@ namespace nwTelegramBot
 
                     switch (command.ToLowerInvariant())
                     {
-                        case "/ball":
-                        case "/8ball":
+                        case "!ball":
+                        case "!8ball":
 
                             if (nwCheckInReplyTimer(dt) != false)
                             {
@@ -1864,8 +1860,8 @@ namespace nwTelegramBot
                             break;
 
                         case "/mods":
-                        case "/admin":
-                        case "/admins":
+                        case "!admin":
+                        case "!admins":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
@@ -1892,7 +1888,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/alive":
+                        case "!alive":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
@@ -1905,7 +1901,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/backup":
+                        case "!backup":
 
                             // check to see if private message
                             if (ct == ChatType.Private)
@@ -1941,7 +1937,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/cat":
+                        case "!cat":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
@@ -1972,8 +1968,8 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/die":
-                        case "/kill":
+                        case "!die":
+                        case "!kill":
 
                             if (ct == ChatType.Private)
                             {
@@ -1999,7 +1995,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/e621":
+                        case "!e621":
 
                             if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
                             {
@@ -2058,7 +2054,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/count":
+                        case "!count":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
@@ -2104,10 +2100,10 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/con":
-                        case "/cons":
-                        case "/convention": // TODO: Finish this command
-                        case "/conventions": // TODO: Finish this command
+                        case "!con":
+                        case "!cons":
+                        case "!convention": // TODO: Finish this command
+                        case "!conventions": // TODO: Finish this command
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
@@ -2150,9 +2146,9 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/help":
-                        case "/command":
-                        case "/commands":
+                        case "!help":
+                        case "!command":
+                        case "!commands":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
@@ -2167,10 +2163,10 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/meet":
-                        case "/meets":
-                        case "/event":
-                        case "/events": // TODO: Finish this command
+                        case "!meet":
+                        case "!meets":
+                        case "!event":
+                        case "!events": // TODO: Finish this command
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
@@ -2198,7 +2194,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/debug":
+                        case "!debug":
 
                             if (ct == ChatType.Private)
                             {
@@ -2229,7 +2225,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/dingo":
+                        case "!dingo":
 
                             if (body.Contains(" ") == true)
                             {
@@ -2316,9 +2312,9 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/canine":
-                        case "/dog":
-                        case "/doggo":
+                        case "!canine":
+                        case "!dog":
+                        case "!doggo":
 
                             if (body.Contains(" ") == true)
                             {
@@ -2405,7 +2401,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/corgi":
+                        case "!corgi":
 
                             if (body.Contains(" ") == true)
                             {
@@ -2492,7 +2488,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/dino":
+                        case "!dino":
 
                             if (body.Contains(" ") == true)
                             {
@@ -2579,7 +2575,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/dragon":
+                        case "!dragon":
 
                             if (body.Contains(" ") == true)
                             {
@@ -2666,7 +2662,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/edit":
+                        case "!edit":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
@@ -2687,7 +2683,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/echo":
+                        case "!echo":
 
                             if (ct == ChatType.Private)
                             {
@@ -2721,7 +2717,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/fox":
+                        case "!fox":
 
                             if (body.Contains(" ") == true)
                             {
@@ -2808,7 +2804,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/gif":
+                        case "!gif":
 
                                 if (body == string.Empty || body == " " || body == "@" || body == null)
                                 {
@@ -2896,7 +2892,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/jelly": // TODO: Finish this command
+                        case "!jelly": // TODO: Finish this command
 
                             // usage /jelly [yes|no] leave blank and bot will repeat query.
                             if (nwCheckInReplyTimer(dt) != false)
@@ -2904,7 +2900,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/bio": // Get a persons bio.
+                        case "!bio": // Get a persons bio.
 
                             if (body == string.Empty || body == " " || body == "@" || body == null)
                             {
@@ -2926,12 +2922,16 @@ namespace nwTelegramBot
                                 break;
 
                             }
+                            else
+                            {
+                                s_replyToUser = "Usage: /bio [username]" + Environment.NewLine + "Type '/bio help' to see this message again.";
+                            }
 
                             break;
 
-                        case "/getbio":
+                        case "!getbio":
 
-                            if (body.Contains("@"))
+                            if (body == string.Empty || body == " " || body == "@" || body == null)
                             {
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
@@ -2951,10 +2951,14 @@ namespace nwTelegramBot
                                 break;
 
                             }
+                            else
+                            {
+                                s_replyToUser = "Usage: /getbio [username]" + Environment.NewLine + "Type '/getbio help' to see this message again.";
+                            }
 
                             break;
 
-                        case "/setbio": // SET YOUR BIO
+                        case "!setbio": // SET YOUR BIO
 
                             if (body == string.Empty || body == " " || body == "@" || body == null)
                             {
@@ -2986,13 +2990,13 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/genstats":
+                        case "!genstats":
 
                             nwGenerateStatsPage(update.Message.Chat.Id);
 
                             break;
 
-                        case "/image": // TODO: Finish this command
+                        case "!image": // TODO: Finish this command
 
                             //int n_imguse = nwGrabGlobalUsageDB("img"); // GLOBAL USAGE
                             //int n_img_uuse = nwGrabUserUsage(s_username, "img");
@@ -3095,8 +3099,8 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/humour":
-                        case "/joke": // TODO: Fix this command
+                        case "!humour":
+                        case "!joke": // TODO: Fix this command
 
                             //int n_jokeuse = nwGrabGlobalUsageDB("joke");
                             //int n_joke_uuse = nwGrabUserUsage(s_username, "joke");
@@ -3139,7 +3143,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/link":
+                        case "!link":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
@@ -3148,8 +3152,8 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/oo":
-                        case "/optout":
+                        case "!oo":
+                        case "!optout":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
@@ -3190,14 +3194,21 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/profile":
+                        case "!profile":
 
                             if (nwCheckInReplyTimer(dt) != false)
                                 replyText = "This command is not yet implemented.";
 
                             break;
 
-                        case "/quote":
+                        case "!getprofile":
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                                replyText = "This command is not yet implemented.";
+
+                            break;
+
+                        case "!quote":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
@@ -3274,8 +3285,8 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/roll":
-                        case "/diceroll":
+                        case "!roll":
+                        case "!diceroll":
 
                             if (nwCheckInReplyTimer(dt) != false)
                             {
@@ -3298,14 +3309,14 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/rules":
+                        case "!rules":
 
                             if (nwCheckInReplyTimer(dt) != false)
                                 s_replyToUser = "Group rules: " + Environment.NewLine + "- All content (chat, images, stickers) must be SFW at all hours of the day." + Environment.NewLine + "- No flooding or spamming of ANY kind." + Environment.NewLine + "- Be nice to each other.";
 
                             break;
 
-                        case "/slap": // TODO: Finish this command
+                        case "!slap": // TODO: Finish this command
 
                             // usage /slap [nickname] bot will slap the person matching the nickname.
                             // will return "yournickname slaps targetnickname around with [randomobject]
@@ -3385,8 +3396,8 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/sfw":
-                        case "/safeforwork":
+                        case "!sfw":
+                        case "!safeforwork":
 
                             //int n_sfwuse = nwGrabGlobalUsageDB("sfw");
                             int n_sfwmax1 = nwGrabGlobalMax("sfw");
@@ -3422,8 +3433,8 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/set":
-                        case "/settings":
+                        case "!set":
+                        case "!settings":
 
                             // TODO: This would ideally need to be one of any of the config file settings
                             // Example of usage: /set -[option to set] -[new value]
@@ -3530,7 +3541,7 @@ namespace nwTelegramBot
                             break;
 
 
-                        case "/test":
+                        case "!test":
 
                             if (ct == ChatType.Private)
                             {
@@ -3555,8 +3566,8 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/shibe":
-                        case "/shiba":
+                        case "!shibe":
+                        case "!shiba":
 
                             if (body.Contains(" ") == true)
                             {
@@ -3638,7 +3649,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/say":
+                        case "!say":
 
                             //int n_sayuse = nwGrabGlobalUsageDB("say");
                             //int n_say_gmax = nwGrabGlobalMax("say");
@@ -3764,7 +3775,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/sayhtml":
+                        case "!sayhtml":
 
                             //int n_sayuse = nwGrabGlobalUsageDB("say");
                             //int n_say_gmax = nwGrabGlobalMax("say");
@@ -3890,9 +3901,9 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/mow":
-                        case "/homph":
-                        case "/snep":
+                        case "!mow":
+                        case "!homph":
+                        case "!snep":
 
                             if (body.Contains(" ") == true)
                             {
@@ -3974,8 +3985,8 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/stat":
-                        case "/stats": // change to /stats [week|month|year|alltime]
+                        case "!stat":
+                        case "!stats": // change to /stats [week|month|year|alltime]
 
                             int n_statuse = nwGrabGlobalUsage("stats");
                             int n_stat_gmax = nwGrabGlobalMax("stats");
@@ -4067,14 +4078,14 @@ namespace nwTelegramBot
 
                             }
 
-                        case "/start":
+                        case "!start":
 
                             if (nwCheckInReplyTimer(dt) != false)
                                 s_replyToUser = "This bot does not need to be started in this fashion, see /command for a list of commands.";
                             break;
 
-                        case "/greet":
-                        case "/greeting":
+                        case "!greet":
+                        case "!greeting":
 
                             if (nwCheckInReplyTimer(dt) != false)
                             {
@@ -4084,7 +4095,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/meme":
+                        case "!meme":
 
                             if (body == string.Empty || body == " " || body == "@" || body == null)
                             {
@@ -4157,8 +4168,8 @@ namespace nwTelegramBot
                             }
 
                             break;
-                        case "/action":
-                        case "/me": // TODO: Finish this command
+                        case "!action":
+                        case "!me": // TODO: Finish this command
                                     // performs an action on the caller
                                     // usage /em -[action (see list of actions)]
                                     //            //usage
@@ -4191,8 +4202,8 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/exchange":
-                        case "/rate":
+                        case "!exchange":
+                        case "!rate":
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
@@ -4205,7 +4216,7 @@ namespace nwTelegramBot
 
                             break;
                             
-                        case "/weather": // TODO - change to BOM api
+                        case "!weather": // TODO - change to BOM api
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
@@ -4233,8 +4244,8 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/forecast":
-                        case "/weather2":
+                        case "!forecast":
+                        case "!weather2":
                            
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
@@ -4266,8 +4277,8 @@ namespace nwTelegramBot
 
                                 break;
 
-                        case "/warn":
-                        case "/warning":
+                        case "!warn":
+                        case "!warning":
                             // TODO : FINISH THIS COMMAND.
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
@@ -4297,7 +4308,7 @@ namespace nwTelegramBot
                                 replyText = "Sorry, the /stat command has been used too many times.";
 
                             break;
-                        case "/wiki":
+                        case "!wiki":
                             // TODO : Finish this command.
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
@@ -4311,7 +4322,7 @@ namespace nwTelegramBot
                                 replyText = "Sorry, the /stat command has been used too many times.";
 
                             break;
-                        case "/user": // TODO : Finish this command
+                        case "!user": // TODO : Finish this command
                             // This command returns a users permission level.
                             // Defaults to the person who used the command.
 
@@ -4349,15 +4360,15 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/version":
+                        case "!version":
 
                             if (nwCheckInReplyTimer(dt) != false)
                                 s_replyToUser = "Version " + cExtensions.nwGetFileVersionInfo.FileMajorPart + "." + cExtensions.nwGetFileVersionInfo.FileMinorPart + ", Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart;
 
                             break;
 
-                        case "/about":
-                        case "/info":
+                        case "!about":
+                        case "!info":
 
                             //int n_nfouse = nwGrabGlobalUsage("about");
 
@@ -4369,15 +4380,15 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/wrist":
-                        case "/wrists":
+                        case "!wrist":
+                        case "!wrists":
 
                             if (nwCheckInReplyTimer(dt) != false)
                                 s_replyToUser = "(╯°□°）╯︵ ┻━┻";
 
                             break;
 
-                        case "/zalgo":
+                        case "!zalgo":
 
                             if (nwCheckInReplyTimer(dt) != false)
                                 s_replyToUser = "O҉̢͎̗̯̪̤͍̯͎n̠̖̙͘é͕̜̦͉̤ ̷̷̩͖̹͔̲͕̻̼d͏͖͕͟o͏̼̺̰͘͠e̴̢͖̺̕s̵̵̮͇͈̩͎͢ ̢͓̱̪͇̞̮̦͉͟ͅn̝̪̩͙͘͡ͅò̢̬͈̮̙̘t̴̪̳͉̳͢͡ ̵͍̬͔̝͘ͅͅͅs҉̟͎̖͓į̳͓́m͏̰̼̻͔̩͉̺̙p̶͕̙ͅl̛͓̝̪͘y̟̝͝ ̗̪͜i̷̺͉̹n̷̢͎̮͖̜̤̼̻̙v͙͉̘͉̘͍̳o̧̖͈̩̘͝k͎͖̬̘̣̭͟e͏̟̳͚͈͈́ ̵̜͖͜Ẕ̨͎̖̖̘͟Ḁ̞͚̮̝̻͞L̶͎̙̘͠G҉̴͖̺̹̳̘͕̬͇O̸͔̞͎̻ͅ,̩͉ͅͅ";
