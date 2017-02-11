@@ -8,7 +8,7 @@
  * User         : AndyDingoWolf
  * Last Updated : 02/01/2017 by AndyDingo
  * -- VERSION --
- * Version      : 1.0.0.113
+ * Version      : 1.0.0.115
  */
 
 using Newtonsoft.Json.Linq;
@@ -603,18 +603,19 @@ namespace nwTelegramBot
                                         string umt = update.Message.Text;
 
                                     //If we have set the bot to be able to respond to our basic commands
-                                    if (nwGrabString("botresponds") == "true" && (umt.StartsWith("/") == true || umt.StartsWith("!") == true))
+                                    if (nwGrabString("botresponds") == "true" && (umt.StartsWith("!") == true))
                                     {
-                                        // Fix for work item #13
-                                        //if (umt.Contains(me.Username) == true || update.Message.Chat.Type == ChatType.Private)
-                                        //{
-                                        // TODO: MOVE ALL COMMANDS TO pfsCommandBot
+                                        
+                                        nwProcessCommands(Bot, update, me, m).Wait(-1);
+                                        
+                                    }
+
+                                    //If we have set the bot to be able to respond to our basic commands
+                                    if (nwGrabString("botresponds") == "true" && (umt.StartsWith("/") == true))
+                                    {
+                                        
                                         nwProcessSlashCommands(Bot, update, me, m).Wait(-1);
-                                        //}
-                                        //else
-                                        //{
-                                        //nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: This command isn't intended for me, ignoring.");
-                                        //}
+                                        
                                     }
 
                                     #region Animal Noises
@@ -1149,6 +1150,27 @@ namespace nwTelegramBot
 
         }
 
+        /// <summary>
+        /// Process all of our slash commands
+        /// </summary>
+        /// <param name="bot">The bot API.</param>
+        /// <param name="update">The update</param>
+        /// <param name="me">The user, or bot.</param>
+        /// <param name="dt">The date/time component.</param>
+        /// <remarks>Only designed to work if regular commands are enabled.</remarks>
+        private static async Task nwProcessSlashCommands(TelegramBotClient bot, Update update, Telegram.Bot.Types.User me, DateTime dt)
+        {
+            try
+            {
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         private static void nwSetDragonNoiseCount(string username)
         {
             string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
@@ -1371,18 +1393,6 @@ namespace nwTelegramBot
         /// <param name="lastuser"></param>
         private static void nwSetCatNoiseCount(string lastuser)
         {
-
-            //Mew.SQLiteConnection conn = new Mew.SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;Compress=True;");
-
-            //conn.Open();
-
-            //using (var cmd_contents = conn.CreateCommand())
-            //{
-            //    cmd_contents.CommandText = "UPDATE [tbl_miscstats] SET [count]=\"" + value + "\" WHERE [name]==\"mow\";";
-            //    var r = cmd_contents.ExecuteNonQuery();
-                
-            //        Console.WriteLine(r.ToString());
-            //}
 
             string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
             MySqlConnection conn = new MySqlConnection(connStr);
@@ -1732,7 +1742,7 @@ namespace nwTelegramBot
         /// <param name="me">The user, or bot.</param>
         /// <param name="dt">The date/time component.</param>
         /// <remarks>Only designed to work if regular commands are enabled.</remarks>
-        private static async Task nwProcessSlashCommands(TelegramBotClient bot, Update update, Telegram.Bot.Types.User me, DateTime dt)
+        private static async Task nwProcessCommands(TelegramBotClient bot, Update update, Telegram.Bot.Types.User me, DateTime dt)
         {
             // read configuration and extract api keys
             var wundergroundKey = nwGrabString("weatherapi");
@@ -1814,7 +1824,7 @@ namespace nwTelegramBot
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "You haven't given me a question to answer." + Environment.NewLine + "Usage: /8ball question to ask?";
+                                    s_replyToUser = "You haven't given me a question to answer." + Environment.NewLine + "Usage: !8ball question to ask?";
 
                                     break;
                                 }
@@ -1822,7 +1832,7 @@ namespace nwTelegramBot
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: /8ball [question to ask, followed by a question mark]" + Environment.NewLine + "Type '/8ball help' to see this message again.";
+                                    s_replyToUser = "Usage: !8ball [question to ask, followed by a question mark]" + Environment.NewLine + "Type '/8ball help' to see this message again.";
 
                                     break;
 
@@ -1836,7 +1846,7 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "/mods":
+                        case "!mods":
                         case "!admin":
                         case "!admins":
 
@@ -1996,7 +2006,7 @@ namespace nwTelegramBot
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: /e621 [tag to look for, leave blank for random]" + Environment.NewLine +
+                                    s_replyToUser = "Usage: !e621 [tag to look for, leave blank for random]" + Environment.NewLine +
                                         "Tips:" + Environment.NewLine +
                                         "If you wish to prevent undesireable artwork from appearing you should use some more complex tags." + Environment.NewLine +
                                         "This bot relies on e621 API and if it's not working, and/or servers are down, then the bot can't do anything about it." + Environment.NewLine +
@@ -2147,26 +2157,40 @@ namespace nwTelegramBot
 
                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (body == string.Empty || body == " " || body == "@" || body == null)
+                            if (nwCheckInReplyTimer(dt) != false)
                             {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                replyTextEvent = nwReturnEventInfo(dt);
+                                if (body == string.Empty || body == " " || body == "@" || body == null)
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+                                    if (nwReturnEventInfo(dt) != "maow")
+                                        replyTextEvent = nwReturnEventInfo(dt);
+                                    else
+                                        replyText = "I can't let you do that Dave.";
+                                    break;
+                                }
+                                else if (body == "help")
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /event [number]" + Environment.NewLine + "The optional parameter number can be omitted, in which it just returns events for last 15 days by default." + Environment.NewLine + "Type '/event help' to see this message again.";
+                                    s_replyToUser = "Usage: /event [number]" + Environment.NewLine + "The optional parameter number can be omitted, in which it just returns events for last 15 days by default." + Environment.NewLine + "Type '/event help' to see this message again.";
 
-                                break;
+                                    break;
+
+                                }
+                                else
+                                {
+                                    if (nwReturnEventInfo(dt) != "maow")
+                                        replyTextEvent = nwReturnEventInfo(dt, Convert.ToInt32(body));
+                                    else
+                                        replyText = "I can't let you do that Dave.";
+                                }
 
                             }
                             else
                             {
-                                replyTextEvent = nwReturnEventInfo(dt,Convert.ToInt32(body));
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
                             }
 
                             break;
@@ -2257,6 +2281,11 @@ namespace nwTelegramBot
                                         Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
                                         goto retryme;
                                     }
+                                    if (response.StatusCode == HttpStatusCode.Forbidden)
+                                    {
+                                        Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
+                                        goto retryme;
+                                    }
                                     if (response.StatusCode == HttpStatusCode.NotFound)
                                     {
                                         Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
@@ -2344,6 +2373,11 @@ namespace nwTelegramBot
                                     if (response.StatusCode == HttpStatusCode.BadRequest)
                                     {
                                         Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.Forbidden)
+                                    {
+                                        Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
                                         goto retryme;
                                     }
                                     if (response.StatusCode == HttpStatusCode.NotFound)
@@ -3041,6 +3075,11 @@ namespace nwTelegramBot
                                         Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
                                         goto retryme;
                                     }
+                                    if (response.StatusCode == HttpStatusCode.Forbidden)
+                                    {
+                                        Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
+                                        goto retryme;
+                                    }
                                     if (response.StatusCode == HttpStatusCode.NotFound)
                                     {
                                         Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
@@ -3594,6 +3633,12 @@ namespace nwTelegramBot
                                     UriBuilder uriBuilder = new UriBuilder(luckyUrl);
                                     HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
                                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+                                    if (response.StatusCode == HttpStatusCode.Forbidden)
+                                    {
+                                        Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
+                                        goto retryme;
+                                    }
                                     if (response.StatusCode == HttpStatusCode.NotFound)
                                     {
                                         Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
@@ -4120,6 +4165,12 @@ namespace nwTelegramBot
                                     UriBuilder uriBuilder = new UriBuilder(s_luckyUrl);
                                     HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
                                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+                                    if (response.StatusCode == HttpStatusCode.Forbidden)
+                                    {
+                                        Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
+                                        goto retryme;
+                                    }
                                     if (response.StatusCode == HttpStatusCode.NotFound)
                                     {
                                         Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
@@ -4145,6 +4196,100 @@ namespace nwTelegramBot
                             }
 
                             break;
+
+                        case "!shep":
+                        case "!gshep":
+
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !shep";
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !shep" + Environment.NewLine + "Type '!shep help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                retryme:
+
+                                // list of urls.
+                                string html = null;
+
+                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                    html = GetHtmlCode("german shepherd nsfw", false, true);
+                                else
+                                    html = GetHtmlCode("german shepherd", false, false);
+
+                                List<string> urls = GetUrls(html);
+                                var rnd = new Random();
+
+                                int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                // Select url from url list.
+                                string luckyUrl = urls[randomUrl];
+
+                                // Check if the file is valid, or throws an unwanted status code.
+                                if (!string.IsNullOrEmpty(luckyUrl))
+                                {
+                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.BadRequest)
+                                    {
+                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.Forbidden)
+                                    {
+                                        Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.NotFound)
+                                    {
+                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.OK)
+                                    {
+                                        Console.WriteLine("URL appears to be good.");
+                                    }
+                                    else //There are a lot of other status codes you could check for...
+                                    {
+                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                   response.StatusCode.ToString()));
+                                    }
+
+                                }
+
+                                if (luckyUrl.Contains(" ") == true)
+                                    luckyUrl.Replace(" ", "%20");
+
+                                replyImage = luckyUrl;
+
+                                break;
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
+
+                            break;
+
                         case "!action":
                         case "!me": // TODO: Finish this command
                                     // performs an action on the caller
@@ -4753,14 +4898,17 @@ namespace nwTelegramBot
         /// <returns>A string with the information requested.</returns>
         private static string nwReturnEventInfo(DateTime dt, int days = 15)
         {
-            if (nwCheckInReplyTimer(dt) != false)
+
+            // Current date / time
+            DateTime dta = DateTime.Now;
+
+            //Load xml
+            XDocument xdoc = XDocument.Load(ehoh.Directory.GetCurrentDirectory() + @"/data/events.xml"); //you'll have to edit your path
+
+            if (days <= 0)
+                return "";
+            else
             {
-
-                // Current date / time
-                DateTime dta = DateTime.Now;
-
-                //Load xml
-                XDocument xdoc = XDocument.Load(ehoh.Directory.GetCurrentDirectory() + @"/data/events.xml"); //you'll have to edit your path
 
                 //Run query
                 var lv1s = from item in xdoc.Descendants("event")
@@ -4784,15 +4932,10 @@ namespace nwTelegramBot
                     result.AppendLine("");
                 }
 
-                Console.WriteLine(result.ToString());
-
                 return result.ToString();
 
             }
-            else
-            {
-                return "The /event command failed as it took too long to process.";
-            }
+
         }
 
         /// <summary>
