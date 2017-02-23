@@ -3115,6 +3115,49 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "!list":
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                StringBuilder clist = new StringBuilder();
+                                clist.AppendLine("Here is a partial list of commands the bot understands:");
+                                clist.AppendLine("<b>!joke</b> - get the bot to tell a joke.");
+                                clist.AppendLine("<b>!list</b> - shows this list.");
+                                clist.AppendLine("<b>!quote</b> - get the bot to quote something from chat.");
+                                clist.AppendLine("<b>!bio</b> - show your bio.");
+                                clist.AppendLine("<b>!setbio</b> - set your bio.");
+                                clist.AppendLine("<b>!getbio</b> [username] - get anothers username.");
+                                clist.AppendLine("<b>!event</b> [time constraint in days, optional] - get events list.");
+                                clist.AppendLine("<b>!con</b> - show a list of australian furry conventions");
+                                clist.AppendLine("<b>!weather</b> - Get current weather conditions");
+                                clist.AppendLine("<b>!forecast</b> - get a 7 day weather forecast.");
+                                clist.AppendLine("<b>!cat</b> - show a cat image.");
+                                clist.AppendLine("<b>!image</b> [topic], <b>!meme</b> [topic] - show an image based on a given topic.");
+                                clist.AppendLine("");
+                                clist.AppendLine("Commands for species: ");
+                                clist.AppendLine("<b>!shibe</b> - show a shibe pic.");
+                                clist.AppendLine("<b>!dog</b> - show a dog pic.");
+                                clist.AppendLine("<b>!snep</b> - show a snow leopard pic.");
+                                clist.AppendLine("<b>!gshep</b> - show a german shephard pic.");
+                                clist.AppendLine("<b>!fox</b> - show a fox pic.");
+                                clist.AppendLine("<b>!dragon</b> - show a dragon pic.");
+                                clist.AppendLine("<b>!dino</b> - show a dino pic.");
+                                clist.AppendLine("<b>!corgi</b> - show a corgi pic.");
+                                //clist.AppendLine("<b>!deer</b> - show a deer pic.");
+                                //clist.AppendLine("<b>!ferret</b> - show a ferret pic.");
+                                //clist.AppendLine("<b>!ermine</b> - show a deer pic.");
+                                //clist.AppendLine("<b>!bat</b> - show a ferret pic.");
+                                //clist.AppendLine("<b>!bear</b> - show a ferret pic.");
+
+
+
+                                replyTextEvent = clist.ToString();
+
+                            }
+
+                                break;
+
                         case "!humour":
                         case "!joke": // TODO: Fix this command
 

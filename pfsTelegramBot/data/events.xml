@@ -9,43 +9,6 @@
 		<end>2017-09-03 22:00:00</end>
 	</event>
 	<event>
-		<id>141</id>
-		<url>http://www.perthfurs.net/events/view/141</url>
-		<title>Quay Furs 23</title>
-		<location>Elizabeth Quay Carousel (Near the Transperth Ferry dock)</location>
-		<start>2017-02-07 18:30:00</start>
-		<end>2017-02-07 21:00:00</end>
-	</event>
-	<event>
-		<id>142</id>
-		<url>http://www.perthfurs.net/events/view/142</url>
-		<title>Quay Furs 24</title>
-		<location>Elizabeth Quay Carousel (Near the Transperth Ferry dock)</location>
-		<start>2017-02-14 18:30:00</start>
-	</event>
-	<event>
-		<id>138</id>
-		<url>http://www.perthfurs.net/events/view/138</url>
-		<title>Furries On The Foreshore</title>
-		<location>South Perth Foreshore</location>
-		<start>2017-02-18 11:00:00</start>
-	</event>
-	<event>
-		<id>139</id>
-		<url>http://www.perthfurs.net/events/view/139</url>
-		<title>GRR V10.0 (Games, Revelry and Relaxation)</title>
-		<location>42 Sandleford Way, Morley WA 6062, Australia</location>
-		<start>2017-02-18 17:00:00</start>
-		<end>2017-02-19 00:00:00</end>
-	</event>
-  <event>
-    <id>000</id>
-    <url></url>
-    <title>Quay Furs 25</title>
-    <location>Elizabeth Quay Carousel (Near the Transperth Ferry dock)</location>
-    <start>2017-02-21 18:30:00</start>
-  </event>
-	<event>
 		<id>140</id>
 		<url>http://www.perthfurs.net/events/view/140</url>
 		<title>CaFURnated Reborn</title>
@@ -53,11 +16,39 @@
 		<start>2017-02-25 11:30:00</start>
 	</event>
   <event>
-    <id>000</id>
-    <url></url>
-    <title>Quay Furs 26</title>
+    <id>144</id>
+    <url>http://www.perthfurs.net/events/view/144</url>
+    <title>Quay Furs 26 - Weekly PerthFurs Meet!</title>
     <location>Elizabeth Quay Carousel (Near the Transperth Ferry dock)</location>
     <start>2017-02-28 18:30:00</start>
+  </event>
+  <event>
+    <id>145</id>
+    <url>http://www.perthfurs.net/events/view/145</url>
+    <title>Quay Furs 27 - Amy's welcome meet</title>
+    <location>Elizabeth Quay Carousel (Near the Transperth ferry dock)</location>
+    <start>2017-03-07 18:30:00</start>
+  </event>
+  <event>
+    <id>146</id>
+    <url>http://www.perthfurs.net/events/view/146</url>
+    <title>Quay Furs 28 - Weekly PerthFurs Meet!</title>
+    <location>Elizabeth Quay Carousel (Near the Transperth ferry dock)</location>
+    <start>2017-03-14 18:30:00</start>
+  </event>
+  <event>
+    <id>146</id>
+    <url></url>
+    <title>Quay Furs 29 - Weekly PerthFurs Meet!</title>
+    <location>Elizabeth Quay Carousel (Near the Transperth ferry dock)</location>
+    <start>2017-03-21 18:30:00</start>
+  </event>
+  <event>
+    <id>146</id>
+    <url></url>
+    <title>Quay Furs 30 - Weekly PerthFurs Meet!</title>
+    <location>Elizabeth Quay Carousel (Near the Transperth ferry dock)</location>
+    <start>2017-03-28 18:30:00</start>
   </event>
   <event>
     <id>4</id>
