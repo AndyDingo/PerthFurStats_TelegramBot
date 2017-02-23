@@ -8,7 +8,7 @@
  * User         : AndyDingoWolf
  * Last Updated : 02/01/2017 by AndyDingo
  * -- VERSION --
- * Version      : 1.0.0.115
+ * Version      : 1.0.0.117
  */
 
 using Newtonsoft.Json.Linq;
@@ -3007,6 +3007,7 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "!img":
                         case "!image": // TODO: Finish this command
 
                             //int n_imguse = nwGrabGlobalUsageDB("img"); // GLOBAL USAGE
@@ -3133,6 +3134,10 @@ namespace nwTelegramBot
                                 clist.AppendLine("<b>!weather</b> - Get current weather conditions");
                                 clist.AppendLine("<b>!forecast</b> - get a 7 day weather forecast.");
                                 clist.AppendLine("<b>!cat</b> - show a cat image.");
+                                clist.AppendLine("<b>!rules</b> - show group rules.");
+                                clist.AppendLine("<b>!admins</b> - show who the group admins are.");
+                                clist.AppendLine("<b>!count</b> - count number of people in chat. <i>To be revised</i>.");
+                                clist.AppendLine("<b>!stats</b> [week|month|year|alltime|commands] - generate a link to view stats.");
                                 clist.AppendLine("<b>!image</b> [topic], <b>!meme</b> [topic] - show an image based on a given topic.");
                                 clist.AppendLine("");
                                 clist.AppendLine("Commands for species: ");
