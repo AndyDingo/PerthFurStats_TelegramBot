@@ -2586,6 +2586,180 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "!ferret":
+
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !ferret";
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !ferret" + Environment.NewLine + "Type '!ferret help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                retryme:
+
+                                // list of urls.
+                                string html = null;
+
+                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                    html = GetHtmlCode("ferret", false, true);
+                                else
+                                    html = GetHtmlCode("ferret", false, false);
+
+                                List<string> urls = GetUrls(html);
+                                var rnd = new Random();
+
+                                int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                // Select url from url list.
+                                string luckyUrl = urls[randomUrl];
+
+                                // Check if the file is valid, or throws an unwanted status code.
+                                if (!string.IsNullOrEmpty(luckyUrl))
+                                {
+                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.BadRequest)
+                                    {
+                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.NotFound)
+                                    {
+                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.OK)
+                                    {
+                                        Console.WriteLine("URL appears to be good.");
+                                    }
+                                    else //There are a lot of other status codes you could check for...
+                                    {
+                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                   response.StatusCode.ToString()));
+                                    }
+
+                                }
+
+                                if (luckyUrl.Contains(" ") == true)
+                                    luckyUrl.Replace(" ", "%20");
+
+                                replyImage = luckyUrl;
+
+                                break;
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
+
+                            break;
+
+                        case "!fennec":
+
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !fennec";
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !fennec" + Environment.NewLine + "Type '!fennec help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                retryme:
+
+                                // list of urls.
+                                string html = null;
+
+                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                    html = GetHtmlCode("fennec fox", false, true);
+                                else
+                                    html = GetHtmlCode("fennec fox", false, false);
+
+                                List<string> urls = GetUrls(html);
+                                var rnd = new Random();
+
+                                int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                // Select url from url list.
+                                string luckyUrl = urls[randomUrl];
+
+                                // Check if the file is valid, or throws an unwanted status code.
+                                if (!string.IsNullOrEmpty(luckyUrl))
+                                {
+                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.BadRequest)
+                                    {
+                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.NotFound)
+                                    {
+                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.OK)
+                                    {
+                                        Console.WriteLine("URL appears to be good.");
+                                    }
+                                    else //There are a lot of other status codes you could check for...
+                                    {
+                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                   response.StatusCode.ToString()));
+                                    }
+
+                                }
+
+                                if (luckyUrl.Contains(" ") == true)
+                                    luckyUrl.Replace(" ", "%20");
+
+                                replyImage = luckyUrl;
+
+                                break;
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
+
+                            break;
+
                         case "!dragon":
 
                             if (body.Contains(" ") == true)
@@ -3121,47 +3295,192 @@ namespace nwTelegramBot
                             if (nwCheckInReplyTimer(dt) != false)
                             {
 
-                                StringBuilder clist = new StringBuilder();
-                                clist.AppendLine("Here is a partial list of commands the bot understands:");
-                                clist.AppendLine("<b>!joke</b> - get the bot to tell a joke.");
-                                clist.AppendLine("<b>!list</b> - shows this list.");
-                                clist.AppendLine("<b>!quote</b> - get the bot to quote something from chat.");
-                                clist.AppendLine("<b>!bio</b> - show your bio.");
-                                clist.AppendLine("<b>!setbio</b> - set your bio.");
-                                clist.AppendLine("<b>!getbio</b> [username] - get anothers username.");
-                                clist.AppendLine("<b>!event</b> [time constraint in days, optional] - get events list.");
-                                clist.AppendLine("<b>!con</b> - show a list of australian furry conventions");
-                                clist.AppendLine("<b>!weather</b> - Get current weather conditions");
-                                clist.AppendLine("<b>!forecast</b> - get a 7 day weather forecast.");
-                                clist.AppendLine("<b>!cat</b> - show a cat image.");
-                                clist.AppendLine("<b>!rules</b> - show group rules.");
-                                clist.AppendLine("<b>!admins</b> - show who the group admins are.");
-                                clist.AppendLine("<b>!count</b> - count number of people in chat. <i>To be revised</i>.");
-                                clist.AppendLine("<b>!stats</b> [week|month|year|alltime|commands] - generate a link to view stats.");
-                                clist.AppendLine("<b>!image</b> [topic], <b>!meme</b> [topic] - show an image based on a given topic.");
-                                clist.AppendLine("");
-                                clist.AppendLine("Commands for species: ");
-                                clist.AppendLine("<b>!shibe</b> - show a shibe pic.");
-                                clist.AppendLine("<b>!dog</b> - show a dog pic.");
-                                clist.AppendLine("<b>!snep</b> - show a snow leopard pic.");
-                                clist.AppendLine("<b>!gshep</b> - show a german shephard pic.");
-                                clist.AppendLine("<b>!fox</b> - show a fox pic.");
-                                clist.AppendLine("<b>!dragon</b> - show a dragon pic.");
-                                clist.AppendLine("<b>!dino</b> - show a dino pic.");
-                                clist.AppendLine("<b>!corgi</b> - show a corgi pic.");
-                                //clist.AppendLine("<b>!deer</b> - show a deer pic.");
+                                if (body == string.Empty || body == " " || body == "@" || body == null)
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    StringBuilder clist = new StringBuilder();
+                                    clist.AppendLine("Here is a partial list of commands the bot understands:");
+                                    clist.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[4]</b>. Use !list [page number] to switch pages");
+                                    clist.AppendLine("<b>!admins</b> - show who the group admins are.");
+                                    clist.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
+                                    clist.AppendLine("<b>!backup/b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
+                                    clist.AppendLine("<b>!ball</b> - consult the magic 8 ball, use a ? at the end of your question.");
+                                    clist.AppendLine("<b>!bio</b> - show your bio.");
+                                    clist.AppendLine("<b>!cat</b> - show a cat image.");
+                                    clist.AppendLine("<b>!con</b> - show a list of australian furry conventions");
+                                    clist.AppendLine("<b>!count</b> - count number of people in chat. <i>To be revised</i>.");
+                                    clist.AppendLine("<b>!debug</b> - enable the bots debug mode. Can only be used in PM. <i>Admin only</i>.");
+                                    clist.AppendLine("<b>!e621</b> [topics] - search for stuff on e621, can only be used in PM, or in a group with NSFW or 18+ in the title.");
+                                    replyTextEvent = clist.ToString();
+
+                                    break;
+                                }
+                                else if (body == "help")
+                                {
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "Usage: !list [page number]" + Environment.NewLine + "Type '!list help' to see this message again.";
+
+                                    break;
+
+                                }
+
+                                if (body == "1")
+                                {
+
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    StringBuilder clist = new StringBuilder();
+                                    clist.AppendLine("Here is a partial list of regular commands the bot understands:");
+                                    clist.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[4]</b>. Use !list [page number] to switch pages");
+                                    clist.AppendLine("<b>!admins</b> - show who the group admins are.");
+                                    clist.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
+                                    clist.AppendLine("<b>!backup/b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
+                                    clist.AppendLine("<b>!ball</b> - consult the magic 8 ball, use a ? at the end of your question.");
+                                    clist.AppendLine("<b>!bio</b> - show your bio.");
+                                    clist.AppendLine("<b>!cat</b> - show a cat image.");
+                                    clist.AppendLine("<b>!con</b> - show a list of australian furry conventions");
+                                    clist.AppendLine("<b>!count</b> - count number of people in chat. <i>To be revised</i>.");
+                                    clist.AppendLine("<b>!debug</b> - enable the bots debug mode. Can only be used in PM. <i>Admin only</i>.");
+                                    clist.AppendLine("<b>!e621</b> [topics] - search for stuff on e621, can only be used in PM, or in a group with NSFW or 18+ in the title.");
+                                    replyTextEvent = clist.ToString();
+
+                                    break;
+
+                                }
+
+                                if (body == "2")
+                                {
+
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    StringBuilder clist = new StringBuilder();
+                                    clist.AppendLine("Here is a partial list of regular commands the bot understands:");
+                                    clist.AppendLine("You are currently viewing Page <b>[2]</b> of <b>[4]</b>. Use !list [page number] to switch pages");
+                                    clist.AppendLine("<b>!edit</b> [message id] [replacement text] - edit a message posted by the bot. <i>Admin only</i>. <i>To be revised</i>.");!lis
+                                    clist.AppendLine("<b>!event</b> [time constraint in days, optional] - get events list.");
+                                    clist.AppendLine("<b>!forecast</b> - get a 7 day weather forecast.");
+                                    clist.AppendLine("<b>!getbio</b> [username] - get anothers bio via their username. <i>To be revised</i>.");
+                                    clist.AppendLine("<b>!getstats</b> - generate stats. <i>Admin only</i>. <i>To be revised</i>.");
+                                    clist.AppendLine("<b>!gif</b> [topic] - show a GIF based on a given topic. <i>To be revised</i>.");
+                                    clist.AppendLine("<b>!image</b> [topic] - show an image based on a given topic.");
+                                    clist.AppendLine("<b>!joke</b> - get the bot to tell a joke.");
+                                    clist.AppendLine("<b>!kill</b> - kill the bot. Can only be used in PM. <i>Admin only</i>.");
+                                    clist.AppendLine("<b>!link</b> - generate a chat link.");
+                                    clist.AppendLine("<b>!list</b> - shows this list.");
+                                    replyTextEvent = clist.ToString();
+
+                                    break;
+
+                                }
+
+                                if (body == "3")
+                                {
+
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    StringBuilder clist = new StringBuilder();
+                                    clist.AppendLine("Here is a partial list of regular commands the bot understands:");
+                                    clist.AppendLine("You are currently viewing Page <b>[3]</b> of <b>[4]</b>. Use !list [page number] to switch pages");
+                                    clist.AppendLine("<b>!meme</b> [topic] - show an image based on a given topic.");
+                                    clist.AppendLine("<b>!oo</b> - opt out of stats collection.");
+                                    clist.AppendLine("<b>!quote</b> - get the bot to quote something from chat.");
+                                    clist.AppendLine("<b>!roll</b> [dice] [sides] - roll a dice, with the given number of dice and sides.");
+                                    clist.AppendLine("<b>!rules</b> - show group rules.");
+                                    clist.AppendLine("<b>!setbio</b> - set your bio.");
+                                    clist.AppendLine("<b>!stats</b> [week|month|year|alltime|commands] - generate a link to view stats.");
+                                    clist.AppendLine("<b>!weather</b> - Get current weather conditions");
+                                    replyTextEvent = clist.ToString();
+
+                                    break;
+
+                                }
+
+                                if (body == "4")
+                                {
+
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    StringBuilder clist = new StringBuilder();
+                                    clist.AppendLine("Here is a partial list of species commands the bot understands:");
+                                    clist.AppendLine("You are currently viewing Page <b>[4]</b> of <b>[4]</b>. Use !list [page number] to switch pages");
+                                    clist.AppendLine("<b>!corgi</b> - show a corgi pic.");
+                                    clist.AppendLine("<b>!dingo</b> - show a dingo pic.");
+                                    clist.AppendLine("<b>!dino</b> - show a dino pic.");
+                                    clist.AppendLine("<b>!dog</b> - show a dog pic.");
+                                    clist.AppendLine("<b>!dragon</b> - show a dragon pic.");
+                                    clist.AppendLine("<b>!fennec</b> - show a fennec fox pic.");
+                                    clist.AppendLine("<b>!ferret</b> - show a ferret pic.");
+                                    clist.AppendLine("<b>!fox</b> - show a fox pic.");
+                                    clist.AppendLine("<b>!gshep</b> - show a german shephard pic.");
+                                    clist.AppendLine("<b>!shibe</b> - show a shibe pic.");
+                                    clist.AppendLine("<b>!snep</b> - show a snow leopard pic.");
+                                    replyTextEvent = clist.ToString();
+
+                                    break;
+
+                                }
+
+                                //StringBuilder clist = new StringBuilder();
+                                //clist.AppendLine("Here is a partial list of commands the bot understands:");
+                                //clist.AppendLine("<b>!admins</b> - show who the group admins are.");
+                                //clist.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
+                                //clist.AppendLine("<b>!backup/b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
+                                //clist.AppendLine("<b>!ball</b> - consult the magic 8 ball, use a ? at the end of your question.");
+                                //clist.AppendLine("<b>!bio</b> - show your bio.");
+                                //clist.AppendLine("<b>!cat</b> - show a cat image.");
+                                //clist.AppendLine("<b>!con</b> - show a list of australian furry conventions");
+                                //clist.AppendLine("<b>!count</b> - count number of people in chat. <i>To be revised</i>.");
+                                //clist.AppendLine("<b>!debug</b> - enable the bots debug mode. Can only be used in PM. <i>Admin only</i>.");
+                                //clist.AppendLine("<b>!e621</b> [topics] - search for stuff on e621, can only be used in PM, or in a group with NSFW or 18+ in the title.");
+                                //clist.AppendLine("<b>!edit</b> [message id] [replacement text] - edit a message posted by the bot. <i>Admin only</i>. <i>To be revised</i>.");
+                                //clist.AppendLine("<b>!event</b> [time constraint in days, optional] - get events list.");
+                                //clist.AppendLine("<b>!forecast</b> - get a 7 day weather forecast.");
+                                //clist.AppendLine("<b>!getbio</b> [username] - get anothers bio via their username. <i>To be revised</i>.");
+                                //clist.AppendLine("<b>!getstats</b> - generate stats. <i>Admin only</i>. <i>To be revised</i>.");
+                                //clist.AppendLine("<b>!gif</b> [topic] - show a GIF based on a given topic. <i>To be revised</i>.");
+                                //clist.AppendLine("<b>!image</b> [topic] - show an image based on a given topic.");
+                                //clist.AppendLine("<b>!joke</b> - get the bot to tell a joke.");
+                                //clist.AppendLine("<b>!kill</b> - kill the bot. Can only be used in PM. <i>Admin only</i>.");
+                                //clist.AppendLine("<b>!link</b> - generate a chat link.");
+                                //clist.AppendLine("<b>!list</b> - shows this list.");
+                                //clist.AppendLine("<b>!meme</b> [topic] - show an image based on a given topic.");
+                                //clist.AppendLine("<b>!oo</b> - opt out of stats collection.");
+                                //clist.AppendLine("<b>!quote</b> - get the bot to quote something from chat.");
+                                //clist.AppendLine("<b>!roll</b> [dice] [sides] - roll a dice, with the given number of dice and sides.");
+                                //clist.AppendLine("<b>!rules</b> - show group rules.");
+                                //clist.AppendLine("<b>!setbio</b> - set your bio.");
+                                //clist.AppendLine("<b>!stats</b> [week|month|year|alltime|commands] - generate a link to view stats.");
+                                //clist.AppendLine("<b>!weather</b> - Get current weather conditions");
+                                ////clist.AppendLine("<b>!profile</b> - get perthfurs.net profile for yourself.");
+                                ////clist.AppendLine("<b>!getprofile</b> - get perthfurs.net profile for someone else.");
+                                //clist.AppendLine("");
+                                //clist.AppendLine("Commands for species: ");
+                                //clist.AppendLine("<b>!corgi</b> - show a corgi pic.");
+                                //clist.AppendLine("<b>!dingo</b> - show a dingo pic.");
+                                //clist.AppendLine("<b>!dino</b> - show a dino pic.");
+                                //clist.AppendLine("<b>!dog</b> - show a dog pic.");
+                                //clist.AppendLine("<b>!dragon</b> - show a dragon pic.");
+                                //clist.AppendLine("<b>!fennec</b> - show a fennec fox pic.");
                                 //clist.AppendLine("<b>!ferret</b> - show a ferret pic.");
-                                //clist.AppendLine("<b>!ermine</b> - show a deer pic.");
-                                //clist.AppendLine("<b>!bat</b> - show a ferret pic.");
-                                //clist.AppendLine("<b>!bear</b> - show a ferret pic.");
+                                //clist.AppendLine("<b>!fox</b> - show a fox pic.");
+                                //clist.AppendLine("<b>!gshep</b> - show a german shephard pic.");
+                                //clist.AppendLine("<b>!shibe</b> - show a shibe pic.");
+                                //clist.AppendLine("<b>!snep</b> - show a snow leopard pic.");
+                                ////clist.AppendLine("<b>!deer</b> - show a deer pic.");
+                                ////clist.AppendLine("<b>!rabbit</b> - show a deer pic.");
+                                ////clist.AppendLine("<b>!ermine</b> - show a deer pic.");
+                                ////clist.AppendLine("<b>!bat</b> - show a ferret pic.");
+                                ////clist.AppendLine("<b>!bear</b> - show a ferret pic.");
 
 
 
-                                replyTextEvent = clist.ToString();
+                                //replyTextEvent = clist.ToString();
 
                             }
 
-                                break;
+                            break;
 
                         case "!humour":
                         case "!joke": // TODO: Fix this command
