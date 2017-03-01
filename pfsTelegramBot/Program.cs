@@ -3358,7 +3358,7 @@ namespace nwTelegramBot
                                     StringBuilder clist = new StringBuilder();
                                     clist.AppendLine("Here is a partial list of regular commands the bot understands:");
                                     clist.AppendLine("You are currently viewing Page <b>[2]</b> of <b>[4]</b>. Use !list [page number] to switch pages");
-                                    clist.AppendLine("<b>!edit</b> [message id] [replacement text] - edit a message posted by the bot. <i>Admin only</i>. <i>To be revised</i>.");!lis
+                                    clist.AppendLine("<b>!edit</b> [message id] [replacement text] - edit a message posted by the bot. <i>Admin only</i>. <i>To be revised</i>.");
                                     clist.AppendLine("<b>!event</b> [time constraint in days, optional] - get events list.");
                                     clist.AppendLine("<b>!forecast</b> - get a 7 day weather forecast.");
                                     clist.AppendLine("<b>!getbio</b> [username] - get anothers bio via their username. <i>To be revised</i>.");
@@ -3416,6 +3416,7 @@ namespace nwTelegramBot
                                     clist.AppendLine("<b>!gshep</b> - show a german shephard pic.");
                                     clist.AppendLine("<b>!shibe</b> - show a shibe pic.");
                                     clist.AppendLine("<b>!snep</b> - show a snow leopard pic.");
+                                    clist.AppendLine("<b>!rat</b> - show a rat pic.");
                                     replyTextEvent = clist.ToString();
 
                                     break;
@@ -4600,6 +4601,100 @@ namespace nwTelegramBot
                                     html = GetHtmlCode("german shepherd nsfw", false, true);
                                 else
                                     html = GetHtmlCode("german shepherd", false, false);
+
+                                List<string> urls = GetUrls(html);
+                                var rnd = new Random();
+
+                                int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                                // Select url from url list.
+                                string luckyUrl = urls[randomUrl];
+
+                                // Check if the file is valid, or throws an unwanted status code.
+                                if (!string.IsNullOrEmpty(luckyUrl))
+                                {
+                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.BadRequest)
+                                    {
+                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.Forbidden)
+                                    {
+                                        Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.NotFound)
+                                    {
+                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                        goto retryme;
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.OK)
+                                    {
+                                        Console.WriteLine("URL appears to be good.");
+                                    }
+                                    else //There are a lot of other status codes you could check for...
+                                    {
+                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                                   response.StatusCode.ToString()));
+                                    }
+
+                                }
+
+                                if (luckyUrl.Contains(" ") == true)
+                                    luckyUrl.Replace(" ", "%20");
+
+                                replyImage = luckyUrl;
+
+                                break;
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
+
+                            break;
+
+                        //Added by LachBee, 01/03/2017
+                        //Just a copy-paste of !gshep (It's a learning experience okay?)
+                        case "!rat": 
+
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !rat";
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !rat" + Environment.NewLine + "Type '!rat help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                            retryme:
+
+                                // list of urls.
+                                string html = null;
+
+                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                                    html = GetHtmlCode("rat nsfw", false, true);
+                                else
+                                    html = GetHtmlCode("rat", false, false);
 
                                 List<string> urls = GetUrls(html);
                                 var rnd = new Random();
