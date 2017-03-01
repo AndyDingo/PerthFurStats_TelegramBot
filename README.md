@@ -10,6 +10,3 @@ A bot for the Perthfurs Safe for work Telegram group chat. Could in theory be us
 - Implement permissions system.
 - Better implement photos.
 - Better implement join/leave code.
-- Implement, or find a joke api that doesn't use reddit.
-- Implement, or find a rat api.
-- Implement, or find a dog api.
