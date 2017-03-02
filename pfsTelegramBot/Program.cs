@@ -8,7 +8,7 @@
  * User         : AndyDingoWolf
  * Last Updated : 02/01/2017 by AndyDingo
  * -- VERSION --
- * Version      : 1.0.0.117
+ * Version      : 1.0.0.118
  */
 
 using Newtonsoft.Json.Linq;
@@ -2133,23 +2133,6 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "!help":
-                        case "!command":
-                        case "!commands":
-
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-                                replyTextEvent = "Hi " + update.Message.From.FirstName + ", Here's a list of commands I can respond to: http://www.perthfurstats.net/node/11 Note that it is currently a work in progress.";
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
-
-                            break;
-
                         case "!meet":
                         case "!meets":
                         case "!event":
@@ -3290,6 +3273,9 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "!help":
+                        case "!command":
+                        case "!commands":
                         case "!list":
 
                             if (nwCheckInReplyTimer(dt) != false)
@@ -3304,7 +3290,7 @@ namespace nwTelegramBot
                                     clist.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[4]</b>. Use !list [page number] to switch pages");
                                     clist.AppendLine("<b>!admins</b> - show who the group admins are.");
                                     clist.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
-                                    clist.AppendLine("<b>!backup/b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
+                                    clist.AppendLine("<b>!backup</b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
                                     clist.AppendLine("<b>!ball</b> - consult the magic 8 ball, use a ? at the end of your question.");
                                     clist.AppendLine("<b>!bio</b> - show your bio.");
                                     clist.AppendLine("<b>!cat</b> - show a cat image.");

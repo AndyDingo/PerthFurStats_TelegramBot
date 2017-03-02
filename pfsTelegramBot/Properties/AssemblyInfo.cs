@@ -7,7 +7,7 @@
  * Created by: Microsoft Visual Studio 2015.
  * User      : AndyDingoWolf
  * -- VERSION --
- * Version   : 1.0.0.117
+ * Version   : 1.0.0.118
  */
 
 using System.Reflection;
