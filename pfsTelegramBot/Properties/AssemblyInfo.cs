@@ -4,10 +4,11 @@
  * Please read docs/gpl.txt for licensing information.
  * ---------------------------------------------------------------
  * -- CREATOR INFORMATION --
- * Created by: Microsoft Visual Studio 2015.
- * User      : AndyDingoWolf
+ * Created by   : Microsoft Visual Studio 2015.
+ * User         : AndyDingoWolf
+ * Last Updated : 03/03/2017 by AndyDingo
  * -- VERSION --
- * Version   : 1.0.0.118
+ * Version      : 1.0.0.119
  */
 
 using System.Reflection;
@@ -45,9 +46,9 @@ using System.Resources;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.117")]
-[assembly: AssemblyFileVersion("1.0.0.117")]
-[assembly: AssemblyInformationalVersion("1.0.0.117")]
+[assembly: AssemblyVersion("1.0.0.119")]
+[assembly: AssemblyFileVersion("1.0.0.119")]
+[assembly: AssemblyInformationalVersion("1.0.0.119")]
 [assembly: NeutralResourcesLanguageAttribute("en-AU")]
 
 //[assembly: PermissionSetAttribute(SecurityAction.RequestMinimum, Name = "FullTrust")]

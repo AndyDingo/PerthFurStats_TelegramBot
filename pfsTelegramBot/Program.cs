@@ -6,9 +6,9 @@
  * -- CREATOR INFORMATION --
  * Created by   : Microsoft Visual Studio 2015.
  * User         : AndyDingoWolf
- * Last Updated : 02/01/2017 by AndyDingo
+ * Last Updated : 03/03/2017 by AndyDingo
  * -- VERSION --
- * Version      : 1.0.0.118
+ * Version      : 1.0.0.119
  */
 
 using Newtonsoft.Json.Linq;
@@ -2234,64 +2234,7 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                retryme:
-
-                                // list of urls.
-                                string html = null;
-
-                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                    html = GetHtmlCode("dingo", false, true);
-                                else
-                                    html = GetHtmlCode("dingo", false, false);
-
-                                List<string> urls = GetUrls(html);
-                                var rnd = new Random();
-
-                                int randomUrl = rnd.Next(0, urls.Count - 1);
-
-                                // Select url from url list.
-                                string luckyUrl = urls[randomUrl];
-
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(luckyUrl))
-                                {
-                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                    if (response.StatusCode == HttpStatusCode.BadRequest)
-                                    {
-                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.Forbidden)
-                                    {
-                                        Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine("URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
-
-                                }
-
-                                if (luckyUrl.Contains(" ") == true)
-                                    luckyUrl.Replace(" ", "%20");
-
-                                replyImage = luckyUrl;
-
-                                break;
+                                replyImage = nwShowSpeciesImage("dingo", update, ct);
 
                             }
                             else
@@ -2328,64 +2271,7 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                retryme:
-
-                                // list of urls.
-                                string html = null;
-
-                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                    html = GetHtmlCode("dog", false, true);
-                                else
-                                    html = GetHtmlCode("dog", false, false);
-
-                                List<string> urls = GetUrls(html);
-                                var rnd = new Random();
-
-                                int randomUrl = rnd.Next(0, urls.Count - 1);
-
-                                // Select url from url list.
-                                string luckyUrl = urls[randomUrl];
-
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(luckyUrl))
-                                {
-                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                    if (response.StatusCode == HttpStatusCode.BadRequest)
-                                    {
-                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.Forbidden)
-                                    {
-                                        Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine("URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
-
-                                }
-
-                                if (luckyUrl.Contains(" ") == true)
-                                    luckyUrl.Replace(" ", "%20");
-
-                                replyImage = luckyUrl;
-
-                                break;
+                                replyImage = nwShowSpeciesImage("dog", update, ct);
 
                             }
                             else
@@ -2420,59 +2306,7 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                retryme:
-
-                                // list of urls.
-                                string html = null;
-
-                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                    html = GetHtmlCode("corgi", false, true);
-                                else
-                                    html = GetHtmlCode("corgi", false, false);
-
-                                List<string> urls = GetUrls(html);
-                                var rnd = new Random();
-
-                                int randomUrl = rnd.Next(0, urls.Count - 1);
-
-                                // Select url from url list.
-                                string luckyUrl = urls[randomUrl];
-
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(luckyUrl))
-                                {
-                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                    if (response.StatusCode == HttpStatusCode.BadRequest)
-                                    {
-                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine("URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
-
-                                }
-
-                                if (luckyUrl.Contains(" ") == true)
-                                    luckyUrl.Replace(" ", "%20");
-
-                                replyImage = luckyUrl;
-
-                                break;
+                                replyImage = nwShowSpeciesImage("corgi", update, ct);
 
                             }
                             else
@@ -2507,59 +2341,7 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                retryme:
-
-                                // list of urls.
-                                string html = null;
-
-                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                    html = GetHtmlCode("dinosaur", false, true);
-                                else
-                                    html = GetHtmlCode("dinosaur", false, false);
-
-                                List<string> urls = GetUrls(html);
-                                var rnd = new Random();
-
-                                int randomUrl = rnd.Next(0, urls.Count - 1);
-
-                                // Select url from url list.
-                                string luckyUrl = urls[randomUrl];
-
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(luckyUrl))
-                                {
-                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                    if (response.StatusCode == HttpStatusCode.BadRequest)
-                                    {
-                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine("URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
-
-                                }
-
-                                if (luckyUrl.Contains(" ") == true)
-                                    luckyUrl.Replace(" ", "%20");
-
-                                replyImage = luckyUrl;
-
-                                break;
+                                replyImage = nwShowSpeciesImage("dinosaur", update, ct);
 
                             }
                             else
@@ -2594,59 +2376,7 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                retryme:
-
-                                // list of urls.
-                                string html = null;
-
-                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                    html = GetHtmlCode("ferret", false, true);
-                                else
-                                    html = GetHtmlCode("ferret", false, false);
-
-                                List<string> urls = GetUrls(html);
-                                var rnd = new Random();
-
-                                int randomUrl = rnd.Next(0, urls.Count - 1);
-
-                                // Select url from url list.
-                                string luckyUrl = urls[randomUrl];
-
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(luckyUrl))
-                                {
-                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                    if (response.StatusCode == HttpStatusCode.BadRequest)
-                                    {
-                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine("URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
-
-                                }
-
-                                if (luckyUrl.Contains(" ") == true)
-                                    luckyUrl.Replace(" ", "%20");
-
-                                replyImage = luckyUrl;
-
-                                break;
+                                replyImage = nwShowSpeciesImage("ferret", update, ct);
 
                             }
                             else
@@ -2681,59 +2411,42 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                retryme:
+                                replyImage = nwShowSpeciesImage("fennec fox", update, ct);
 
-                                // list of urls.
-                                string html = null;
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
 
-                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                    html = GetHtmlCode("fennec fox", false, true);
-                                else
-                                    html = GetHtmlCode("fennec fox", false, false);
+                            break;
 
-                                List<string> urls = GetUrls(html);
-                                var rnd = new Random();
+                        case "!deer":
 
-                                int randomUrl = rnd.Next(0, urls.Count - 1);
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                // Select url from url list.
-                                string luckyUrl = urls[randomUrl];
-
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(luckyUrl))
-                                {
-                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                    if (response.StatusCode == HttpStatusCode.BadRequest)
-                                    {
-                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine("URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
-
-                                }
-
-                                if (luckyUrl.Contains(" ") == true)
-                                    luckyUrl.Replace(" ", "%20");
-
-                                replyImage = luckyUrl;
+                                s_replyToUser = "Usage: !deer";
 
                                 break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !deer" + Environment.NewLine + "Type '!dragon help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                replyImage = nwShowSpeciesImage("deer", update, ct);
 
                             }
                             else
@@ -2768,59 +2481,7 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                retryme:
-
-                                // list of urls.
-                                string html = null;
-
-                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                    html = GetHtmlCode("dragon", false, true);
-                                else
-                                    html = GetHtmlCode("dragon", false, false);
-
-                                List<string> urls = GetUrls(html);
-                                var rnd = new Random();
-
-                                int randomUrl = rnd.Next(0, urls.Count - 1);
-
-                                // Select url from url list.
-                                string luckyUrl = urls[randomUrl];
-
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(luckyUrl))
-                                {
-                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                    if (response.StatusCode == HttpStatusCode.BadRequest)
-                                    {
-                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine("URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
-
-                                }
-
-                                if (luckyUrl.Contains(" ") == true)
-                                    luckyUrl.Replace(" ", "%20");
-
-                                replyImage = luckyUrl;
-
-                                break;
+                                replyImage = nwShowSpeciesImage("dragon", update, ct);
 
                             }
                             else
@@ -2885,6 +2546,41 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "!ermine":
+
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !ermine";
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !ermine" + Environment.NewLine + "Type '!ermine help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                replyImage = nwShowSpeciesImage("ermine", update, ct);
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
+
+                            break;
+
                         case "!fox":
 
                             if (body.Contains(" ") == true)
@@ -2910,59 +2606,43 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                retryme:
+                                replyImage = nwShowSpeciesImage("fox", update, ct);
 
-                                // list of urls.
-                                string html = null;
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
 
-                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                    html = GetHtmlCode("fox", false, true);
-                                else
-                                    html = GetHtmlCode("fox", false, false);
+                            break;
 
-                                List<string> urls = GetUrls(html);
-                                var rnd = new Random();
+                        case "!hare":
+                        case "!rabbit":
 
-                                int randomUrl = rnd.Next(0, urls.Count - 1);
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                // Select url from url list.
-                                string luckyUrl = urls[randomUrl];
-
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(luckyUrl))
-                                {
-                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                    if (response.StatusCode == HttpStatusCode.BadRequest)
-                                    {
-                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine("URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
-
-                                }
-
-                                if (luckyUrl.Contains(" ") == true)
-                                    luckyUrl.Replace(" ", "%20");
-
-                                replyImage = luckyUrl;
+                                s_replyToUser = "Usage: !rabbit";
 
                                 break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !rabbit" + Environment.NewLine + "Type '!rabbit help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                replyImage = nwShowSpeciesImage("rabbit", update, ct);
 
                             }
                             else
@@ -5155,6 +4835,68 @@ namespace nwTelegramBot
                 nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: System has caught an error! " + ex.Message);
                 nwErrorCatcher(ex);
             }
+        }
+
+        /// <summary>
+        /// Show an image for a species based on inputs
+        /// </summary>
+        /// <param name="s_name">Species name</param>
+        /// <param name="ct">chat type</param>
+        /// <param name="update">the update message type.</param>
+        /// <returns>returns a url, from which an image is extracted.</returns>
+        private static string nwShowSpeciesImage(string s_name, Update update, ChatType ct)
+        {
+            retryme:
+
+            // list of urls.
+            string html = null;
+
+            // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+            if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+                html = GetHtmlCode(s_name, false, true);
+            else
+                html = GetHtmlCode(s_name, false, false);
+
+            List<string> urls = GetUrls(html);
+            var rnd = new Random();
+
+            int randomUrl = rnd.Next(0, urls.Count - 1);
+
+            // Select url from url list.
+            string luckyUrl = urls[randomUrl];
+
+            // Check if the file is valid, or throws an unwanted status code.
+            if (!string.IsNullOrEmpty(luckyUrl))
+            {
+                UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                if (response.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                    goto retryme;
+                }
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                    goto retryme;
+                }
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    Console.WriteLine("URL appears to be good.");
+                }
+                else //There are a lot of other status codes you could check for...
+                {
+                    Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                               response.StatusCode.ToString()));
+                }
+
+            }
+
+            if (luckyUrl.Contains(" ") == true)
+                luckyUrl.Replace(" ", "%20");
+
+            return luckyUrl;
         }
 
         private static void nwWriteORToDB(string username, string body)
