@@ -2967,7 +2967,7 @@ namespace nwTelegramBot
 
                                     StringBuilder clist = new StringBuilder();
                                     clist.AppendLine("Here is a partial list of commands the bot understands:");
-                                    clist.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[4]</b>. Use !list [page number] to switch pages");
+                                    clist.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
                                     clist.AppendLine("<b>!admins</b> - show who the group admins are.");
                                     clist.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
                                     clist.AppendLine("<b>!backup</b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
@@ -2999,11 +2999,11 @@ namespace nwTelegramBot
 
                                     StringBuilder clist = new StringBuilder();
                                     clist.AppendLine("Here is a partial list of regular commands the bot understands:");
-                                    clist.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[4]</b>. Use !list [page number] to switch pages");
+                                    clist.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
                                     clist.AppendLine("<b>!admins</b> - show who the group admins are.");
                                     clist.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
                                     clist.AppendLine("<b>!backup/b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
-                                    clist.AppendLine("<b>!ball</b> - consult the magic 8 ball, use a ? at the end of your question.");
+                                    clist.AppendLine("<b>!ball</b><a title=\"Additional commands: !8ball\" href=\"#\">*</a> - consult the magic 8 ball, use a ? at the end of your question.");
                                     clist.AppendLine("<b>!bio</b> - show your bio.");
                                     clist.AppendLine("<b>!cat</b> - show a cat image.");
                                     clist.AppendLine("<b>!con</b> - show a list of australian furry conventions");
@@ -3023,18 +3023,18 @@ namespace nwTelegramBot
 
                                     StringBuilder clist = new StringBuilder();
                                     clist.AppendLine("Here is a partial list of regular commands the bot understands:");
-                                    clist.AppendLine("You are currently viewing Page <b>[2]</b> of <b>[4]</b>. Use !list [page number] to switch pages");
+                                    clist.AppendLine("You are currently viewing Page <b>[2]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
                                     clist.AppendLine("<b>!edit</b> [message id] [replacement text] - edit a message posted by the bot. <i>Admin only</i>. <i>To be revised</i>.");
-                                    clist.AppendLine("<b>!event</b> [time constraint in days, optional] - get events list.");
+                                    clist.AppendLine("<b>!event</b><a title=\"Additional commands: !events, !meet, !meets\" href=\"#\">*</a> [time constraint in days, optional] - get events list.");
                                     clist.AppendLine("<b>!forecast</b> - get a 7 day weather forecast.");
                                     clist.AppendLine("<b>!getbio</b> [username] - get anothers bio via their username. <i>To be revised</i>.");
                                     clist.AppendLine("<b>!getstats</b> - generate stats. <i>Admin only</i>. <i>To be revised</i>.");
                                     clist.AppendLine("<b>!gif</b> [topic] - show a GIF based on a given topic. <i>To be revised</i>.");
-                                    clist.AppendLine("<b>!image</b> [topic] - show an image based on a given topic.");
-                                    clist.AppendLine("<b>!joke</b> - get the bot to tell a joke.");
-                                    clist.AppendLine("<b>!kill</b> - kill the bot. Can only be used in PM. <i>Admin only</i>.");
+                                    clist.AppendLine("<b>!image</b><a title=\"Additional commands: !img\" href=\"#\">*</a> [topic] - show an image based on a given topic.");
+                                    clist.AppendLine("<b>!joke</b><a title=\"Additional commands: !humour\" href=\"#\">*</a> - get the bot to tell a joke.");
+                                    clist.AppendLine("<b>!kill</b><a title=\"Additional commands: !die\" href=\"#\">*</a> - kill the bot. Can only be used in PM. <i>Admin only</i>.");
                                     clist.AppendLine("<b>!link</b> - generate a chat link.");
-                                    clist.AppendLine("<b>!list</b> - shows this list.");
+                                    clist.AppendLine("<b>!list</b><a title=\"Additional commands: !command, !commands, !help\" href=\"#\">*</a> - shows this list.");
                                     replyTextEvent = clist.ToString();
 
                                     break;
@@ -3048,9 +3048,9 @@ namespace nwTelegramBot
 
                                     StringBuilder clist = new StringBuilder();
                                     clist.AppendLine("Here is a partial list of regular commands the bot understands:");
-                                    clist.AppendLine("You are currently viewing Page <b>[3]</b> of <b>[4]</b>. Use !list [page number] to switch pages");
+                                    clist.AppendLine("You are currently viewing Page <b>[3]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
                                     clist.AppendLine("<b>!meme</b> [topic] - show an image based on a given topic.");
-                                    clist.AppendLine("<b>!oo</b> - opt out of stats collection.");
+                                    clist.AppendLine("<b>!oo</b><a title=\"Additional commands: !optout\" href=\"#\">*</a> - opt out of stats collection.");
                                     clist.AppendLine("<b>!quote</b> - get the bot to quote something from chat.");
                                     clist.AppendLine("<b>!roll</b> [dice] [sides] - roll a dice, with the given number of dice and sides.");
                                     clist.AppendLine("<b>!rules</b> - show group rules.");
@@ -3070,19 +3070,38 @@ namespace nwTelegramBot
 
                                     StringBuilder clist = new StringBuilder();
                                     clist.AppendLine("Here is a partial list of species commands the bot understands:");
-                                    clist.AppendLine("You are currently viewing Page <b>[4]</b> of <b>[4]</b>. Use !list [page number] to switch pages");
+                                    clist.AppendLine("You are currently viewing Page <b>[4]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
+                                    clist.AppendLine("<b>!clep</b> - show a clouded leopard pic.");
                                     clist.AppendLine("<b>!corgi</b> - show a corgi pic.");
+                                    clist.AppendLine("<b>!deer</b> - show a corgi pic.");
                                     clist.AppendLine("<b>!dingo</b> - show a dingo pic.");
                                     clist.AppendLine("<b>!dino</b> - show a dino pic.");
-                                    clist.AppendLine("<b>!dog</b> - show a dog pic.");
+                                    clist.AppendLine("<b>!dog</b><a title=\"Additional commands: !canine, !doggo\" href=\"#\">*</a> - show a dog pic.");
                                     clist.AppendLine("<b>!dragon</b> - show a dragon pic.");
+                                    clist.AppendLine("<b>!ermine</b> - show a dragon pic.");
                                     clist.AppendLine("<b>!fennec</b> - show a fennec fox pic.");
                                     clist.AppendLine("<b>!ferret</b> - show a ferret pic.");
                                     clist.AppendLine("<b>!fox</b> - show a fox pic.");
+                                    replyTextEvent = clist.ToString();
+
+                                    break;
+
+                                }
+
+                                if (body == "5")
+                                {
+
+                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                    StringBuilder clist = new StringBuilder();
+                                    clist.AppendLine("Here is a partial list of species commands the bot understands:");
+                                    clist.AppendLine("You are currently viewing Page <b>[5]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
                                     clist.AppendLine("<b>!gshep</b> - show a german shephard pic.");
+                                    clist.AppendLine("<b>!leopard</b> - show a leopard pic.");
+                                    clist.AppendLine("<b>!rabbit</b> - show a rabbit pic.");
+                                    clist.AppendLine("<b>!rat</b> - show a rat pic.");
                                     clist.AppendLine("<b>!shibe</b> - show a shibe pic.");
                                     clist.AppendLine("<b>!snep</b> - show a snow leopard pic.");
-                                    clist.AppendLine("<b>!rat</b> - show a rat pic.");
                                     replyTextEvent = clist.ToString();
 
                                     break;
@@ -3642,60 +3661,7 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                retryme:
-
-                                // list of urls.
-                                string html = null;
-
-                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                    html = GetHtmlCode("shiba inu", false, true);
-                                else
-                                    html = GetHtmlCode("shiba inu", false, false);
-
-                                List<string> urls = GetUrls(html);
-                                var rnd = new Random();
-
-                                int randomUrl = rnd.Next(0, urls.Count - 1);
-
-                                // Select url from url list.
-                                string luckyUrl = urls[randomUrl];
-
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(luckyUrl))
-                                {
-                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-
-                                    if (response.StatusCode == HttpStatusCode.Forbidden)
-                                    {
-                                        Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine("URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
-
-                                }
-
-                                if (luckyUrl.Contains(" ") == true)
-                                    luckyUrl.Replace(" ", "%20");
-
-                                replyImage = luckyUrl;
-
-                                break;
+                                replyImage = nwShowSpeciesImage("shiba inu", update, ct);
 
                             }
                             else
@@ -3760,49 +3726,9 @@ namespace nwTelegramBot
                                         {
                                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                            //string[] s_splitfile = new string[] { "-" };
-                                            //string[] boob = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
-
-                                            //StringBuilder saysb = new StringBuilder();
-
-                                            //if (Regex.IsMatch(boob[0], @"\bsfw\b", RegexOptions.IgnoreCase) == true)
-                                            //{
-
-                                            //    boob[0] = boob[0].Replace("sfw", "");
-
-                                            //    //foreach (string s_meow in boob)
-                                            //    //{
-                                            //    //    saysb.Append(s_meow);
-                                            //    //}
-
-                                            //    //if (boob[1] == null) { replyText = "You didn't use the prefix, silly"; }
-
                                                 if (nwCheckInReplyTimer(dt) != false)
                                                     await bot.SendTextMessageAsync(-1001032131694, body);
-
-
-
-                                            //}
-                                            //else if (Regex.IsMatch(boob[0], @"\bnsfw\b", RegexOptions.IgnoreCase) == true)
-                                            //{
-                                            //    boob[0] = boob[0].Replace("nsfw", "");
-
-                                            //    //foreach (string s_meow in boob)
-                                            //    //{
-                                            //    //    saysb.Append(s_meow);
-                                            //    //}
-
-                                            //    if (boob[1] == null) { replyText = "You didn't use the prefix, silly"; }
-
-                                            //    if (nwCheckInReplyTimer(dt) != false)
-                                            //        await bot.SendTextMessageAsync(-1001052518605, boob[1].ToString());
-                                            //}
-                                            //boob.
-
-                                            //if boob.
-
-                                            
-
+                                                
                                             break;
 
                                         }
@@ -3984,54 +3910,77 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                retryme:
+                                replyImage = nwShowSpeciesImage("snow leopard", update, ct);
 
-                                // list of urls.
-                                string html = null;
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
 
-                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                    html = GetHtmlCode("snow leopard", false, true);
-                                else
-                                    html = GetHtmlCode("snow leopard", false, false);
+                            break;
 
-                                List<string> urls = GetUrls(html);
-                                var rnd = new Random();
+                        case "!clep":
 
-                                int randomUrl = rnd.Next(0, urls.Count - 1);
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                // Select url from url list.
-                                string luckyUrl = urls[randomUrl];
-
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(luckyUrl))
-                                {
-                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine("URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
-
-                                }
-
-                                if (luckyUrl.Contains(" ") == true)
-                                    luckyUrl.Replace(" ", "%20");
-
-                                replyImage = luckyUrl;
+                                s_replyToUser = "Usage: !clep";
 
                                 break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !clep" + Environment.NewLine + "Type '!clep help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                replyImage = nwShowSpeciesImage("clouded leopard", update, ct);
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+                            }
+
+                            break;
+
+                        case "!leopard":
+
+                            if (body.Contains(" ") == true)
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !leopard";
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !leopard" + Environment.NewLine + "Type '!leopard help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+                                replyImage = nwShowSpeciesImage("leopard", update, ct);
 
                             }
                             else
@@ -4257,64 +4206,7 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                retryme:
-
-                                // list of urls.
-                                string html = null;
-
-                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                    html = GetHtmlCode("german shepherd nsfw", false, true);
-                                else
-                                    html = GetHtmlCode("german shepherd", false, false);
-
-                                List<string> urls = GetUrls(html);
-                                var rnd = new Random();
-
-                                int randomUrl = rnd.Next(0, urls.Count - 1);
-
-                                // Select url from url list.
-                                string luckyUrl = urls[randomUrl];
-
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(luckyUrl))
-                                {
-                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                    if (response.StatusCode == HttpStatusCode.BadRequest)
-                                    {
-                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.Forbidden)
-                                    {
-                                        Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine("URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
-
-                                }
-
-                                if (luckyUrl.Contains(" ") == true)
-                                    luckyUrl.Replace(" ", "%20");
-
-                                replyImage = luckyUrl;
-
-                                break;
+                                replyImage = nwShowSpeciesImage("german shepherd", update, ct);
 
                             }
                             else
@@ -4351,64 +4243,7 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                            retryme:
-
-                                // list of urls.
-                                string html = null;
-
-                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                    html = GetHtmlCode("rat nsfw", false, true);
-                                else
-                                    html = GetHtmlCode("rat", false, false);
-
-                                List<string> urls = GetUrls(html);
-                                var rnd = new Random();
-
-                                int randomUrl = rnd.Next(0, urls.Count - 1);
-
-                                // Select url from url list.
-                                string luckyUrl = urls[randomUrl];
-
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(luckyUrl))
-                                {
-                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                    if (response.StatusCode == HttpStatusCode.BadRequest)
-                                    {
-                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.Forbidden)
-                                    {
-                                        Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine("URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
-
-                                }
-
-                                if (luckyUrl.Contains(" ") == true)
-                                    luckyUrl.Replace(" ", "%20");
-
-                                replyImage = luckyUrl;
-
-                                break;
+                                replyImage = nwShowSpeciesImage("rat", update, ct);
 
                             }
                             else
