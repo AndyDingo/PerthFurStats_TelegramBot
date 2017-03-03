@@ -1284,8 +1284,8 @@ namespace nwTelegramBot
                 return 0;
             }
 
-            conn.Close();
-            Console.WriteLine("Done.");
+            //conn.Close();
+            //Console.WriteLine("Done.");
         }
 
         private static string nwGenRandomPhrase2()
@@ -1513,8 +1513,8 @@ namespace nwTelegramBot
                 return 0;
             }
 
-            conn.Close();
-            Console.WriteLine("Done.");
+            //conn.Close();
+            //Console.WriteLine("Done.");
         }
 
         /// <summary>
@@ -1595,8 +1595,8 @@ namespace nwTelegramBot
                 return 0;
             }
 
-            conn.Close();
-            Console.WriteLine("Done.");
+            //conn.Close();
+            //Console.WriteLine("Done.");
         }
 
         #region -=COMMAND TOTALS=-
@@ -1626,7 +1626,7 @@ namespace nwTelegramBot
                 return 0;
             }
 
-            conn.Close();
+            //conn.Close();
         }
 
         /// <summary>Insert default value in database if none present.</summary>
@@ -4779,7 +4779,7 @@ namespace nwTelegramBot
             }
             catch(Exception ex)
             {
-                throw ex;
+                Console.WriteLine(ex.Message.ToString());
             }
         }
 
@@ -4907,9 +4907,9 @@ namespace nwTelegramBot
                 return "";
             }
 
-            msc.Close();
+            //msc.Close();
 
-            Console.WriteLine("Done.");
+            //Console.WriteLine("Done.");
             
         }
 
