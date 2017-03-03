@@ -8,7 +8,7 @@
  * User         : AndyDingoWolf
  * Last Updated : 02/01/2017 by AndyDingo
  * -- VERSION --
- * Version      : 1.0.0.117
+ * Version      : 1.0.0.118
  */
 
 using Newtonsoft.Json.Linq;
@@ -1832,7 +1832,7 @@ namespace nwTelegramBot
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: !8ball [question to ask, followed by a question mark]" + Environment.NewLine + "Type '/8ball help' to see this message again.";
+                                    s_replyToUser = "Usage: !8ball [question to ask, followed by a question mark]" + Environment.NewLine + "Type '!8ball help' to see this message again.";
 
                                     break;
 
@@ -2011,7 +2011,7 @@ namespace nwTelegramBot
                                         "If you wish to prevent undesireable artwork from appearing you should use some more complex tags." + Environment.NewLine +
                                         "This bot relies on e621 API and if it's not working, and/or servers are down, then the bot can't do anything about it." + Environment.NewLine +
                                         "Flash content is completely ignored by this, due to the Telegram api." + Environment.NewLine +
-                                        "Type '/e621 help' to see this message again.";
+                                        "Type '!e621 help' to see this message again.";
 
                                     break;
 
@@ -2133,23 +2133,6 @@ namespace nwTelegramBot
 
                             break;
 
-                        case "!help":
-                        case "!command":
-                        case "!commands":
-
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-                                replyTextEvent = "Hi " + update.Message.From.FirstName + ", Here's a list of commands I can respond to: http://www.perthfurstats.net/node/11 Note that it is currently a work in progress.";
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
-
-                            break;
-
                         case "!meet":
                         case "!meets":
                         case "!event":
@@ -2174,7 +2157,7 @@ namespace nwTelegramBot
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: /event [number]" + Environment.NewLine + "The optional parameter number can be omitted, in which it just returns events for last 15 days by default." + Environment.NewLine + "Type '/event help' to see this message again.";
+                                    s_replyToUser = "Usage: !event [number]" + Environment.NewLine + "The optional parameter number can be omitted, in which it just returns events for last 15 days by default." + Environment.NewLine + "Type '!event help' to see this message again.";
 
                                     break;
 
@@ -2232,7 +2215,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /dingo";
+                                s_replyToUser = "Usage: !dingo";
 
                                 break;
                             }
@@ -2240,7 +2223,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /dingo" + Environment.NewLine + "Type '/dingo help' to see this message again.";
+                                s_replyToUser = "Usage: !dingo" + Environment.NewLine + "Type '!dingo help' to see this message again.";
 
                                 break;
 
@@ -2326,7 +2309,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /dog";
+                                s_replyToUser = "Usage: !dog";
 
                                 break;
                             }
@@ -2334,7 +2317,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /dog" + Environment.NewLine + "Type '/dog help' to see this message again.";
+                                s_replyToUser = "Usage: !dog" + Environment.NewLine + "Type '!dog help' to see this message again.";
 
                                 break;
 
@@ -2418,7 +2401,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /corgi";
+                                s_replyToUser = "Usage: !corgi";
 
                                 break;
                             }
@@ -2426,7 +2409,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /corgi" + Environment.NewLine + "Type '/corgi help' to see this message again.";
+                                s_replyToUser = "Usage: !corgi" + Environment.NewLine + "Type '!corgi help' to see this message again.";
 
                                 break;
 
@@ -2505,7 +2488,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /dino";
+                                s_replyToUser = "Usage: !dino";
 
                                 break;
                             }
@@ -2513,7 +2496,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /dino" + Environment.NewLine + "Type '/dino help' to see this message again.";
+                                s_replyToUser = "Usage: !dino" + Environment.NewLine + "Type '!dino help' to see this message again.";
 
                                 break;
 
@@ -2766,7 +2749,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /dragon";
+                                s_replyToUser = "Usage: !dragon";
 
                                 break;
                             }
@@ -2774,7 +2757,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /dragon" + Environment.NewLine + "Type '/dragon help' to see this message again.";
+                                s_replyToUser = "Usage: !dragon" + Environment.NewLine + "Type '!dragon help' to see this message again.";
 
                                 break;
 
@@ -2908,7 +2891,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /fox";
+                                s_replyToUser = "Usage: !fox";
 
                                 break;
                             }
@@ -2916,7 +2899,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /fox" + Environment.NewLine + "Type '/fox help' to see this message again.";
+                                s_replyToUser = "Usage: !fox" + Environment.NewLine + "Type '!fox help' to see this message again.";
 
                                 break;
 
@@ -2995,7 +2978,7 @@ namespace nwTelegramBot
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: /gif [image to look for]";
+                                    s_replyToUser = "Usage: !gif [image to look for]";
 
                                     break;
                                 }
@@ -3003,7 +2986,7 @@ namespace nwTelegramBot
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: /gif [Image to look for]" + Environment.NewLine + "Type '/gif help' to see this message again.";
+                                    s_replyToUser = "Usage: !gif [Image to look for]" + Environment.NewLine + "Type '!gif help' to see this message again.";
 
                                     break;
 
@@ -3102,14 +3085,14 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /bio" + Environment.NewLine + "Type '/bio help' to see this message again.";
+                                s_replyToUser = "Usage: !bio" + Environment.NewLine + "Type '!bio help' to see this message again.";
 
                                 break;
 
                             }
                             else
                             {
-                                s_replyToUser = "Usage: /bio [username]" + Environment.NewLine + "Type '/bio help' to see this message again.";
+                                s_replyToUser = "Usage: !bio [username]" + Environment.NewLine + "Type '!bio help' to see this message again.";
                             }
 
                             break;
@@ -3131,14 +3114,14 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /getbio [username]" + Environment.NewLine + "Type '/getbio help' to see this message again.";
+                                s_replyToUser = "Usage: !getbio [username]" + Environment.NewLine + "Type '!getbio help' to see this message again.";
 
                                 break;
 
                             }
                             else
                             {
-                                s_replyToUser = "Usage: /getbio [username]" + Environment.NewLine + "Type '/getbio help' to see this message again.";
+                                s_replyToUser = "Usage: !getbio [username]" + Environment.NewLine + "Type '!getbio help' to see this message again.";
                             }
 
                             break;
@@ -3167,7 +3150,7 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /setbio [text to send]" + Environment.NewLine + "Type '/setbio help' to see this message again.";
+                                s_replyToUser = "Usage: !setbio [text to send]" + Environment.NewLine + "Type '!setbio help' to see this message again.";
 
                                 break;
 
@@ -3201,7 +3184,7 @@ namespace nwTelegramBot
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: /image [image to look for]";
+                                    s_replyToUser = "Usage: !image [image to look for]";
 
                                     break;
                                 }
@@ -3209,7 +3192,7 @@ namespace nwTelegramBot
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: /image [Image to look for]" + Environment.NewLine + "Type '/image help' to see this message again.";
+                                    s_replyToUser = "Usage: !image [Image to look for]" + Environment.NewLine + "Type '!image help' to see this message again.";
 
                                     break;
 
@@ -3290,6 +3273,9 @@ namespace nwTelegramBot
 
                             break;
 
+                        case "!help":
+                        case "!command":
+                        case "!commands":
                         case "!list":
 
                             if (nwCheckInReplyTimer(dt) != false)
@@ -3304,7 +3290,7 @@ namespace nwTelegramBot
                                     clist.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[4]</b>. Use !list [page number] to switch pages");
                                     clist.AppendLine("<b>!admins</b> - show who the group admins are.");
                                     clist.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
-                                    clist.AppendLine("<b>!backup/b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
+                                    clist.AppendLine("<b>!backup</b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
                                     clist.AppendLine("<b>!ball</b> - consult the magic 8 ball, use a ? at the end of your question.");
                                     clist.AppendLine("<b>!bio</b> - show your bio.");
                                     clist.AppendLine("<b>!cat</b> - show a cat image.");
@@ -3549,7 +3535,7 @@ namespace nwTelegramBot
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: /oo [reason for the]";
+                                    s_replyToUser = "Usage: !oo [reason for the]";
 
                                     break;
                                 }
@@ -3557,7 +3543,7 @@ namespace nwTelegramBot
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: /oo [reason, leave blank if you want]" + Environment.NewLine + "Type '/oo help' to see this message again.";
+                                    s_replyToUser = "Usage: !oo [reason, leave blank if you want]" + Environment.NewLine + "Type '!oo help' to see this message again.";
 
                                     break;
 
@@ -3623,7 +3609,7 @@ namespace nwTelegramBot
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: /quote [name of person to quote, or leave blank for random]" + Environment.NewLine + "Type '/quote help' to see this message again.";
+                                    s_replyToUser = "Usage: !quote [name of person to quote, or leave blank for random]" + Environment.NewLine + "Type '!quote help' to see this message again.";
 
                                     break;
 
@@ -3737,7 +3723,7 @@ namespace nwTelegramBot
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: /slap [name of person to slap, or leave blank for random]" + Environment.NewLine + "Type '/slap help' to see this message again.";
+                                    s_replyToUser = "Usage: !slap [name of person to slap, or leave blank for random]" + Environment.NewLine + "Type '!slap help' to see this message again.";
 
                                     break;
 
@@ -3750,7 +3736,7 @@ namespace nwTelegramBot
                                 if (s_target == string.Empty || s_target == " " || s_target == null)
                                 {
                                     bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-                                    s_replyToUser = "No target was selected. Usage: /slap @username";
+                                    s_replyToUser = "No target was selected. Usage: !slap @username";
                                     break;
                                 }
 
@@ -3821,7 +3807,7 @@ namespace nwTelegramBot
                         case "!settings":
 
                             // TODO: This would ideally need to be one of any of the config file settings
-                            // Example of usage: /set -[option to set] -[new value]
+                            // Example of Usage: !set -[option to set] -[new value]
 
                             if (ct != ChatType.Private)
                             {
@@ -3957,7 +3943,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /shibe";
+                                s_replyToUser = "Usage: !shibe";
 
                                 break;
                             }
@@ -3965,7 +3951,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /shibe" + Environment.NewLine + "Type '/shibe help' to see this message again.";
+                                s_replyToUser = "Usage: !shibe" + Environment.NewLine + "Type '!shibe help' to see this message again.";
 
                                 break;
 
@@ -4076,7 +4062,7 @@ namespace nwTelegramBot
                                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                                             if (nwCheckInReplyTimer(dt) != false)
-                                                s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular usage: /stats [week|fortnight|month|year|alltime|archive|commands]";
+                                                s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular Usage: !stats [week|fortnight|month|year|alltime|archive|commands]";
 
                                             break;
 
@@ -4085,7 +4071,7 @@ namespace nwTelegramBot
                                         {
                                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                            s_replyToUser = "Usage: /say [thing to say]" + Environment.NewLine + "Type '/say help' to see this message again.";
+                                            s_replyToUser = "Usage: !say [thing to say]" + Environment.NewLine + "Type '!say help' to see this message again.";
 
                                             break;
 
@@ -4202,7 +4188,7 @@ namespace nwTelegramBot
                                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                                             if (nwCheckInReplyTimer(dt) != false)
-                                                s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular usage: /stats [week|fortnight|month|year|alltime|archive|commands]";
+                                                s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular Usage: !stats [week|fortnight|month|year|alltime|archive|commands]";
 
                                             break;
 
@@ -4211,7 +4197,7 @@ namespace nwTelegramBot
                                         {
                                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                            s_replyToUser = "Usage: /sayhtml [thing to say]" + Environment.NewLine + "Type '/sayhtml help' to see this message again.";
+                                            s_replyToUser = "Usage: !sayhtml [thing to say]" + Environment.NewLine + "Type '!sayhtml help' to see this message again.";
 
                                             break;
 
@@ -4299,7 +4285,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /snep";
+                                s_replyToUser = "Usage: !snep";
 
                                 break;
                             }
@@ -4307,7 +4293,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /snep" + Environment.NewLine + "Type '/snep help' to see this message again.";
+                                s_replyToUser = "Usage: !snep" + Environment.NewLine + "Type '!snep help' to see this message again.";
 
                                 break;
 
@@ -4394,7 +4380,7 @@ namespace nwTelegramBot
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                                 if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular usage: /stats [week|fortnight|month|year|alltime|archive|commands]";
+                                    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular Usage: !stats [week|fortnight|month|year|alltime|archive|commands]";
 
                                 nwSetGlobalUsage("stats", n_statuse++); // set global usage incrementally
                                 nwSetUserUsage(s_username, "stats", n_statuse++); // set this users usage incrementally
@@ -4406,7 +4392,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /stats [timeframe to generate a link for, could be week, month, fortnight, year or alltime]" + Environment.NewLine + "Type '/stats help' to see this message again.";
+                                s_replyToUser = "Usage: !stats [timeframe to generate a link for, could be week, month, fortnight, year or alltime]" + Environment.NewLine + "Type '!stats help' to see this message again.";
 
                                 break;
 
@@ -4457,7 +4443,7 @@ namespace nwTelegramBot
                                         break;
                                     default:
                                         if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last weeks stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular usage: /stats [week|month|year|alltime|archive]";
+                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last weeks stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular Usage: !stats [week|month|year|alltime|archive]";
                                         break;
                                 }
 
@@ -4491,7 +4477,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /meme [image to look for]";
+                                s_replyToUser = "Usage: !meme [image to look for]";
 
                                 break;
                             }
@@ -4499,7 +4485,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /meme [image to look for]" + Environment.NewLine + "Type '/mee help' to see this message again.";
+                                s_replyToUser = "Usage: !meme [image to look for]" + Environment.NewLine + "Type '!mee help' to see this message again.";
 
                                 break;
 
@@ -4771,7 +4757,7 @@ namespace nwTelegramBot
                             {
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: /me [Action to perform]" + Environment.NewLine + "Type '/me help' to see this message again.";
+                                s_replyToUser = "Usage: !me [Action to perform]" + Environment.NewLine + "Type '!me help' to see this message again.";
 
                                 break;
 
@@ -5648,7 +5634,7 @@ namespace nwTelegramBot
             {
 
                 if (nwCheckInReplyTimer(dt) != false)
-                    boto.SendTextMessageAsync(n_chatid, "Usage: /edit [messageid] [the text to change]");
+                    boto.SendTextMessageAsync(n_chatid, "Usage: !edit [messageid] [the text to change]");
 
             }
             else
@@ -5680,12 +5666,12 @@ namespace nwTelegramBot
             if (body == string.Empty || body == " ")
             {
                 if (nwCheckInReplyTimer(dt) != false)
-                    return "Usage: /roll [number of sides] [amount of dice]";
+                    return "Usage: !roll [number of sides] [amount of dice]";
             }
 
             if (Regex.IsMatch(body, @"^\d+$"))
             {
-                return "There's a problem with the input:"+Environment.NewLine+"Usage: /roll [number of sides] [amount of dice]";
+                return "There's a problem with the input:"+Environment.NewLine+"Usage: !roll [number of sides] [amount of dice]";
             }
 
             string[] mysplit = new string[] { "1", "1", "1" };
