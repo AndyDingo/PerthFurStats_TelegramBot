@@ -3002,7 +3002,7 @@ namespace nwTelegramBot
                                     clist.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
                                     clist.AppendLine("<b>!admins</b> - show who the group admins are.");
                                     clist.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
-                                    clist.AppendLine("<b>!backup/b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
+                                    clist.AppendLine("<b>!backup</b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
                                     clist.AppendLine("<b>!ball</b><a title=\"Additional commands: !8ball\" href=\"#\">*</a> - consult the magic 8 ball, use a ? at the end of your question.");
                                     clist.AppendLine("<b>!bio</b> - show your bio.");
                                     clist.AppendLine("<b>!cat</b> - show a cat image.");
