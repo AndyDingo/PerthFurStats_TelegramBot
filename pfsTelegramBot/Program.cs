@@ -6,9 +6,9 @@
  * -- CREATOR INFORMATION --
  * Created by   : Microsoft Visual Studio 2015.
  * User         : AndyDingoWolf
- * Last Updated : 03/03/2017 by AndyDingo
+ * Last Updated : 13/10/2017 by AndyDingo
  * -- VERSION --
- * Version      : 1.0.0.119
+ * Version      : 1.0.0.120
  */
 
 using Newtonsoft.Json.Linq;
@@ -54,7 +54,7 @@ namespace nwTelegramBot
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            Console.Title = "PerthFurs SFW Telegram Group Command Bot";
+            Console.Title = "Anwen's Telegram Group Command Bot";
 
             try
             {
@@ -66,7 +66,7 @@ namespace nwTelegramBot
                 // Do the title
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("-----------------------------------------------------------------");
-                Console.WriteLine("----------- PerthFurs SFW Telegram Group Command Bot ------------");
+                Console.WriteLine("-------------- Anwen's Telegram Group Command Bot ---------------");
                 Console.WriteLine("-----------------------------------------------------------------");
                 Console.ForegroundColor = ConsoleColor.White;
 

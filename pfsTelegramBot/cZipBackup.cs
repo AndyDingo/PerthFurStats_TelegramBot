@@ -1,13 +1,14 @@
 ﻿/* 
- * All contents copyright 2016, Andy Dingo and Contributors
+ * All contents copyright 2016-2017, Andy Dingo and Contributors
  * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
  * Please read docs/gpl.txt for licensing information.
  * ---------------------------------------------------------------
  * -- CREATOR INFORMATION --
- * Created by: Microsoft Visual Studio 2015.
- * User      : AndyDingoWolf
+ * Created by   : Microsoft Visual Studio 2015.
+ * User         : AndyDingoWolf
+ * Last Updated : 13/10/2017 by AnwenEira
  * -- VERSION --
- * Version   : 1.0.0.112
+ * Version      : 1.0.0.120
  */
 
 using ICSharpCode.SharpZipLib.Core;

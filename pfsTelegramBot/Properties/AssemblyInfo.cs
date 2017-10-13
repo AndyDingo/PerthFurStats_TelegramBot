@@ -1,14 +1,14 @@
 ﻿/* 
- * All contents copyright 2016, Andy Dingo and Contributors
+ * All contents copyright 2016-2017, Andy Dingo and Contributors
  * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
  * Please read docs/gpl.txt for licensing information.
  * ---------------------------------------------------------------
  * -- CREATOR INFORMATION --
  * Created by   : Microsoft Visual Studio 2015.
  * User         : AndyDingoWolf
- * Last Updated : 03/03/2017 by AndyDingo
+ * Last Updated : 13/10/2017 by AnwenEira
  * -- VERSION --
- * Version      : 1.0.0.119
+ * Version      : 1.0.0.120
  */
 
 using System.Reflection;
@@ -46,9 +46,9 @@ using System.Resources;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.119")]
-[assembly: AssemblyFileVersion("1.0.0.119")]
-[assembly: AssemblyInformationalVersion("1.0.0.119")]
+[assembly: AssemblyVersion("1.0.0.120")]
+[assembly: AssemblyFileVersion("1.0.0.120")]
+[assembly: AssemblyInformationalVersion("1.0.0.120")]
 [assembly: NeutralResourcesLanguageAttribute("en-AU")]
 
 //[assembly: PermissionSetAttribute(SecurityAction.RequestMinimum, Name = "FullTrust")]
