@@ -3,8 +3,8 @@
 
 VERSION: 1.0.0.120
 FOR: WINDOWS 8/10+
-LAST UPDATED ON: 
-LAST UPDATED BY: ANDYDINGOWOLF
+LAST UPDATED ON: 14/10/2017
+LAST UPDATED BY: AnwenEira
 
 Please use "Word Wrap" if using notepad or wordpad to view this file.
 

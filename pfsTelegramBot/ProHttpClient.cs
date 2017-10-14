@@ -4,10 +4,11 @@
  * Please read docs/gpl.txt for licensing information.
  * ---------------------------------------------------------------
  * -- CREATOR INFORMATION --
- * Created by: Microsoft Visual Studio 2015.
- * User      : Unknown
+ * Created by   : Microsoft Visual Studio 2015.
+ * User         : AndyDingoWolf
+ * Last Updated : 13/10/2017 by AndyDingo
  * -- VERSION --
- * Version   : 1.0.0.112
+ * Version      : 1.0.0.120
  */
 
 using System;

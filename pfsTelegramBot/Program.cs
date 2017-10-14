@@ -511,7 +511,7 @@ namespace nwTelegramBot
 
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("-----------------------------------------------------------------");
-            Console.WriteLine("Hello my name is {0}, I'm a bot for Perthfurs SFW Telegram.", me.Username);
+            Console.WriteLine("Hello my name is {0}, I'm a bot for Telegram.", me.Username);
             Console.WriteLine("-----------------------------------------------------------------");
             Console.ForegroundColor = ConsoleColor.Green;
 
