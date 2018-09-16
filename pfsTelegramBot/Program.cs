@@ -1,5 +1,5 @@
 ﻿/* 
- * All contents copyright 2016 - 2017, Andy Dingo and Contributors
+ * All contents copyright 2016 - 2018, Andy Dingo and Contributors
  * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
  * Please read docs/gpl.txt for licensing information.
  * ---------------------------------------------------------------
@@ -28,8 +28,8 @@ using Telegram.Bot.Types.Enums;
 using ehoh = System.IO;
 using File = System.IO.File;
 using System.Data;
-using MySql.Data;
-using MySql.Data.MySqlClient;
+//using MySql.Data;
+//using MySql.Data.MySqlClient;
 using System.Net.Mail;
 
 namespace nwTelegramBot
@@ -600,22 +600,27 @@ namespace nwTelegramBot
 
                                 case MessageType.TextMessage:
                                     
-                                        string umt = update.Message.Text;
+                                    string umt = update.Message.Text;
 
-                                    //If we have set the bot to be able to respond to our basic commands
-                                    if (nwGrabString("botresponds") == "true" && (umt.StartsWith("!") == true))
+                                    if (String.IsNullOrWhiteSpace(umt) == false)
                                     {
-                                        
-                                        nwProcessCommands(Bot, update, me, m).Wait(-1);
-                                        
-                                    }
 
-                                    //If we have set the bot to be able to respond to our basic commands
-                                    if (nwGrabString("botresponds") == "true" && (umt.StartsWith("/") == true))
-                                    {
-                                        
-                                        nwProcessSlashCommands(Bot, update, me, m).Wait(-1);
-                                        
+                                        //If we have set the bot to be able to respond to our basic commands
+                                        if (nwGrabString("botresponds") == "true" && (umt.StartsWith("!") == true))
+                                        {
+
+                                            await nwProcessCommands(Bot, update, me, m);
+
+                                        }
+
+                                        //If we have set the bot to be able to respond to our basic commands
+                                        //if (nwGrabString("botresponds") == "true" && (umt.StartsWith("/") == true))
+                                        //{
+
+                                        //    //nwProcessSlashCommands(Bot, update, me, m).Wait(-1);
+
+                                        //}
+
                                     }
 
                                     #region Animal Noises
@@ -624,7 +629,7 @@ namespace nwTelegramBot
                                     {
 
                                         //int n_cat = nwCountCatNoises();
-                                        nwSetCatNoiseCount(update.Message.From.Username);
+                                        //nwSetCatNoiseCount(update.Message.From.Username);
 
                                         if (nwGrabString("debugmode") == "true")
                                             nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has mowed, increase mow count.");
@@ -635,7 +640,7 @@ namespace nwTelegramBot
                                     {
 
                                         //int n_dog = nwCountDogNoises();
-                                        nwSetDogNoiseCount(update.Message.From.Username);
+                                        //nwSetDogNoiseCount(update.Message.From.Username);
 
                                         if (nwGrabString("debugmode") == "true")
                                             nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
@@ -646,7 +651,7 @@ namespace nwTelegramBot
                                     {
 
                                         //int n_dog = nwCountDogNoises();
-                                        nwSetDragonNoiseCount(update.Message.From.Username);
+                                        //nwSetDragonNoiseCount(update.Message.From.Username);
 
                                         if (nwGrabString("debugmode") == "true")
                                             nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has made dragon noises, increase dragon noise count.");
@@ -963,7 +968,7 @@ namespace nwTelegramBot
 
                                     if (update.Message.Sticker.Emoji == "😺")
                                     {
-                                        nwSetCatNoiseCount(update.Message.From.Username);
+                                        //nwSetCatNoiseCount(update.Message.From.Username);
 
                                         if (nwGrabString("debugmode") == "true")
                                             nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has mowed, increase mow count.");
@@ -971,7 +976,7 @@ namespace nwTelegramBot
 
                                     if (update.Message.Sticker.Emoji == "🐺")
                                     {
-                                        nwSetDogNoiseCount(update.Message.From.Username);
+                                        //nwSetDogNoiseCount(update.Message.From.Username);
 
                                         if (nwGrabString("debugmode") == "true")
                                             nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
@@ -979,7 +984,7 @@ namespace nwTelegramBot
 
                                     if (update.Message.Sticker.Emoji == "🐲")
                                     {
-                                        nwSetDragonNoiseCount(update.Message.From.Username);
+                                        //nwSetDragonNoiseCount(update.Message.From.Username);
 
                                         if (nwGrabString("debugmode") == "true")
                                             nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has done a dragon call, increase squeak count.");
@@ -1171,122 +1176,122 @@ namespace nwTelegramBot
             }
         }
 
-        private static void nwSetDragonNoiseCount(string username)
-        {
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+        //private static void nwSetDragonNoiseCount(string username)
+        //{
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
 
-            try
-            {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
-                conn.Open();
+        //    try
+        //    {
+        //        nwPrintSystemMessage("System: Connecting to MySQL...");
+        //        conn.Open();
 
-                MySqlCommand chkUser = new MySqlCommand("SELECT * FROM tbl_miscstats WHERE (username = @user)", conn);
-                chkUser.Parameters.AddWithValue("@user", username);
-                MySqlDataReader reader = chkUser.ExecuteReader();
+        //        MySqlCommand chkUser = new MySqlCommand("SELECT * FROM tbl_miscstats WHERE (username = @user)", conn);
+        //        chkUser.Parameters.AddWithValue("@user", username);
+        //        MySqlDataReader reader = chkUser.ExecuteReader();
 
-                if (reader.HasRows)
-                {
-                    //User Exists
-                    int mews = nwCountDragonNoises(username);
+        //        if (reader.HasRows)
+        //        {
+        //            //User Exists
+        //            int mews = nwCountDragonNoises(username);
 
-                    mews++;
+        //            mews++;
 
-                    nwUpdateDragonNoises(mews, username);
-                }
-                else
-                {
-                    //User NOT Exists
-                    nwInsertDragonNoises(username);
+        //            nwUpdateDragonNoises(mews, username);
+        //        }
+        //        else
+        //        {
+        //            //User NOT Exists
+        //            nwInsertDragonNoises(username);
 
-                }
+        //        }
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //    }
 
-            conn.Close();
-            Console.WriteLine("Done.");
-        }
+        //    conn.Close();
+        //    Console.WriteLine("Done.");
+        //}
 
-        private static void nwInsertDragonNoises(string username)
-        {
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+        //private static void nwInsertDragonNoises(string username)
+        //{
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
 
-            try
-            {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
-                conn.Open();
+        //    try
+        //    {
+        //        nwPrintSystemMessage("System: Connecting to MySQL...");
+        //        conn.Open();
 
-                string sql = "INSERT INTO tbl_miscstats (username, totalsqueaks) VALUES ('" + username + "', '" + 1 + "')";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.ExecuteNonQuery();
+        //        string sql = "INSERT INTO tbl_miscstats (username, totalsqueaks) VALUES ('" + username + "', '" + 1 + "')";
+        //        MySqlCommand cmd = new MySqlCommand(sql, conn);
+        //        cmd.ExecuteNonQuery();
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //    }
 
-            conn.Close();
-            Console.WriteLine("Done.");
-        }
+        //    conn.Close();
+        //    Console.WriteLine("Done.");
+        //}
 
-        private static void nwUpdateDragonNoises(int mews, string username)
-        {
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+        //private static void nwUpdateDragonNoises(int mews, string username)
+        //{
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
 
-            try
-            {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
-                conn.Open();
+        //    try
+        //    {
+        //        nwPrintSystemMessage("System: Connecting to MySQL...");
+        //        conn.Open();
 
-                string sql = "UPDATE tbl_miscstats SET totalsqueaks='" + mews + "' WHERE username='" + username + "';";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.ExecuteNonQuery();
-
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-
-            conn.Close();
-            Console.WriteLine("Done.");
-        }
-
-        private static int nwCountDragonNoises(string username)
-        {
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
-
-            try
-            {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
-                conn.Open();
-
-                string sq = "SELECT totalsqueaks FROM tbl_miscstats WHERE username='" + username + "'";
-                MySqlCommand msc = new MySqlCommand(sq, conn);
-                int mews = Convert.ToInt32(msc.ExecuteScalar());
-
-                return mews;
+        //        string sql = "UPDATE tbl_miscstats SET totalsqueaks='" + mews + "' WHERE username='" + username + "';";
+        //        MySqlCommand cmd = new MySqlCommand(sql, conn);
+        //        cmd.ExecuteNonQuery();
 
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-                return 0;
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //    }
 
-            //conn.Close();
-            //Console.WriteLine("Done.");
-        }
+        //    conn.Close();
+        //    Console.WriteLine("Done.");
+        //}
+
+        //private static int nwCountDragonNoises(string username)
+        //{
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
+
+        //    try
+        //    {
+        //        nwPrintSystemMessage("System: Connecting to MySQL...");
+        //        conn.Open();
+
+        //        string sq = "SELECT totalsqueaks FROM tbl_miscstats WHERE username='" + username + "'";
+        //        MySqlCommand msc = new MySqlCommand(sq, conn);
+        //        int mews = Convert.ToInt32(msc.ExecuteScalar());
+
+        //        return mews;
+
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //        return 0;
+        //    }
+
+        //    //conn.Close();
+        //    //Console.WriteLine("Done.");
+        //}
 
         private static string nwGenRandomPhrase2()
         {
@@ -1342,383 +1347,383 @@ namespace nwTelegramBot
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="lastuser"></param>
-        private static void nwSetDogNoiseCount(string lastuser)
-        {
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="lastuser"></param>
+        //private static void nwSetDogNoiseCount(string lastuser)
+        //{
 
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
 
-            try
-            {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
-                conn.Open();
+        //    try
+        //    {
+        //        nwPrintSystemMessage("System: Connecting to MySQL...");
+        //        conn.Open();
 
-                MySqlCommand chkUser = new MySqlCommand("SELECT * FROM tbl_miscstats WHERE (username = @user)", conn);
-                chkUser.Parameters.AddWithValue("@user", lastuser);
-                MySqlDataReader reader = chkUser.ExecuteReader();
+        //        MySqlCommand chkUser = new MySqlCommand("SELECT * FROM tbl_miscstats WHERE (username = @user)", conn);
+        //        chkUser.Parameters.AddWithValue("@user", lastuser);
+        //        MySqlDataReader reader = chkUser.ExecuteReader();
 
-                if (reader.HasRows)
-                {
-                    //User Exists
-                    int mews = nwCountDogNoises(lastuser);
+        //        if (reader.HasRows)
+        //        {
+        //            //User Exists
+        //            int mews = nwCountDogNoises(lastuser);
 
-                    mews++;
+        //            mews++;
 
-                    nwUpdateDogNoises(mews, lastuser);
-                }
-                else
-                {
-                    //User NOT Exists
-                    nwInsertDogNoises(lastuser);
-                }
+        //            nwUpdateDogNoises(mews, lastuser);
+        //        }
+        //        else
+        //        {
+        //            //User NOT Exists
+        //            nwInsertDogNoises(lastuser);
+        //        }
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //    }
 
-            conn.Close();
-            Console.WriteLine("Done.");
+        //    conn.Close();
+        //    Console.WriteLine("Done.");
 
-        }
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="lastuser"></param>
-        private static void nwSetCatNoiseCount(string lastuser)
-        {
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="lastuser"></param>
+        //private static void nwSetCatNoiseCount(string lastuser)
+        //{
 
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
 
-            try
-            {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
-                conn.Open();
+        //    try
+        //    {
+        //        nwPrintSystemMessage("System: Connecting to MySQL...");
+        //        conn.Open();
 
-                MySqlCommand chkUser = new MySqlCommand("SELECT * FROM tbl_miscstats WHERE (username = @user)", conn);
-                chkUser.Parameters.AddWithValue("@user", lastuser);
-                MySqlDataReader reader = chkUser.ExecuteReader();
+        //        MySqlCommand chkUser = new MySqlCommand("SELECT * FROM tbl_miscstats WHERE (username = @user)", conn);
+        //        chkUser.Parameters.AddWithValue("@user", lastuser);
+        //        MySqlDataReader reader = chkUser.ExecuteReader();
 
-                if (reader.HasRows)
-                {
-                    //User Exists
-                    int mews = nwCountCatNoises(lastuser);
+        //        if (reader.HasRows)
+        //        {
+        //            //User Exists
+        //            int mews = nwCountCatNoises(lastuser);
 
-                    mews++;
+        //            mews++;
 
-                    nwUpdateCatNoises(mews, lastuser);
-                }
-                else
-                {
-                    //User NOT Exists
-                    nwInsertCatNoises(lastuser);
+        //            nwUpdateCatNoises(mews, lastuser);
+        //        }
+        //        else
+        //        {
+        //            //User NOT Exists
+        //            nwInsertCatNoises(lastuser);
                     
-                }
+        //        }
                 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //    }
 
-            conn.Close();
-            Console.WriteLine("Done.");
+        //    conn.Close();
+        //    Console.WriteLine("Done.");
 
-        }
+        //}
 
-        /// <summary>
-        /// Insert cat noises into database.
-        /// </summary>
-        private static void nwInsertCatNoises(string lastuser)
-        {
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+        ///// <summary>
+        ///// Insert cat noises into database.
+        ///// </summary>
+        //private static void nwInsertCatNoises(string lastuser)
+        //{
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
 
-            try
-            {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
-                conn.Open();
+        //    try
+        //    {
+        //        nwPrintSystemMessage("System: Connecting to MySQL...");
+        //        conn.Open();
 
-                string sql = "INSERT INTO tbl_miscstats (username, totalmows) VALUES ('" + lastuser + "', '" + 1 + "')";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.ExecuteNonQuery();
+        //        string sql = "INSERT INTO tbl_miscstats (username, totalmows) VALUES ('" + lastuser + "', '" + 1 + "')";
+        //        MySqlCommand cmd = new MySqlCommand(sql, conn);
+        //        cmd.ExecuteNonQuery();
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //    }
 
-            conn.Close();
-            Console.WriteLine("Done.");
-        }
+        //    conn.Close();
+        //    Console.WriteLine("Done.");
+        //}
 
-        /// <summary>
-        /// Insert cat noises into database.
-        /// </summary>
-        private static void nwUpdateCatNoises(int mews, string lastuser)
-        {
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+        ///// <summary>
+        ///// Insert cat noises into database.
+        ///// </summary>
+        //private static void nwUpdateCatNoises(int mews, string lastuser)
+        //{
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
 
-            try
-            {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
-                conn.Open();
+        //    try
+        //    {
+        //        nwPrintSystemMessage("System: Connecting to MySQL...");
+        //        conn.Open();
 
-                string sql = "UPDATE tbl_miscstats SET totalmows='" + mews + "' WHERE username='" + lastuser + "';";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.ExecuteNonQuery();
-
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-
-            conn.Close();
-            Console.WriteLine("Done.");
-        }
-
-        private static int nwCountCatNoises(string lastuser)
-        {
-
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
-
-            try
-            {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
-                conn.Open();
-
-                string sq = "SELECT totalwoofs FROM tbl_miscstats WHERE username='" + lastuser + "'";
-                MySqlCommand msc = new MySqlCommand(sq, conn);
-                int mews = Convert.ToInt32(msc.ExecuteScalar());
-
-                return mews;
+        //        string sql = "UPDATE tbl_miscstats SET totalmows='" + mews + "' WHERE username='" + lastuser + "';";
+        //        MySqlCommand cmd = new MySqlCommand(sql, conn);
+        //        cmd.ExecuteNonQuery();
 
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-                return 0;
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //    }
 
-            //conn.Close();
-            //Console.WriteLine("Done.");
-        }
+        //    conn.Close();
+        //    Console.WriteLine("Done.");
+        //}
 
-        /// <summary>
-        /// Insert dog noises into database.
-        /// </summary>
-        private static void nwInsertDogNoises(string lastuser)
-        {
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+        //private static int nwCountCatNoises(string lastuser)
+        //{
 
-            try
-            {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
-                conn.Open();
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
 
-                string sql = "INSERT INTO tbl_miscstats (username, totalwoofs) VALUES ('" + lastuser + "', '" + 1 + "')";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.ExecuteNonQuery();
+        //    try
+        //    {
+        //        nwPrintSystemMessage("System: Connecting to MySQL...");
+        //        conn.Open();
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+        //        string sq = "SELECT totalwoofs FROM tbl_miscstats WHERE username='" + lastuser + "'";
+        //        MySqlCommand msc = new MySqlCommand(sq, conn);
+        //        int mews = Convert.ToInt32(msc.ExecuteScalar());
 
-            conn.Close();
-            Console.WriteLine("Done.");
-        }
+        //        return mews;
 
-        /// <summary>
-        /// Insert dog noises into database.
-        /// </summary>
-        private static void nwUpdateDogNoises(int mews, string lastuser)
-        {
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
 
-            try
-            {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
-                conn.Open();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //        return 0;
+        //    }
 
-                string sql = "UPDATE tbl_miscstats SET totalwoofs='" + mews + "' WHERE username='" + lastuser + "';";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.ExecuteNonQuery();
+        //    //conn.Close();
+        //    //Console.WriteLine("Done.");
+        //}
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+        ///// <summary>
+        ///// Insert dog noises into database.
+        ///// </summary>
+        //private static void nwInsertDogNoises(string lastuser)
+        //{
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
 
-            conn.Close();
-            Console.WriteLine("Done.");
-        }
+        //    try
+        //    {
+        //        nwPrintSystemMessage("System: Connecting to MySQL...");
+        //        conn.Open();
 
-        private static int nwCountDogNoises(string lastuser)
-        {
+        //        string sql = "INSERT INTO tbl_miscstats (username, totalwoofs) VALUES ('" + lastuser + "', '" + 1 + "')";
+        //        MySqlCommand cmd = new MySqlCommand(sql, conn);
+        //        cmd.ExecuteNonQuery();
 
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //    }
 
-            try
-            {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
-                conn.Open();
+        //    conn.Close();
+        //    Console.WriteLine("Done.");
+        //}
 
-                string sq = "SELECT totalwoofs FROM tbl_miscstats WHERE username='" + lastuser + "'";
-                MySqlCommand msc = new MySqlCommand(sq, conn);
-                int mews = Convert.ToInt32(msc.ExecuteScalar());
+        ///// <summary>
+        ///// Insert dog noises into database.
+        ///// </summary>
+        //private static void nwUpdateDogNoises(int mews, string lastuser)
+        //{
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
 
-                return mews;
+        //    try
+        //    {
+        //        nwPrintSystemMessage("System: Connecting to MySQL...");
+        //        conn.Open();
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-                return 0;
-            }
+        //        string sql = "UPDATE tbl_miscstats SET totalwoofs='" + mews + "' WHERE username='" + lastuser + "';";
+        //        MySqlCommand cmd = new MySqlCommand(sql, conn);
+        //        cmd.ExecuteNonQuery();
 
-            //conn.Close();
-            //Console.WriteLine("Done.");
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //    }
+
+        //    conn.Close();
+        //    Console.WriteLine("Done.");
+        //}
+
+        //private static int nwCountDogNoises(string lastuser)
+        //{
+
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
+
+        //    try
+        //    {
+        //        nwPrintSystemMessage("System: Connecting to MySQL...");
+        //        conn.Open();
+
+        //        string sq = "SELECT totalwoofs FROM tbl_miscstats WHERE username='" + lastuser + "'";
+        //        MySqlCommand msc = new MySqlCommand(sq, conn);
+        //        int mews = Convert.ToInt32(msc.ExecuteScalar());
+
+        //        return mews;
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //        return 0;
+        //    }
+
+        //    //conn.Close();
+        //    //Console.WriteLine("Done.");
+        //}
 
         #region -=COMMAND TOTALS=-
 
         /// <summary>Count total commands used.</summary>
         /// <param name="lastuser">The username to alter data for.</param>
-        private static int nwCountTotalCommands(string lastuser)
-        {
+        //private static int nwCountTotalCommands(string lastuser)
+        //{
 
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
 
-            try
-            {
-                conn.Open();
+        //    try
+        //    {
+        //        conn.Open();
 
-                string sq = "SELECT totalcommands FROM tbl_miscstats WHERE username='" + lastuser + "'";
-                MySqlCommand msc = new MySqlCommand(sq, conn);
-                int mews = Convert.ToInt32(msc.ExecuteScalar());
+        //        string sq = "SELECT totalcommands FROM tbl_miscstats WHERE username='" + lastuser + "'";
+        //        MySqlCommand msc = new MySqlCommand(sq, conn);
+        //        int mews = Convert.ToInt32(msc.ExecuteScalar());
 
-                return mews;
+        //        return mews;
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-                return 0;
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //        return 0;
+        //    }
 
-            //conn.Close();
-        }
+        //    //conn.Close();
+        //}
 
         /// <summary>Insert default value in database if none present.</summary>
         /// <param name="lastuser">The username to alter data for.</param>
-        private static void nwInsertTotalCommands(string lastuser)
-        {
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+        //private static void nwInsertTotalCommands(string lastuser)
+        //{
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
 
-            try
-            {
-                conn.Open();
+        //    try
+        //    {
+        //        conn.Open();
 
-                string sql = "INSERT INTO tbl_miscstats (username, totalcommands) VALUES ('" + lastuser + "', '" + 1 + "')";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.ExecuteNonQuery();
+        //        string sql = "INSERT INTO tbl_miscstats (username, totalcommands) VALUES ('" + lastuser + "', '" + 1 + "')";
+        //        MySqlCommand cmd = new MySqlCommand(sql, conn);
+        //        cmd.ExecuteNonQuery();
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //    }
 
-            conn.Close();
-        }
+        //    conn.Close();
+        //}
 
         /// <summary>Update total commands used with a given value.</summary>
         /// <param name="value">Value to add.</param>
         /// <param name="lastuser">The username to alter data for.</param>
-        private static void nwUpdateTotalCommands(int value, string lastuser)
-        {
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+        //private static void nwUpdateTotalCommands(int value, string lastuser)
+        //{
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
 
-            try
-            {
-                conn.Open();
+        //    try
+        //    {
+        //        conn.Open();
 
-                string sql = "UPDATE tbl_miscstats SET totalcommands='" + value + "' WHERE username='" + lastuser + "';";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.ExecuteNonQuery();
+        //        string sql = "UPDATE tbl_miscstats SET totalcommands='" + value + "' WHERE username='" + lastuser + "';";
+        //        MySqlCommand cmd = new MySqlCommand(sql, conn);
+        //        cmd.ExecuteNonQuery();
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //    }
 
-            conn.Close();
-        }
+        //    conn.Close();
+        //}
 
 
         /// <summary>
         /// Set total command usage.
         /// </summary>
         /// <param name="lastuser">The username to alter data for.</param>
-        private static void nwSetTotalCommandUsage(string lastuser)
-        {
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+        //private static void nwSetTotalCommandUsage(string lastuser)
+        //{
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
 
-            try
-            {
-                conn.Open();
+        //    try
+        //    {
+        //        conn.Open();
 
-                MySqlCommand chkUser = new MySqlCommand("SELECT * FROM tbl_miscstats WHERE (username = @user)", conn);
-                chkUser.Parameters.AddWithValue("@user", lastuser);
-                MySqlDataReader reader = chkUser.ExecuteReader();
+        //        MySqlCommand chkUser = new MySqlCommand("SELECT * FROM tbl_miscstats WHERE (username = @user)", conn);
+        //        chkUser.Parameters.AddWithValue("@user", lastuser);
+        //        MySqlDataReader reader = chkUser.ExecuteReader();
 
-                if (reader.HasRows)
-                {
-                    //User Exists
-                    int mews = nwCountTotalCommands(lastuser);
+        //        if (reader.HasRows)
+        //        {
+        //            //User Exists
+        //            int mews = nwCountTotalCommands(lastuser);
 
-                    mews++;
+        //            mews++;
 
-                    nwUpdateTotalCommands(mews, lastuser);
-                }
-                else
-                {
-                    //User NOT Exists
-                    nwInsertTotalCommands(lastuser);
-                }
+        //            nwUpdateTotalCommands(mews, lastuser);
+        //        }
+        //        else
+        //        {
+        //            //User NOT Exists
+        //            nwInsertTotalCommands(lastuser);
+        //        }
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //    }
 
-            conn.Close();
-        }
+        //    conn.Close();
+        //}
 
         #endregion
 
@@ -2755,7 +2760,7 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = nwShowBio(update.Message.From.Username);
+                                //s_replyToUser = nwShowBio(update.Message.From.Username);
 
                                 break;
 
@@ -2784,7 +2789,7 @@ namespace nwTelegramBot
 
                                 bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = nwShowBio(body);
+                                //s_replyToUser = nwShowBio(body);
 
                                 break;
 
@@ -3169,48 +3174,48 @@ namespace nwTelegramBot
                             break;
 
                         case "!humour":
-                        case "!joke": // TODO: Fix this command
+                        //case "!joke": // TODO: Fix this command
 
-                            //int n_jokeuse = nwGrabGlobalUsageDB("joke");
-                            //int n_joke_uuse = nwGrabUserUsage(s_username, "joke");
-                            int n_joke_gmax = nwGrabGlobalMax("joke");
-                            //int n_joke_umax = nwGrabUserMax("joke");
+                        //    //int n_jokeuse = nwGrabGlobalUsageDB("joke");
+                        //    //int n_joke_uuse = nwGrabUserUsage(s_username, "joke");
+                        //    int n_joke_gmax = nwGrabGlobalMax("joke");
+                        //    //int n_joke_umax = nwGrabUserMax("joke");
 
-                            //if (n_jokeuse == n_joke_gmax)//|| n_joke_uuse == n_joke_umax)
-                            //{
-                            //    if (nwCheckInReplyTimer(dt) != false)
-                            //        s_replyToUser = "Sorry, the /joke command has been used too many times.";
-                            //    break;
-                            //}
+                        //    //if (n_jokeuse == n_joke_gmax)//|| n_joke_uuse == n_joke_umax)
+                        //    //{
+                        //    //    if (nwCheckInReplyTimer(dt) != false)
+                        //    //        s_replyToUser = "Sorry, the /joke command has been used too many times.";
+                        //    //    break;
+                        //    //}
 
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+                        //    //bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-                                string textomatic = nwRandomJokeLine();
+                        //    //if (nwCheckInReplyTimer(dt) != false)
+                        //    //{
+                        //    //    string textomatic = nwRandomJokeLine();
 
-                                string[] s_mysplit = new string[] { "", "", "" };
-                                string[] s_mysep = new string[] { "\\r", "\\n" };
-                                s_mysplit = textomatic.Split(s_mysep, StringSplitOptions.RemoveEmptyEntries);
+                        //    //    string[] s_mysplit = new string[] { "", "", "" };
+                        //    //    string[] s_mysep = new string[] { "\\r", "\\n" };
+                        //    //    s_mysplit = textomatic.Split(s_mysep, StringSplitOptions.RemoveEmptyEntries);
 
-                                StringBuilder jokesb = new StringBuilder();
+                        //    //    StringBuilder jokesb = new StringBuilder();
 
-                                foreach (string s_meow in s_mysplit)
-                                {
-                                    jokesb.AppendLine(s_meow);
-                                }
+                        //    //    foreach (string s_meow in s_mysplit)
+                        //    //    {
+                        //    //        jokesb.AppendLine(s_meow);
+                        //    //    }
 
-                                replyText = jokesb.ToString();
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+                        //    //    replyText = jokesb.ToString();
+                        //    //}
+                        //    //else
+                        //    //{
+                        //    //    Console.WriteLine("The " + command + " failed as it took too long to process.");
+                        //    //}
 
-                            //nwSetGlobalUsageDB("joke", n_jokeuse++); // set global usage incrementally
-                            //nwSetUserUsage(s_username, "joke", n_joke_uuse++); // set this users usage incrementally
+                        //    //nwSetGlobalUsageDB("joke", n_jokeuse++); // set global usage incrementally
+                        //    //nwSetUserUsage(s_username, "joke", n_joke_uuse++); // set this users usage incrementally
 
-                            break;
+                        //    break;
 
                         case "!link":
 
@@ -3250,7 +3255,7 @@ namespace nwTelegramBot
 
 
                                 // write request to database
-                                nwWriteORToDB(update.Message.From.Username, body);
+                                //nwWriteORToDB(update.Message.From.Username, body);
 
                                 // write and send email
                                 nwSendEmail(update.Message.From.Username, body);
@@ -3727,7 +3732,7 @@ namespace nwTelegramBot
                                             bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
                                                 if (nwCheckInReplyTimer(dt) != false)
-                                                    await bot.SendTextMessageAsync(-1001032131694, body);
+                                                    await bot.SendTextMessageAsync(-1001100571930, body);
                                                 
                                             break;
 
@@ -4065,10 +4070,10 @@ namespace nwTelegramBot
                                         break;
                                     case "command":
                                     case "commands":
-                                        int tuse = nwCountTotalCommands("total");
-                                        int tuse2 = nwCountTotalCommands(update.Message.From.Username);
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Since inception on Feb 15 2016, this bot has processed " + Convert.ToString(tuse) + " total commands." + Environment.NewLine + "You have personally sent the bot " + Convert.ToString(tuse2) + " total commands.";
+                                        //int tuse = nwCountTotalCommands("total");
+                                        //int tuse2 = nwCountTotalCommands(update.Message.From.Username);
+                                        //if (nwCheckInReplyTimer(dt) != false)
+                                        //    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Since inception on Feb 15 2016, this bot has processed " + Convert.ToString(tuse) + " total commands." + Environment.NewLine + "You have personally sent the bot " + Convert.ToString(tuse2) + " total commands.";
                                         break;
                                     default:
                                         if (nwCheckInReplyTimer(dt) != false)
@@ -4493,9 +4498,9 @@ namespace nwTelegramBot
                     }
 
                     // Add to total command use
-                    nwSetTotalCommandUsage("global");
+                    //nwSetTotalCommandUsage("global");
                     // Add to total command use for a given user
-                    nwSetTotalCommandUsage(update.Message.From.Username);
+                    //nwSetTotalCommandUsage(update.Message.From.Username);
 
                     // Output
                     replyText += stringBuilder.ToString();
@@ -4734,28 +4739,28 @@ namespace nwTelegramBot
             return luckyUrl;
         }
 
-        private static void nwWriteORToDB(string username, string body)
-        {
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+        //private static void nwWriteORToDB(string username, string body)
+        //{
+        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //    MySqlConnection conn = new MySqlConnection(connStr);
 
-            try
-            {
-                Console.WriteLine("Connecting to MySQL...");
-                conn.Open();
+        //    try
+        //    {
+        //        Console.WriteLine("Connecting to MySQL...");
+        //        conn.Open();
 
-                string sql = "INSERT INTO tbl_oo (username, reason) VALUES ('" + username + "', '" + body + "')";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+        //        string sql = "INSERT INTO tbl_oo (username, reason) VALUES ('" + username + "', '" + body + "')";
+        //        MySqlCommand cmd = new MySqlCommand(sql, conn);
+        //        cmd.ExecuteNonQuery();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //    }
 
-            conn.Close();
-            Console.WriteLine("Done.");
-        }
+        //    conn.Close();
+        //    Console.WriteLine("Done.");
+        //}
 
         private static void nwSendEmail(string username,string reason)
         {
@@ -4787,131 +4792,131 @@ namespace nwTelegramBot
 
         private static void nwSetBio(string username,string bio)
         {
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+            //string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            //MySqlConnection conn = new MySqlConnection(connStr);
 
-            try
-            {
-                Console.WriteLine("Connecting to MySQL...");
-                conn.Open();
+            //try
+            //{
+            //    Console.WriteLine("Connecting to MySQL...");
+            //    conn.Open();
 
-                MySqlCommand chkUser = new MySqlCommand("SELECT * FROM tbl_bio WHERE (username = @user)", conn);
-                chkUser.Parameters.AddWithValue("@user", username);
-                MySqlDataReader reader = chkUser.ExecuteReader();
+            //    MySqlCommand chkUser = new MySqlCommand("SELECT * FROM tbl_bio WHERE (username = @user)", conn);
+            //    chkUser.Parameters.AddWithValue("@user", username);
+            //    MySqlDataReader reader = chkUser.ExecuteReader();
 
-                if (reader.HasRows)
-                {
-                    nwUpdateBio(username, bio);
-                }
-                else
-                {
-                    //User NOT Exists
-                    nwInsertBio(username, bio);
+            //    if (reader.HasRows)
+            //    {
+            //        nwUpdateBio(username, bio);
+            //    }
+            //    else
+            //    {
+            //        //User NOT Exists
+            //        nwInsertBio(username, bio);
 
-                }
+            //    }
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine(ex.ToString());
+            //}
 
-            conn.Close();
+            //conn.Close();
             Console.WriteLine("Done.");
         }
 
         private static void nwUpdateBio(string username, string bio)
         {
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+            //string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            //MySqlConnection conn = new MySqlConnection(connStr);
 
-            try
-            {
-                nwPrintSystemMessage("System: Connecting to MySQL...");
-                conn.Open();
+            //try
+            //{
+            //    nwPrintSystemMessage("System: Connecting to MySQL...");
+            //    conn.Open();
 
-                string sql = "UPDATE tbl_bio SET bio='" + bio + "' WHERE username='" + username + "';";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.ExecuteNonQuery();
+            //    string sql = "UPDATE tbl_bio SET bio='" + bio + "' WHERE username='" + username + "';";
+            //    MySqlCommand cmd = new MySqlCommand(sql, conn);
+            //    cmd.ExecuteNonQuery();
 
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine(ex.ToString());
+            //}
 
-            conn.Close();
+            //conn.Close();
             Console.WriteLine("Done.");
         }
 
         private static void nwInsertBio(string username, string bio)
         {
 
-            string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-            MySqlConnection conn = new MySqlConnection(connStr);
+            //string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+            //MySqlConnection conn = new MySqlConnection(connStr);
 
-            try
-            {
+            //try
+            //{
 
-                nwPrintSystemMessage("System: Connecting to MySQL...");
-                conn.Open();
+            //    nwPrintSystemMessage("System: Connecting to MySQL...");
+            //    conn.Open();
 
-                string sql = "INSERT INTO tbl_bio (username, bio) VALUES ('" + username + "', '" + bio + "')";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.ExecuteNonQuery();
+            //    string sql = "INSERT INTO tbl_bio (username, bio) VALUES ('" + username + "', '" + bio + "')";
+            //    MySqlCommand cmd = new MySqlCommand(sql, conn);
+            //    cmd.ExecuteNonQuery();
 
-            }
-            catch (Exception ex)
-            {
+            //}
+            //catch (Exception ex)
+            //{
 
-                Console.WriteLine(ex.ToString());
+            //    Console.WriteLine(ex.ToString());
 
-            }
+            //}
 
-            conn.Close();
+            //conn.Close();
             Console.WriteLine("Done.");
 
         }
 
-        private static string nwShowBio(string username)
-        {
-            string conn = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
+        //private static string nwShowBio(string username)
+        //{
+        //    string conn = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
 
-            MySqlConnection msc = new MySqlConnection(conn);
+        //    MySqlConnection msc = new MySqlConnection(conn);
 
-            try
-            {
-                string str="";
-                Console.WriteLine("Connecting to MySQL...");
-                msc.Open();
+        //    try
+        //    {
+        //        string str="";
+        //        Console.WriteLine("Connecting to MySQL...");
+        //        msc.Open();
 
-                string sql = "SELECT bio FROM tbl_bio WHERE username='" + username + "'";
-                MySqlCommand cmd = new MySqlCommand(sql, msc);
-                MySqlDataReader rdr = cmd.ExecuteReader();
+        //        string sql = "SELECT bio FROM tbl_bio WHERE username='" + username + "'";
+        //        MySqlCommand cmd = new MySqlCommand(sql, msc);
+        //        MySqlDataReader rdr = cmd.ExecuteReader();
 
-                while (rdr.Read())
-                {
-                    str= Convert.ToString(rdr[0]);
-                    Console.WriteLine(str);
-                }
+        //        while (rdr.Read())
+        //        {
+        //            str= Convert.ToString(rdr[0]);
+        //            Console.WriteLine(str);
+        //        }
 
-                rdr.Close();
+        //        rdr.Close();
 
-                return "@" + username + ": " + str;
+        //        return "@" + username + ": " + str;
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-                return "";
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //        return "";
+        //    }
 
-            //msc.Close();
+        //    //msc.Close();
 
-            //Console.WriteLine("Done.");
+        //    //Console.WriteLine("Done.");
             
-        }
+        //}
 
         #endregion
 

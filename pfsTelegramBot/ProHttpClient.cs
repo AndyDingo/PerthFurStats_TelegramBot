@@ -1,5 +1,5 @@
 ﻿/* 
- * All contents copyright 2016-2017, Andy Dingo and Contributors
+ * All contents copyright 2016-2018, Andy Dingo and Contributors
  * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
  * Please read docs/gpl.txt for licensing information.
  * ---------------------------------------------------------------
