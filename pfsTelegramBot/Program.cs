@@ -7328,7 +7328,20 @@ namespace nwTelegramBot
             request.Accept = "text/html, application/xhtml+xml, */*";
             request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko";
 
-            var response = (HttpWebResponse)request.GetResponse();
+            HttpWebResponse response = null;
+            HttpStatusCode statusCode;
+
+            try
+            {
+                response = (HttpWebResponse)request.GetResponse();
+            }
+            catch (WebException we)
+            {
+                response = (HttpWebResponse)we.Response;
+            }
+
+            statusCode = response.StatusCode;
+            Console.WriteLine("[Debug] * System: Http Response Code: " + (int)statusCode + " - " + statusCode.ToString());
 
             if (response.StatusCode == HttpStatusCode.BadRequest)
                 goto meow;
@@ -7474,14 +7487,14 @@ namespace nwTelegramBot
 
             nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: CHECK IN REPLY EVENT TRIGGERED.");
 
-            if (span.Minutes <= 2 || span.Minutes == 0)
+            if (span.TotalMinutes <= 2 /*|| span.Minutes == 0*/)
             {
-                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: LESS THAN OR EQUAL TO 2 MINUTES, PROCEED.");
+                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: LESS THAN OR EQUAL TO 2 MINUTES, PROCEED." + span.Hours.ToString() + " Hours, " + span.Minutes.ToString() + " Minutes, " + span.Seconds.ToString() + " Seconds since last command.");
                 return true;
             }
             else
             {
-                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: NOT LESS THAN OR EQUAL TO 2 MINUTES, DO NOT PROCEED. [" + span.Minutes + "]");
+                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: NOT LESS THAN OR EQUAL TO 2 MINUTES, DO NOT PROCEED. [" + span.Hours.ToString() + " H " + span.Minutes.ToString() + " M " + span.Seconds.ToString() + " S." + "]");
                 return false;
             }
         }
