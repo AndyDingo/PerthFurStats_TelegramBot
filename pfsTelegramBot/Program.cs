@@ -22,15 +22,14 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using Telegram.Bot;
-using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using ehoh = System.IO;
 using File = System.IO.File;
 using System.Data;
-//using MySql.Data;
-//using MySql.Data.MySqlClient;
 using System.Net.Mail;
+using Telegram.Bot.Args;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace nwTelegramBot
 {
@@ -46,6 +45,7 @@ namespace nwTelegramBot
         public static string s_ucfgfile = Environment.CurrentDirectory + @"\pfsPermConfig.cfg"; // User perm config
         public static string s_offsetcfg = Environment.CurrentDirectory + @"\data\offset.xml"; // User config
         public static string s_commandcfg = Environment.CurrentDirectory + @"\data\commandlist.xml"; // User config
+        private static readonly TelegramBotClient Bot = new TelegramBotClient(nwGrabString("botapitoken")); // Don't hard-code this.
         #endregion
 
         /// <summary>
@@ -54,60 +54,41 @@ namespace nwTelegramBot
         /// <param name="args"></param>
         static void Main(string[] args)
         {
+
+            var me = Bot.GetMeAsync().Result;
             Console.Title = "Anwen's Telegram Group Command Bot";
 
-            try
-            {
-                DateTime dt = new DateTime(2016, 2, 2);
-                dt = DateTime.Now;
+            DateTime dt = new DateTime(2016, 2, 2);
+            dt = DateTime.Now;
 
-                bool isAvailable = System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
+            // Do the title
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("-----------------------------------------------------------------");
+            Console.WriteLine("-------------- Anwen's Telegram Group Command Bot ---------------");
+            Console.WriteLine("-----------------------------------------------------------------");
+            Console.ForegroundColor = ConsoleColor.White;
 
-                // Do the title
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("-----------------------------------------------------------------");
-                Console.WriteLine("-------------- Anwen's Telegram Group Command Bot ---------------");
-                Console.WriteLine("-----------------------------------------------------------------");
-                Console.ForegroundColor = ConsoleColor.White;
+            // Events
+            Bot.OnMessage += BotOnMessageReceived;
+            Bot.OnMessageEdited += BotOnMessageReceived;
+            Bot.OnCallbackQuery += BotOnCallbackQueryReceived;
+            Bot.OnInlineQuery += BotOnInlineQueryReceived;
+            Bot.OnInlineResultChosen += BotOnChosenInlineResultReceived;
+            Bot.OnReceiveError += BotOnReceiveError;
 
-                // Do the initial starting routine, populate our settings file if it doesn't exist.
-                nwInitialStuff(dt);
+            // Do the initial starting routine, populate our settings file if it doesn't exist.
+            nwInitialStuff(dt);
 
-                Console.WriteLine(); // blank line
+            Console.WriteLine(); // blank line
 
-                // Network available?
-                if (isAvailable == true)
-                    Run().Wait(-1);
-                else
-                {
-                    Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: No valid Internet Connection detected.");
-                    Environment.Exit(0);
-                }
-            }
-            catch (TaskCanceledException ex)
-            {
-                nwErrorCatcher(ex);
-            }
-            catch (NullReferenceException ex)
-            {
-                nwErrorCatcher(ex);
-            }
-            catch (ApiRequestException ex)
-            {
-                nwErrorCatcher(ex);
-            }
-            catch (XmlException ex)
-            {
-                nwErrorCatcher(ex);
-            }
-            catch (AggregateException ex)
-            {
-                nwErrorCatcher(ex);
-            }
-            catch (Exception ex)
-            {
-                nwErrorCatcher(ex);
-            }
+            Bot.StartReceiving(Array.Empty<UpdateType>());
+            nwSystemCCWrite(dt.ToString(nwParseFormat(false)), $"Start listening for @{me.Username}");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("-----------------------------------------------------------------");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.ReadLine();
+            Bot.StopReceiving();
+
         }
 
         #region -= Initial routines =-
@@ -122,26 +103,28 @@ namespace nwTelegramBot
             {
                 string str_ups;
 
-                Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: Loading configuration...");
+                nwSystemCCWrite(dt.ToString(nwParseFormat(false)), "Loading configuration...");
 
                 // Work item 01. Create our XML document if it doesn't exist
-                if (File.Exists(s_cfgfile) != true)
-                    nwCreateSettings();
+                //if (File.Exists(s_cfgfile) != true)
+                //    nwCreateSettings();
 
                 // Populate the strings
                 str_ups = nwGrabString("updatesite"); //update site
 
                 Console.WriteLine(); // blank line
 
-                Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: Using configuration file: " + s_cfgfile);
-                Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: Logging to file: " + Environment.CurrentDirectory + @"\logs_tg\<this chatroom id>." + dt.ToString(nwGrabString("dateformat")) + ".log");
-                Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: Finished loading configuration...");
+                nwSystemCCWrite(dt.ToString(nwParseFormat(false)), "Using configuration file: " + s_cfgfile);
+                nwSystemCCWrite(dt.ToString(nwParseFormat(false)), "Logging to file: " + Environment.CurrentDirectory + @"\logs\<this chatroom id>." + dt.ToString(nwGrabString("dateformat")) + ".log");
+                nwSystemCCWrite(dt.ToString(nwParseFormat(false)), "Finished loading configuration...");
 
                 Console.WriteLine(); // blank line
 
-                Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: Checking for update...");
+                nwSystemCCWrite(dt.ToString(nwParseFormat(false)), "Checking for update...");
 
-                //nwDoUpdateCheck(dt, str_ups); // Do our update check.
+                nwSystemCCWrite(dt.ToString(nwParseFormat(false)), "Finished checking for update...");
+
+                nwDoUpdateCheck(dt, str_ups); // Do our update check.
             }
             catch (Exception ex)
             {
@@ -496,685 +479,2512 @@ namespace nwTelegramBot
 
         #endregion
 
-        /// <summary>
-        /// This is what we use to grab the logs from the server and download them into a readable format.
-        /// </summary>
-        /// <returns>Doesn't actually return much other than a HTTP status code.</returns>
-        static async Task Run()
+        ///// <summary>
+        ///// This is what we use to grab the logs from the server and download them into a readable format.
+        ///// </summary>
+        ///// <returns>Doesn't actually return much other than a HTTP status code.</returns>
+        //static async Task Run()
+        //{
+        //    var Bot = new TelegramBotClient("170729696:AAGYA8FPN4RkquTRrY-teqrn-J9YdnZX22k"); // Api key, please generate your own, don't use mine.
+
+        //    var me = await Bot.GetMeAsync();
+
+        //    Bot.PollingTimeout = TimeSpan.FromDays(1);
+        //    Bot.UploadTimeout = TimeSpan.FromMinutes(5);
+
+        //    Console.ForegroundColor = ConsoleColor.Cyan;
+        //    Console.WriteLine("-----------------------------------------------------------------");
+        //    Console.WriteLine("Hello my name is {0}, I'm a bot for Telegram.", me.Username);
+        //    Console.WriteLine("-----------------------------------------------------------------");
+        //    Console.ForegroundColor = ConsoleColor.Green;
+
+        //    Bot.OnMessage += BotOnMessageReceived;
+        //    Bot.OnMessageEdited += BotOnMessageReceived;
+        //    Bot.OnCallbackQuery += BotOnCallbackQueryReceived;
+        //    Bot.OnInlineQuery += BotOnInlineQueryReceived;
+        //    Bot.OnInlineResultChosen += BotOnChosenInlineResultReceived;
+        //    Bot.OnReceiveError += BotOnReceiveError;
+
+
+        //    int offset = 0; // status offset
+        //    offset = nwGrabOffset();
+
+        //    while (true)
+        //    {
+        //        Update[] updates;
+        //        updates = await Bot.GetUpdatesAsync(offset); // get updates
+        //        //updates = await Bot.GetUpdatesAsync(); // get updates
+
+        //        // For each update in the list
+        //        foreach (Update update in updates)
+        //        {
+                    
+        //            switch (update.Type)
+        //            {
+        //                case UpdateType.MessageUpdate:
+
+        //                    Telegram.Bot.Types.Message message = update.Message;
+        //                    long n_chanid = update.Message.Chat.Id;
+        //                    DateTime m = update.Message.Date.ToLocalTime();
+
+        //                    //remove unsightly characters from first names.
+        //                    string s_mffn = update.Message.From.FirstName;
+        //                    s_mffn = Regex.Replace(s_mffn, @"[^\u0000-\u007F]", string.Empty);
+
+        //                    if (s_mffn.Contains(" ") == true)
+        //                        s_mffn.Replace(" ", string.Empty);
+
+        //                    // variable for username, if blank, use firstname.
+        //                    string s_mfun = update.Message.From.Username;
+
+        //                    if (s_mfun == " " || s_mfun == string.Empty)
+        //                        s_mfun = s_mffn;
+
+
+
+        //                    // Do stuff if we are a text message
+        //                    switch (message.Type)
+        //                    {
+
+        //                        case MessageType.ContactMessage:
+
+        //                            using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                            {
+        //                                if (nwGrabString("debugmode") == "true")
+        //                                    Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + update.Message.Contact.FirstName);
+        //                                else
+        //                                    Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + update.Message.Contact.FirstName);
+        //                                await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + update.Message.Contact.FirstName);
+        //                            }
+
+        //                            if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+        //                            {
+        //                                using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id.ToString() + ".csv", true))
+        //                                {
+        //                                    await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Contact information sharing of " + update.Message.Contact.FirstName);
+        //                                }
+        //                            }
+
+        //                                break;
+
+        //                        case MessageType.DocumentMessage:
+
+        //                            using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                            {
+        //                                if (nwGrabString("debugmode") == "true")
+        //                                    Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + update.Message.Document.MimeType);
+        //                                else
+        //                                    Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + update.Message.Document.MimeType);
+        //                                await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + update.Message.Document.MimeType);
+        //                            }
+
+        //                            if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+        //                            {
+        //                                using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
+        //                                {
+        //                                    await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Document sharing of type " + update.Message.Document.MimeType);
+        //                                }
+        //                            }
+
+        //                            break;
+
+        //                        case MessageType.TextMessage:
+                                    
+        //                            string umt = update.Message.Text;
+
+        //                            if (String.IsNullOrWhiteSpace(umt) == true)
+        //                            {
+
+        //                                //If we have set the bot to be able to respond to our basic commands
+        //                                if (nwGrabString("botresponds") == "true" && (umt.StartsWith("!") == true))
+        //                                {
+
+        //                                    await nwProcessCommands(Bot, update, me, m);
+
+        //                                }
+
+        //                                //If we have set the bot to be able to respond to our basic commands
+        //                                //if (nwGrabString("botresponds") == "true" && (umt.StartsWith("/") == true))
+        //                                //{
+
+        //                                //    //nwProcessSlashCommands(Bot, update, me, m).Wait(-1);
+
+        //                                //}
+
+        //                            }
+
+        //                            #region Animal Noises
+
+        //                            if (Regex.IsMatch(umt, @"\bmow\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bmew\b", RegexOptions.IgnoreCase) == true || umt.Contains("mrew") == true || umt.Contains("mjau") == true || umt.Contains("maow") == true || umt.Contains("meow") == true)
+        //                            {
+
+        //                                //int n_cat = nwCountCatNoises();
+        //                                //nwSetCatNoiseCount(update.Message.From.Username);
+
+        //                                if (nwGrabString("debugmode") == "true")
+        //                                    nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has mowed, increase mow count.");
+
+        //                            }
+
+        //                            if (Regex.IsMatch(umt, @"\baroo\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bawoo\b", RegexOptions.IgnoreCase) == true || umt.Contains("aruu") == true || umt.Contains("awuu") == true || umt.Contains("bark") == true || umt.Contains("bork") == true)
+        //                            {
+
+        //                                //int n_dog = nwCountDogNoises();
+        //                                //nwSetDogNoiseCount(update.Message.From.Username);
+
+        //                                if (nwGrabString("debugmode") == "true")
+        //                                    nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
+
+        //                            }
+
+        //                            if (Regex.IsMatch(umt, @"\bskree\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\brawr\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bsqueak\b", RegexOptions.IgnoreCase) == true)
+        //                            {
+
+        //                                //int n_dog = nwCountDogNoises();
+        //                                //nwSetDragonNoiseCount(update.Message.From.Username);
+
+        //                                if (nwGrabString("debugmode") == "true")
+        //                                    nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has made dragon noises, increase dragon noise count.");
+
+        //                            }
+
+        //                            #endregion
+
+        //                            // If we have easter eggs enabled.
+        //                            if (nwGrabString("eastereggs") == "true")
+        //                            {
+
+        //                                string uname = "";
+        //                                if (String.IsNullOrWhiteSpace(umt) != true)
+        //                                    Console.WriteLine("NOT true");
+
+
+        //                                if (Regex.IsMatch(umt, @"\b" + update.Message.From.Username + "\b", RegexOptions.IgnoreCase) == true || umt.Contains(update.Message.From.Username))
+        //                                {
+
+        //                                    Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                                    if (nwCheckInReplyTimer(m) != false)
+        //                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "Narcissist Alert! :P", false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                if (Regex.IsMatch(umt, @"\bboobs\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\btits\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                                    if (nwCheckInReplyTimer(m) != false)
+        //                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "(  .  Y  .  )", false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                if (Regex.IsMatch(umt, @"\bping\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                                    if (nwCheckInReplyTimer(m) != false)
+        //                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "pong", false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                if (Regex.IsMatch(umt, @"\bmarco\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                                    if (nwCheckInReplyTimer(m) != false)
+        //                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "polo", false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                if (Regex.IsMatch(umt, @"\bwat\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                                    if (nwCheckInReplyTimer(m) != false)
+        //                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "65 Wat", false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                if (Regex.IsMatch(umt, @"\bharambe\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    string ret = null;
+
+        //                                    ret = nwGenRandomPhrase();
+
+        //                                    if (nwCheckInReplyTimer(m) != false)
+        //                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, ret, false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                if (Regex.IsMatch(umt, @"\bAm I ever gonna see your face again\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                                    if (nwCheckInReplyTimer(m) != false)
+        //                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "https://www.youtube.com/watch?v=i_py6WbMV1k", false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                if (Regex.IsMatch(umt, @"\bblake De Bruyn\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bblake DeBruyn\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    string ret = null;
+
+        //                                    ret = nwGenRandomPhrase2();
+
+        //                                    if (nwCheckInReplyTimer(m) != false)
+        //                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, ret, false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                if (Regex.IsMatch(umt, @"\bneko\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                                    if (nwCheckInReplyTimer(m) != false)
+        //                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "Aww, so cute", false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                if (Regex.IsMatch(umt, @"\bkawaii desu\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bkawaii\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                                    if (nwCheckInReplyTimer(m) != false)
+        //                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "Sugoi!", false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                if (Regex.IsMatch(umt, @"\bdat boi\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                                    if (nwCheckInReplyTimer(m) != false)
+        //                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "OH SHIT WHADDUP", false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                if (Regex.IsMatch(umt, @"\bhalal snack pack\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                                    if (nwCheckInReplyTimer(m) != false)
+        //                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "Best thing ever invented.", false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                if (Regex.IsMatch(umt, @"\bleaving the fandom\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bquitting the fandom\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                                    if (nwCheckInReplyTimer(m) != false)
+        //                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "https://www.youtube.com/watch?v=HhI3zf0Pgf4", false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                // if message contains skynet
+        //                                if (Regex.IsMatch(update.Message.Text, @"\bskynet\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(update.Message.Text, @"\bcyberdyne\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    Bot.SendTextMessageAsync(update.Message.Chat.Id, "https://www.youtube.com/watch?v=XcNXq5DUZnk", false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                // if message contains eeyup
+        //                                if (Regex.IsMatch(update.Message.Text, @"\beeyup\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    string s_rande = null;
+
+        //                                    s_rande = nwGenRandomSuffix();
+
+        //                                    Bot.SendTextMessageAsync(update.Message.Chat.Id, "Eeyup" + s_rande, false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                // if message contains eeyup
+        //                                if (Regex.IsMatch(update.Message.Text, @"\btrigger\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    Bot.SendTextMessageAsync(update.Message.Chat.Id, "Go back to tumblr with your 'triggers' and 'microaggressions'.", false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                // If message contains OWO
+        //                                if (Regex.IsMatch(update.Message.Text, @"\bowo\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(update.Message.Text, @"\buwu\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                                    if (nwCheckInReplyTimer(m) != false)
+        //                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, "What's this?", false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                                // If message contains buttstripe
+        //                                if (Regex.IsMatch(update.Message.Text, @"\bbuttstripe\b", RegexOptions.IgnoreCase) == true)
+        //                                {
+
+        //                                    Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                                    if (nwCheckInReplyTimer(m) != false)
+        //                                        Bot.SendTextMessageAsync(update.Message.Chat.Id, ">:|", false, false, update.Message.MessageId);
+
+        //                                }
+
+        //                            }
+
+        //                            if (nwGrabString("botresponds") == "false" && (umt.StartsWith("/") == true || umt.StartsWith("!") == true))
+        //                            {
+        //                                if (nwGrabString("debugMode") == "true")
+        //                                    nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has attempted to use a command, but they were disabled.");
+        //                                else
+        //                                    nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has attempted to use a command, but they were disabled, along with debug mode.");
+        //                            }
+
+        //                            using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                            {
+        //                                if (nwGrabString("debugmode") == "true")
+        //                                    Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_mffn + "> " + update.Message.Text);
+        //                                else
+        //                                    Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_mffn + "> " + update.Message.Text);
+        //                                await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_mffn + "> " + update.Message.Text);
+        //                            }
+
+        //                            if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+        //                            {
+        //                                using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
+        //                                {
+        //                                    await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + update.Message.Text);
+        //                                }
+        //                            }
+
+        //                            break;
+
+        //                        case MessageType.UnknownMessage: // UNKNOWN MESSAGES.
+        //                            // TODO: Work out what to actually flocking do with them.
+
+        //                            using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                            {
+        //                                if (nwGrabString("debugmode") == "true")
+        //                                    Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * System: Unknown, please report");
+        //                                else
+        //                                    nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: Unknown, please report");
+
+        //                                await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: Unknown, please report");
+        //                            }
+
+        //                            if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+        //                            {
+        //                                using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
+        //                                {
+        //                                    await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Unknown message");
+        //                                }
+        //                            }
+
+        //                            break;
+
+        //                        case MessageType.ServiceMessage: // Service messages (user leaves or joins)
+
+        //                            using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                            {
+        //                                nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* System: A user (" + s_mffn + ") has joined or left the group.");
+
+        //                                await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has joined or left the group!");
+        //                            }
+
+        //                            if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+        //                            {
+        //                                using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
+        //                                {
+        //                                    await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "System message");
+        //                                }
+        //                            }
+
+        //                            break;
+
+        //                        case MessageType.LocationMessage: // Venue messages. Added in API v2.0
+        //                                                       // TODO: IMPLEMENT PROPERLY
+
+        //                            using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                            {
+        //                                if (nwGrabString("debugmode") == "true")
+        //                                    nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " posted about a location.");
+        //                                else
+        //                                    nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " posted about a location.");
+
+        //                                await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted about a location.");
+        //                            }
+
+        //                            if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+        //                            {
+        //                                using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
+        //                                {
+        //                                    await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Location message");
+        //                                }
+        //                            }
+
+        //                            break;
+
+        //                        case MessageType.VenueMessage: // Venue messages. Added in API v2.0
+        //                        // TODO: IMPLEMENT PROPERLY
+
+        //                            using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                            {
+        //                                if (nwGrabString("debugmode") == "true")
+        //                                    nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " posted about a venue on Foursquare.");
+        //                                else
+        //                                    nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " posted about a venue on Foursquare.");
+
+        //                                await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted about a venue on Foursquare.");
+        //                            }
+
+        //                            if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+        //                            {
+        //                                using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
+        //                                {
+        //                                    await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Venue message");
+        //                                }
+        //                            }
+
+        //                            break;
+                                
+        //                        case MessageType.StickerMessage: // Do stuff if we are a sticker message
+
+        //                            if (update.Message.Sticker.Emoji == "😺")
+        //                            {
+        //                                //nwSetCatNoiseCount(update.Message.From.Username);
+
+        //                                if (nwGrabString("debugmode") == "true")
+        //                                    nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has mowed, increase mow count.");
+        //                            }
+
+        //                            if (update.Message.Sticker.Emoji == "🐺")
+        //                            {
+        //                                //nwSetDogNoiseCount(update.Message.From.Username);
+
+        //                                if (nwGrabString("debugmode") == "true")
+        //                                    nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
+        //                            }
+
+        //                            if (update.Message.Sticker.Emoji == "🐲")
+        //                            {
+        //                                //nwSetDragonNoiseCount(update.Message.From.Username);
+
+        //                                if (nwGrabString("debugmode") == "true")
+        //                                    nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has done a dragon call, increase squeak count.");
+        //                            }
+
+
+        //                            using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                            {
+        //                                // download the emoji for the image, if there is one. Added in May API update.
+        //                                string s = update.Message.Sticker.Emoji;
+
+        //                                if (nwGrabString("debugmode") == "true")
+        //                                    Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
+        //                                else
+        //                                    Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
+
+        //                                await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
+
+        //                            }
+
+        //                            if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+        //                            {
+        //                                using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
+        //                                {
+        //                                    // download the emoji for the image, if there is one. Added in May API update.
+        //                                    string s = update.Message.Sticker.Emoji;
+
+        //                                    await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Sticker message (" + s + ")");
+        //                                }
+        //                            }
+
+        //                            break;
+                                
+        //                        case MessageType.VoiceMessage: // Do stuff if we are a voice message
+
+        //                            m = update.Message.Date.ToLocalTime();
+
+        //                            using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                            {
+        //                                if (nwGrabString("debugmode") == "true")
+        //                                    Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a voice message.");
+        //                                else
+        //                                    nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a voice message.");
+        //                                await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a voice message.");
+        //                            }
+
+        //                            if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+        //                            {
+        //                                using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
+        //                                {
+        //                                    await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Voice message");
+        //                                }
+        //                            }
+
+        //                            break;
+
+        //                        case MessageType.VideoMessage:
+
+        //                            m = update.Message.Date.ToLocalTime();
+
+        //                            using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                            {
+        //                                if (nwGrabString("debugmode") == "true")
+        //                                    Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a video message.");
+        //                                else
+        //                                    nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a video message.");
+        //                                await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a video message.");
+        //                            }
+
+        //                            if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+        //                            {
+        //                                using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
+        //                                {
+        //                                    await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Video message");
+        //                                }
+        //                            }
+
+        //                            break;
+                                    
+        //                        case MessageType.PhotoMessage: // Do stuff if we are a photo message
+
+        //                            m = update.Message.Date.ToLocalTime(); // Get date/time
+
+        //                            //write following to file stream.
+        //                            using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                            {
+        //                                // download the caption for the image, if there is one.
+        //                                string s = update.Message.Caption;
+
+        //                                // check to see if the caption string is empty or not
+        //                                if (s == string.Empty || s == null || s == "" || s == "/n")
+        //                                {
+        //                                    if (nwGrabString("debugmode") == "true")
+        //                                        Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a photo with no caption.");
+        //                                    else
+        //                                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a photo with no caption.");
+        //                                    await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a photo with no caption.");
+        //                                }
+        //                                else
+        //                                {
+        //                                    if (nwGrabString("debugmode") == "true")
+        //                                        Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a photo with the caption '" + s + "'.");
+        //                                    else
+        //                                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a photo with the caption '" + s + "'.");
+        //                                    await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a photo with the caption '" + s + "'.");
+        //                                }
+        //                            }
+
+        //                            if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+        //                            {
+        //                                using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
+        //                                {
+        //                                    await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Photo message");
+        //                                }
+        //                            }
+
+        //                            break;
+                                    
+        //                        case MessageType.AudioMessage: // Do stuff if we are an audio message
+
+        //                            m = update.Message.Date.ToLocalTime();
+
+        //                            using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                            {
+        //                                if (nwGrabString("debugmode") == "true")
+        //                                    Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted an audio message.");
+        //                                else
+        //                                    nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted an audio message.");
+        //                                await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted an audio message.");
+        //                            }
+
+        //                            if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+        //                            {
+        //                                using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
+        //                                {
+        //                                    await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Audio message");
+        //                                }
+        //                            }
+
+        //                            break;
+
+        //                        default:
+
+        //                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: Find out how we got to this point.");
+        //                            break;
+                                    
+        //                    }
+
+        //                    offset = update.Id + 1; // do not touch.
+        //                    nwSetOffset(offset.ToString());
+
+        //                    break;
+        //                case UpdateType.InlineQueryUpdate:
+
+        //                    DateTime m2 = update.Message.Date.ToLocalTime();
+
+        //                    nwPrintSystemMessage("[" + m2.ToString(nwParseFormat(true)) + "] * System: User tried an Inline query.");
+
+        //                    break;
+        //                default:
+        //                    //nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: Find out how we got to this point.");
+        //                    break;
+        //            }
+                    
+        //        }
+
+        //    }
+
+        //}
+
+        private static void BotOnChosenInlineResultReceived(object sender, ChosenInlineResultEventArgs e)
         {
-            var Bot = new TelegramBotClient("170729696:AAGYA8FPN4RkquTRrY-teqrn-J9YdnZX22k"); // Api key, please generate your own, don't use mine.
+            throw new NotImplementedException();
+        }
 
-            var me = await Bot.GetMeAsync();
+        private static void BotOnInlineQueryReceived(object sender, InlineQueryEventArgs e)
+        {
+            Console.WriteLine($"Received inline query from: {e.InlineQuery.From.Id}");
+        }
 
-            Bot.PollingTimeout = TimeSpan.FromDays(1);
-            Bot.UploadTimeout = TimeSpan.FromMinutes(5);
+        private static async void BotOnCallbackQueryReceived(object sender, CallbackQueryEventArgs e)
+        {
+            var callbackQuery = e.CallbackQuery;
 
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("-----------------------------------------------------------------");
-            Console.WriteLine("Hello my name is {0}, I'm a bot for Telegram.", me.Username);
-            Console.WriteLine("-----------------------------------------------------------------");
-            Console.ForegroundColor = ConsoleColor.Green;
+            DateTime dt = new DateTime(2016, 2, 2);
+            dt = DateTime.Now;
 
-
-            int offset = 0; // status offset
-            offset = nwGrabOffset();
-
-            while (true)
+            if (callbackQuery.Data == "Yes" && nwCheckInReplyTimer(dt) != false)
             {
-                Update[] updates;
-                updates = await Bot.GetUpdatesAsync(offset); // get updates
-                //updates = await Bot.GetUpdatesAsync(); // get updates
 
-                // For each update in the list
-                foreach (Update update in updates)
+                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + callbackQuery.Message.Chat.Id + " > " + "Well, here you go! *gives you a jelly baby*");
+
+                await Bot.AnswerCallbackQueryAsync(callbackQuery.Id, "Well, here you go! *gives you a jelly baby*");
+
+                await Bot.SendTextMessageAsync(callbackQuery.Message.Chat.Id, "Well, here you go! *gives you a jelly baby*");
+
+                using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + callbackQuery.Message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
                 {
-                    
-                    switch (update.Type)
-                    {
-                        case UpdateType.MessageUpdate:
-
-                            Telegram.Bot.Types.Message message = update.Message;
-                            long n_chanid = update.Message.Chat.Id;
-                            DateTime m = update.Message.Date.ToLocalTime();
-
-                            //remove unsightly characters from first names.
-                            string s_mffn = update.Message.From.FirstName;
-                            s_mffn = Regex.Replace(s_mffn, @"[^\u0000-\u007F]", string.Empty);
-
-                            if (s_mffn.Contains(" ") == true)
-                                s_mffn.Replace(" ", string.Empty);
-
-                            // variable for username, if blank, use firstname.
-                            string s_mfun = update.Message.From.Username;
-
-                            if (s_mfun == " " || s_mfun == string.Empty)
-                                s_mfun = s_mffn;
-
-
-
-                            // Do stuff if we are a text message
-                            switch (message.Type)
-                            {
-
-                                case MessageType.ContactMessage:
-
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                                    {
-                                        if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + update.Message.Contact.FirstName);
-                                        else
-                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + update.Message.Contact.FirstName);
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + update.Message.Contact.FirstName);
-                                    }
-
-                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
-                                    {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id.ToString() + ".csv", true))
-                                        {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Contact information sharing of " + update.Message.Contact.FirstName);
-                                        }
-                                    }
-
-                                        break;
-
-                                case MessageType.DocumentMessage:
-
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                                    {
-                                        if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + update.Message.Document.MimeType);
-                                        else
-                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + update.Message.Document.MimeType);
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + update.Message.Document.MimeType);
-                                    }
-
-                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
-                                    {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
-                                        {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Document sharing of type " + update.Message.Document.MimeType);
-                                        }
-                                    }
-
-                                    break;
-
-                                case MessageType.TextMessage:
-                                    
-                                    string umt = update.Message.Text;
-
-                                    if (String.IsNullOrWhiteSpace(umt) == false)
-                                    {
-
-                                        //If we have set the bot to be able to respond to our basic commands
-                                        if (nwGrabString("botresponds") == "true" && (umt.StartsWith("!") == true))
-                                        {
-
-                                            await nwProcessCommands(Bot, update, me, m);
-
-                                        }
-
-                                        //If we have set the bot to be able to respond to our basic commands
-                                        //if (nwGrabString("botresponds") == "true" && (umt.StartsWith("/") == true))
-                                        //{
-
-                                        //    //nwProcessSlashCommands(Bot, update, me, m).Wait(-1);
-
-                                        //}
-
-                                    }
-
-                                    #region Animal Noises
-
-                                    if (Regex.IsMatch(umt, @"\bmow\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bmew\b", RegexOptions.IgnoreCase) == true || umt.Contains("mrew") == true || umt.Contains("mjau") == true || umt.Contains("maow") == true || umt.Contains("meow") == true)
-                                    {
-
-                                        //int n_cat = nwCountCatNoises();
-                                        //nwSetCatNoiseCount(update.Message.From.Username);
-
-                                        if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has mowed, increase mow count.");
-
-                                    }
-
-                                    if (Regex.IsMatch(umt, @"\baroo\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bawoo\b", RegexOptions.IgnoreCase) == true || umt.Contains("aruu") == true || umt.Contains("awuu") == true || umt.Contains("bark") == true || umt.Contains("bork") == true)
-                                    {
-
-                                        //int n_dog = nwCountDogNoises();
-                                        //nwSetDogNoiseCount(update.Message.From.Username);
-
-                                        if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
-
-                                    }
-
-                                    if (Regex.IsMatch(umt, @"\bskree\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\brawr\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bsqueak\b", RegexOptions.IgnoreCase) == true)
-                                    {
-
-                                        //int n_dog = nwCountDogNoises();
-                                        //nwSetDragonNoiseCount(update.Message.From.Username);
-
-                                        if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has made dragon noises, increase dragon noise count.");
-
-                                    }
-
-                                    #endregion
-
-                                    // If we have easter eggs enabled.
-                                    if (nwGrabString("eastereggs") == "true")
-                                    {
-                                        if (Regex.IsMatch(umt, @"\b" + update.Message.From.Username + "\b", RegexOptions.IgnoreCase) == true || umt.Contains(update.Message.From.Username))
-                                        {
-
-                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "Narcissist Alert! :P", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        if (Regex.IsMatch(umt, @"\bboobs\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\btits\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "(  .  Y  .  )", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        if (Regex.IsMatch(umt, @"\bping\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "pong", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        if (Regex.IsMatch(umt, @"\bmarco\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "polo", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        if (Regex.IsMatch(umt, @"\bwat\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "65 Wat", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        if (Regex.IsMatch(umt, @"\bharambe\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            string ret = null;
-
-                                            ret = nwGenRandomPhrase();
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, ret, false, false, update.Message.MessageId);
-
-                                        }
-
-                                        if (Regex.IsMatch(umt, @"\bAm I ever gonna see your face again\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "https://www.youtube.com/watch?v=i_py6WbMV1k", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        if (Regex.IsMatch(umt, @"\bblake De Bruyn\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bblake DeBruyn\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            string ret = null;
-
-                                            ret = nwGenRandomPhrase2();
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, ret, false, false, update.Message.MessageId);
-
-                                        }
-
-                                        if (Regex.IsMatch(umt, @"\bneko\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "Aww, so cute", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        if (Regex.IsMatch(umt, @"\bkawaii desu\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bkawaii\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "Sugoi!", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        if (Regex.IsMatch(umt, @"\bdat boi\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "OH SHIT WHADDUP", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        if (Regex.IsMatch(umt, @"\bhalal snack pack\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "Best thing ever invented.", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        if (Regex.IsMatch(umt, @"\bleaving the fandom\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(umt, @"\bquitting the fandom\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "https://www.youtube.com/watch?v=HhI3zf0Pgf4", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        // if message contains skynet
-                                        if (Regex.IsMatch(update.Message.Text, @"\bskynet\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(update.Message.Text, @"\bcyberdyne\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "https://www.youtube.com/watch?v=XcNXq5DUZnk", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        // if message contains eeyup
-                                        if (Regex.IsMatch(update.Message.Text, @"\beeyup\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            string s_rande = null;
-
-                                            s_rande = nwGenRandomSuffix();
-
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "Eeyup" + s_rande, false, false, update.Message.MessageId);
-
-                                        }
-
-                                        // if message contains eeyup
-                                        if (Regex.IsMatch(update.Message.Text, @"\btrigger\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendTextMessageAsync(update.Message.Chat.Id, "Go back to tumblr with your 'triggers' and 'microaggressions'.", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        // If message contains OWO
-                                        if (Regex.IsMatch(update.Message.Text, @"\bowo\b", RegexOptions.IgnoreCase) == true || Regex.IsMatch(update.Message.Text, @"\buwu\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, "What's this?", false, false, update.Message.MessageId);
-
-                                        }
-
-                                        // If message contains buttstripe
-                                        if (Regex.IsMatch(update.Message.Text, @"\bbuttstripe\b", RegexOptions.IgnoreCase) == true)
-                                        {
-
-                                            Bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                            if (nwCheckInReplyTimer(m) != false)
-                                                Bot.SendTextMessageAsync(update.Message.Chat.Id, ">:|", false, false, update.Message.MessageId);
-
-                                        }
-
-                                    }
-
-                                    if (nwGrabString("botresponds") == "false" && (umt.StartsWith("/") == true || umt.StartsWith("!") == true))
-                                    {
-                                        if (nwGrabString("debugMode") == "true")
-                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has attempted to use a command, but they were disabled.");
-                                        else
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has attempted to use a command, but they were disabled, along with debug mode.");
-                                    }
-
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                                    {
-                                        if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_mffn + "> " + update.Message.Text);
-                                        else
-                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_mffn + "> " + update.Message.Text);
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_mffn + "> " + update.Message.Text);
-                                    }
-
-                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
-                                    {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
-                                        {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + update.Message.Text);
-                                        }
-                                    }
-
-                                    break;
-
-                                case MessageType.UnknownMessage: // UNKNOWN MESSAGES.
-                                    // TODO: Work out what to actually flocking do with them.
-
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                                    {
-                                        if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * System: Unknown, please report");
-                                        else
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: Unknown, please report");
-
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: Unknown, please report");
-                                    }
-
-                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
-                                    {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
-                                        {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Unknown message");
-                                        }
-                                    }
-
-                                    break;
-
-                                case MessageType.ServiceMessage: // Service messages (user leaves or joins)
-
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                                    {
-                                        nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* System: A user (" + s_mffn + ") has joined or left the group.");
-
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has joined or left the group!");
-                                    }
-
-                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
-                                    {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
-                                        {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "System message");
-                                        }
-                                    }
-
-                                    break;
-
-                                case MessageType.LocationMessage: // Venue messages. Added in API v2.0
-                                                               // TODO: IMPLEMENT PROPERLY
-
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                                    {
-                                        if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " posted about a location.");
-                                        else
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " posted about a location.");
-
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted about a location.");
-                                    }
-
-                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
-                                    {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
-                                        {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Location message");
-                                        }
-                                    }
-
-                                    break;
-
-                                case MessageType.VenueMessage: // Venue messages. Added in API v2.0
-                                // TODO: IMPLEMENT PROPERLY
-
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                                    {
-                                        if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " posted about a venue on Foursquare.");
-                                        else
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " posted about a venue on Foursquare.");
-
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted about a venue on Foursquare.");
-                                    }
-
-                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
-                                    {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
-                                        {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Venue message");
-                                        }
-                                    }
-
-                                    break;
-                                
-                                case MessageType.StickerMessage: // Do stuff if we are a sticker message
-
-                                    if (update.Message.Sticker.Emoji == "😺")
-                                    {
-                                        //nwSetCatNoiseCount(update.Message.From.Username);
-
-                                        if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has mowed, increase mow count.");
-                                    }
-
-                                    if (update.Message.Sticker.Emoji == "🐺")
-                                    {
-                                        //nwSetDogNoiseCount(update.Message.From.Username);
-
-                                        if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has barked, increase bark count.");
-                                    }
-
-                                    if (update.Message.Sticker.Emoji == "🐲")
-                                    {
-                                        //nwSetDragonNoiseCount(update.Message.From.Username);
-
-                                        if (nwGrabString("debugmode") == "true")
-                                            nwPrintSystemMessage("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has done a dragon call, increase squeak count.");
-                                    }
-
-
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                                    {
-                                        // download the emoji for the image, if there is one. Added in May API update.
-                                        string s = update.Message.Sticker.Emoji;
-
-                                        if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
-                                        else
-                                            Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
-
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
-
-                                    }
-
-                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
-                                    {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
-                                        {
-                                            // download the emoji for the image, if there is one. Added in May API update.
-                                            string s = update.Message.Sticker.Emoji;
-
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Sticker message (" + s + ")");
-                                        }
-                                    }
-
-                                    break;
-                                
-                                case MessageType.VoiceMessage: // Do stuff if we are a voice message
-
-                                    m = update.Message.Date.ToLocalTime();
-
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                                    {
-                                        if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a voice message.");
-                                        else
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a voice message.");
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a voice message.");
-                                    }
-
-                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
-                                    {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
-                                        {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Voice message");
-                                        }
-                                    }
-
-                                    break;
-
-                                case MessageType.VideoMessage:
-
-                                    m = update.Message.Date.ToLocalTime();
-
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                                    {
-                                        if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a video message.");
-                                        else
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a video message.");
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a video message.");
-                                    }
-
-                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
-                                    {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
-                                        {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Video message");
-                                        }
-                                    }
-
-                                    break;
-                                    
-                                case MessageType.PhotoMessage: // Do stuff if we are a photo message
-
-                                    m = update.Message.Date.ToLocalTime(); // Get date/time
-
-                                    //write following to file stream.
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                                    {
-                                        // download the caption for the image, if there is one.
-                                        string s = update.Message.Caption;
-
-                                        // check to see if the caption string is empty or not
-                                        if (s == string.Empty || s == null || s == "" || s == "/n")
-                                        {
-                                            if (nwGrabString("debugmode") == "true")
-                                                Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a photo with no caption.");
-                                            else
-                                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a photo with no caption.");
-                                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a photo with no caption.");
-                                        }
-                                        else
-                                        {
-                                            if (nwGrabString("debugmode") == "true")
-                                                Console.WriteLine("[" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a photo with the caption '" + s + "'.");
-                                            else
-                                                nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a photo with the caption '" + s + "'.");
-                                            await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a photo with the caption '" + s + "'.");
-                                        }
-                                    }
-
-                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
-                                    {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
-                                        {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Photo message");
-                                        }
-                                    }
-
-                                    break;
-                                    
-                                case MessageType.AudioMessage: // Do stuff if we are an audio message
-
-                                    m = update.Message.Date.ToLocalTime();
-
-                                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
-                                    {
-                                        if (nwGrabString("debugmode") == "true")
-                                            Console.WriteLine("[" + n_chanid + "] [" + update.Id + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted an audio message.");
-                                        else
-                                            nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted an audio message.");
-                                        await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted an audio message.");
-                                    }
-
-                                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
-                                    {
-                                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + n_chanid + ".csv", true))
-                                        {
-                                            await sw1.WriteLineAsync(update.Id + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + s_mffn + "," + "Audio message");
-                                        }
-                                    }
-
-                                    break;
-
-                                default:
-
-                                    nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: Find out how we got to this point.");
-                                    break;
-                                    
-                            }
-
-                            offset = update.Id + 1; // do not touch.
-                            nwSetOffset(offset.ToString());
-
-                            break;
-                        case UpdateType.InlineQueryUpdate:
-
-                            DateTime m2 = update.Message.Date.ToLocalTime();
-
-                            nwPrintSystemMessage("[" + m2.ToString(nwParseFormat(true)) + "] * System: User tried an Inline query.");
-
-                            break;
-                        default:
-                            //nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: Find out how we got to this point.");
-                            break;
-                    }
-                    
+                    await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "]  <A.I.D.A> " + "Well, here you go! *gives you a jelly baby*");
                 }
 
             }
 
+            if (callbackQuery.Data == "No" && nwCheckInReplyTimer(dt) != false)
+            {
+
+                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + callbackQuery.Message.Chat.Id + " > " + "No? A shame.");
+
+                await Bot.AnswerCallbackQueryAsync(callbackQuery.Id, "No? A shame.");
+
+                await Bot.SendTextMessageAsync(callbackQuery.Message.Chat.Id, "No? A shame.");
+
+                using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + callbackQuery.Message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
+                {
+                    await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "]  <A.I.D.A> " + "No? A shame.");
+                }
+
+            }
         }
 
-        /// <summary>
-        /// Process all of our slash commands
-        /// </summary>
-        /// <param name="bot">The bot API.</param>
-        /// <param name="update">The update</param>
-        /// <param name="me">The user, or bot.</param>
-        /// <param name="dt">The date/time component.</param>
-        /// <remarks>Only designed to work if regular commands are enabled.</remarks>
-        private static async Task nwProcessSlashCommands(TelegramBotClient bot, Update update, Telegram.Bot.Types.User me, DateTime dt)
+        private static async void BotOnMessageReceived(object sender, MessageEventArgs messageEventArgs)
         {
-            try
+            var message = messageEventArgs.Message;
+
+            ChatType ct = message.Chat.Type;
+
+            DateTime dt = new DateTime(2016, 2, 2);
+            dt = DateTime.Now;
+
+            long n_chanid = message.Chat.Id;
+            DateTime m = message.Date.ToLocalTime();
+
+            //remove unsightly characters from first names.
+            string s_mffn = message.From.FirstName;
+            s_mffn = Regex.Replace(s_mffn, @"[^\u0000-\u007F]", string.Empty);
+
+            if (s_mffn.Contains(" ") == true)
+                s_mffn.Replace(" ", string.Empty);
+
+            // variable for username, if blank, use firstname.
+            string s_mfun = message.From.Username;
+
+            if (s_mfun == " " || s_mfun == string.Empty)
+                s_mfun = s_mffn;
+
+            // SAVE MESSAGES TO LOG - THIS NEEDS TO GO HERE BECAUSE TELEGRAM IS A DICK
+
+            using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
             {
+                if (nwGrabString("debugmode") == "true")
+                    nwStandardCCWrite(n_chanid, message.MessageId, m.ToString(nwParseFormat(true)), s_mffn, message.Text);
+                else
+                    nwStandardCCWrite(m.ToString(nwParseFormat(true)), s_mffn, message.Text);
+                await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "<" + s_mffn + "> " + message.Text);
+            }
+
+            if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+            {
+                using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + n_chanid + ".csv", true))
+                {
+                    await sw1.WriteLineAsync(message.MessageId + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + message.From.Id + "," + message.Text);
+                }
+            }
+
+            // END SAVE MESSAGES
+
+
+            var httpClient = new ProHttpClient();
+            var text = message.Text;
+            var s_replyToUser = string.Empty;
+            var replyAnimation = string.Empty; // For Gifs
+            var replyAnimationCaption = string.Empty; // For Gifs
+            var replyImage = string.Empty;
+            var replyImageCaption = string.Empty;
+            var replyText = string.Empty;
+            var replyTextEvent = string.Empty;
+            var replyVideo = string.Empty;
+            var replyVideoCaption = string.Empty;
+
+            // Test last message date.
+            dt = message.Date;
+            dt = dt.ToLocalTime();
+
+            if (message.Type == MessageType.Audio)
+            {
+                m = message.Date.ToLocalTime();
+
+                using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                {
+                    if (nwGrabString("debugmode") == "true")
+                        Console.WriteLine("[" + n_chanid + "] [" + message.MessageId + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted an audio message.");
+                    else
+                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted an audio message.");
+                    await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted an audio message.");
+                }
 
             }
-            catch (Exception)
+
+            if (message.Type == MessageType.Voice)
+            {
+                m = message.Date.ToLocalTime();
+
+                using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                {
+                    if (nwGrabString("debugmode") == "true")
+                        Console.WriteLine("[" + n_chanid + "] [" + message.MessageId + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a voice message.");
+                    else
+                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a voice message.");
+                    await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a voice message.");
+                }
+
+            }
+
+            if (message.Type == MessageType.Contact)
+            {
+                m = message.Date.ToLocalTime();
+
+                using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                {
+                    if (nwGrabString("debugmode") == "true")
+                        Console.WriteLine("[" + n_chanid + "] [" + message.MessageId + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + message.Contact.FirstName);
+                    else
+                        Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + message.Contact.FirstName);
+                    await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + message.Contact.FirstName);
+                }
+
+            }
+
+            if (message.Type == MessageType.Document)
+            {
+                m = message.Date.ToLocalTime();
+
+                using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                {
+                    if (nwGrabString("debugmode") == "true")
+                        Console.WriteLine("[" + n_chanid + "] [" + message.MessageId + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + message.Document.MimeType);
+                    else
+                        Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + message.Document.MimeType);
+                    await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + message.Document.MimeType);
+                }
+
+            }
+
+            if (message.Type == MessageType.ChatMembersAdded)
+            {
+                m = message.Date.ToLocalTime();
+
+                using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                {
+                    if (nwGrabString("debugmode") == "true")
+                        Console.WriteLine("[" + n_chanid + "] [" + message.MessageId + "] [" + m.ToString(nwParseFormat(true)) + "] * " + message.NewChatMembers[0].FirstName + " has joined the group.");
+                    else
+                        Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + message.NewChatMembers[0].FirstName + " has joined the group.");
+                    await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + message.NewChatMembers[0].FirstName + " has joined the group.");
+                }
+            }
+
+            if (message.Type == MessageType.Sticker)
+            {
+                m = message.Date.ToLocalTime();
+
+                using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                {
+                    // download the emoji for the image, if there is one. Added in May API update.
+                    string s = message.Sticker.Emoji;
+
+                    if (nwGrabString("debugmode") == "true")
+                        Console.WriteLine("[" + n_chanid + "] [" + message.MessageId + "] [" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
+                    else
+                        Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
+
+                    await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
+
+                }
+
+            }
+
+            if (message.Type == MessageType.Video)
             {
 
-                throw;
+                m = message.Date.ToLocalTime();
+
+                using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                {
+                    if (nwGrabString("debugmode") == "true")
+                        Console.WriteLine("[" + n_chanid + "] [" + message.MessageId + "] [" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a video message.");
+                    else
+                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a video message.");
+                    await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a video message.");
+                }
+
             }
+
+            if (message.Type == MessageType.Venue) return;
+            if (message.Type == MessageType.Location) return;
+
+            if (message == null || message.Type != MessageType.Text) return;
+
+            if (text.Length == 1 && text.Contains('/') || text.Length == 1 && text.Contains('!')) return;
+
+            if (text != null && (text.StartsWith("!", StringComparison.Ordinal)) || (text.StartsWith("/", StringComparison.Ordinal)))
+            {
+                // Log to console
+                nwSystemCCWrite(dt.ToString(nwParseFormat(false)), "User " + s_mfun + " has used the command " + text);
+
+                //text = "!" + text.Substring(1);
+
+                // Strip @BotName
+                //text = text.Replace("@" + me.Username, "");
+
+                // Parse
+                var command = message.Text.Split(' ').First();
+                string body;
+
+                if (text.StartsWith("/s/", StringComparison.Ordinal))
+                {
+
+                    command = "/s"; // special case for sed
+                    body = text.Substring(2);
+
+                }
+                else
+                {
+
+                    command = text.Split(' ')[0];
+                    body = text.Replace(command, "").Trim();
+
+                }
+
+                // Put the command in lowercase. So !Cat becomes !cat
+                command = command.ToLower();
+
+                var stringBuilder = new StringBuilder();
+
+                // Here, we list our commands
+                switch (command)
+                {
+                    case "!ball":
+                    case "!8ball":
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+                            if (body == string.Empty || body == " " || body == "@" || body.Contains("?") == false || body == null)
+                            {
+                                await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "You haven't given me a question to answer." + Environment.NewLine + "Usage: !8ball question to ask?";
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !8ball [question to ask, followed by a question mark]" + Environment.NewLine + "Type '!8ball help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = nwRandom8BallResponse();
+                            break;
+                        }
+
+                        break;
+
+                    case "!cat":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
+
+                        // if it is okay to reply, do so.
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+                            replyImage = "http://thecatapi.com/api/images/get?format=src&type=jpg,png";
+                        }
+                        else
+                        {
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                        }
+
+                        break;
+
+                    case "!die":
+                    case "!kill":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (ct == ChatType.Private)
+                        {
+                            if (s_mfun != "AnwenSnowMew")
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    s_replyToUser = "You have insufficient permissions to access this command.";
+                                else
+                                    Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                                break;
+                            }
+
+                            s_replyToUser = "Goodbye.";
+
+                            await Task.Delay(1000);
+
+                            Environment.Exit(0);
+                        }
+                        else
+                        {
+                            if (nwCheckInReplyTimer(dt) != false)
+                                s_replyToUser = "This command can only be used in private messages.";
+                            else
+                                Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                            break;
+                        }
+
+                        break;
+
+                    case "!debug":
+                    case "!debugmode":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (ct == ChatType.Private)
+                        {
+                            if (s_mfun != "AnwenSnowMew")
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "You have insufficient permissions to access this command.";
+                                else
+                                    Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                                break;
+                            }
+
+                            if (nwGrabString("debugMode") == "false")
+                            {
+                                //nwSetString("debugMode", "true");
+                                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: DEBUG MODE ENABLED!");
+
+                            }
+                            else
+                            {
+                                //nwSetString("debugMode", "false");
+                                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: DEBUG MODE DISABLED!");
+                            }
+                        }
+                        else
+                        {
+                            if (nwCheckInReplyTimer(dt) != false)
+                                replyText = "This command can only be used in private messages.";
+                            else
+                                Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                            break;
+                        }
+
+                        break;
+
+                    case "!dingo":
+
+                        if (body.Contains(" ") == true)
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !dingo";
+
+                            break;
+                        }
+                        else if (body == "help")
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !dingo" + Environment.NewLine + "Type '!dingo help' to see this message again.";
+
+                            break;
+
+                        }
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
+
+                            replyImage = nwShowSpeciesImage("dingo");
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                        }
+
+                        break;
+
+                    case "!echo":
+
+                        if (ct == ChatType.Private)
+                        {
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+                                if (body == string.Empty || body == " " || body == "@" || body == null)
+                                {
+                                    await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                                    s_replyToUser = "Too short.";
+
+                                    break;
+                                }
+
+                                replyText = body;
+                                break;
+                            }
+                            else
+                            {
+                                Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                            }
+                        }
+                        else
+                        {
+                            if (nwCheckInReplyTimer(dt) != false)
+                                s_replyToUser = "This command can only be used in private messages.";
+                            else
+                                Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+
+                            break;
+
+                        }
+
+                        break;
+
+                    case "!edit":
+
+                        if (ct == ChatType.Private)
+                        {
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                if (body == string.Empty || body == " " || body == "@" || body == null)
+                                {
+                                    await Bot.EditMessageTextAsync(message.Chat.Id, message.MessageId, body);
+                                }
+                                break;
+                            }
+                            else
+                            {
+                                Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                            }
+                        }
+                        else
+                        {
+                            if (nwCheckInReplyTimer(dt) != false)
+                                s_replyToUser = "This command can only be used in private messages.";
+                            else
+                                Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+
+                            break;
+
+                        }
+
+                        break;
+
+                    case "!meet":
+                    case "!meets":
+                    case "!event":
+                    case "!events": // TODO: Finish this command
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+
+                            if (body == string.Empty || body == " " || body == "@" || body == null)
+                            {
+                                await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                                if (nwReturnEventInfo(dt) != "maow")
+                                    replyTextEvent = nwReturnEventInfo(dt);
+                                else
+                                    replyText = "I can't let you do that Dave.";
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !event [number]" + Environment.NewLine + "The optional parameter number can be omitted, in which it just returns events for last 15 days by default." + Environment.NewLine + "Type '!event help' to see this message again.";
+
+                                break;
+
+                            }
+                            else
+                            {
+                                if (nwReturnEventInfo(dt) != "maow")
+                                    replyTextEvent = nwReturnEventInfo(dt, Convert.ToInt32(body));
+                                else
+                                    replyText = "I can't let you do that Dave.";
+                            }
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                        }
+
+                        break;
+
+                    case "!con":
+                    case "!cons":
+                    case "!convention": // TODO: Finish this command
+                    case "!conventions": // TODO: Finish this command
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+                            XmlDocument dook = new XmlDocument();
+                            dook.Load(ehoh.Directory.GetCurrentDirectory() + @"/data/conventions.xml");
+                            DateTime dta1 = new DateTime(2016, 4, 1);
+                            dta1 = DateTime.Now;
+
+                            DateTime dta2 = new DateTime(2016, 4, 1);
+                            dta2 = DateTime.Now;
+
+                            // Get our nodes
+                            XmlNodeList nodes;
+                            nodes = dook.GetElementsByTagName("event");
+
+                            // Create a new string builder
+                            StringBuilder eventString = new StringBuilder();
+                            eventString.AppendLine("Here is a list of upcoming Australian conventions. Times are in local time, and may be subject to change.");
+
+                            // Iterate through available events
+                            for (var i1for = 0; i1for < nodes.Count; i1for++)
+                            {
+                                dta1 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("start").InnerText);
+                                dta2 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("end").InnerText);
+                                eventString.AppendLine("<b>" + nodes.Item(i1for).SelectSingleNode("title").InnerText + "</b> [" + nodes.Item(i1for).SelectSingleNode("url").InnerText + "]");
+                                eventString.AppendLine("Convention starts: " + dta1.ToString("ddd d/MM/yyy") + " (" + dta1.ToString("h:mm tt") + ")");
+                                eventString.AppendLine("Convention ends: " + dta2.ToString("ddd d/MM/yyy") + " (" + dta2.ToString("h:mm tt") + ")");
+                                eventString.AppendLine("Location: <i>" + nodes.Item(i1for).SelectSingleNode("location").InnerText + "</i>");
+                                eventString.AppendLine("");
+                            }
+
+                            replyTextEvent = eventString.ToString();
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                        }
+
+                        break;
+
+                    case "!canine":
+                    case "!dog":
+                    case "!doggo":
+
+                        if (body.Contains(" ") == true)
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !dog";
+
+                            break;
+                        }
+                        else if (body == "help")
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !dog" + Environment.NewLine + "Type '!dog help' to see this message again.";
+
+                            break;
+
+                        }
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
+
+                            replyImage = nwShowSpeciesImage("dog");
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("The " + command + " failed as it took too long to process.");
+                        }
+
+                        break;
+
+                    case "!corgi":
+
+                        if (body.Contains(" ") == true)
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !corgi";
+
+                            break;
+                        }
+                        else if (body == "help")
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !corgi" + Environment.NewLine + "Type '!corgi help' to see this message again.";
+
+                            break;
+
+                        }
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
+
+                            replyImage = nwShowSpeciesImage("corgi");
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("The " + command + " failed as it took too long to process.");
+                        }
+
+                        break;
+
+                    case "!dino":
+
+                        if (body.Contains(" ") == true)
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !dino";
+
+                            break;
+                        }
+                        else if (body == "help")
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !dino" + Environment.NewLine + "Type '!dino help' to see this message again.";
+
+                            break;
+
+                        }
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
+
+                            replyImage = nwShowSpeciesImage("dinosaur");
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("The " + command + " failed as it took too long to process.");
+                        }
+
+                        break;
+
+                    case "!ferret":
+
+                        if (body.Contains(" ") == true)
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !ferret";
+
+                            break;
+                        }
+                        else if (body == "help")
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !ferret" + Environment.NewLine + "Type '!ferret help' to see this message again.";
+
+                            break;
+
+                        }
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
+
+                            replyImage = nwShowSpeciesImage("ferret");
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("The " + command + " failed as it took too long to process.");
+                        }
+
+                        break;
+
+
+                    case "!greet":
+                    case "!greeting":
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+                            s_replyToUser = nwRandomGreeting() + " " + message.From.FirstName + "!";
+                            break;
+                        }
+
+                        break;
+
+                    case "!gif":
+
+                        //nwInsertUserCmdValues(message.From.Id, "gif", dt);
+
+                        if (body == string.Empty || body == " " || body == "@" || body == null)
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !gif [image to look for]";
+
+                            break;
+                        }
+                        else if (body == "help")
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !gif [Image to look for]" + Environment.NewLine + "Type '!gif help' to see this message again.";
+
+                            break;
+
+                        }
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
+
+                            retryme:
+
+                            // list of urls.
+                            string html = null;
+
+                            // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                            html = GetHtmlCode(body, true, false);
+
+                            List<string> urls = GetUrls(html);
+                            var rnd = new Random();
+
+                            int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                            string luckyUrl = urls[randomUrl];
+
+                            // Check if the file is valid, or throws an unwanted status code.
+                            if (!string.IsNullOrEmpty(luckyUrl))
+                            {
+                                UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                HttpWebResponse response;
+
+                                try
+                                {
+                                    response = (HttpWebResponse)request.GetResponse();
+                                }
+                                catch (WebException we)
+                                {
+                                    response = (HttpWebResponse)we.Response;
+                                }
+
+                                if (response.StatusCode == HttpStatusCode.NotFound)
+                                {
+                                    Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                    goto retryme;
+                                }
+                                if (response.StatusCode == HttpStatusCode.Forbidden)
+                                {
+                                    Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
+                                    goto retryme;
+                                }
+                                if (response.StatusCode == HttpStatusCode.BadRequest)
+                                {
+                                    Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                                    goto retryme;
+                                }
+                                if (response.StatusCode == HttpStatusCode.OK)
+                                {
+                                    Console.WriteLine("URL appears to be good.");
+                                }
+                                else //There are a lot of other status codes you could check for...
+                                {
+                                    Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                               response.StatusCode.ToString()));
+                                }
+                            }
+
+                            if (luckyUrl.Contains(" ") == true)
+                                luckyUrl.Replace(" ", "%20");
+
+                            replyAnimation = luckyUrl;
+
+                            break;
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                        }
+
+                        break;
+
+                    case "!img":
+                    case "!image": // TODO: Finish this command
+
+                        //int n_imguse = nwGrabGlobalUsageDB("img"); // GLOBAL USAGE
+                        //int n_img_uuse = nwGrabUserUsage(s_username, "img");
+                        //int n_img_gmax = nwGrabGlobalMax("img"); // GLOBAL MAXIMUM
+                        //int n_img_umax = nwGrabUserMax("img"); // USER MAXIMUM
+
+                        //if (n_imguse == n_img_gmax || n_img_uuse == n_img_umax)
+                        //{
+                        //    if (nwCheckInReplyTimer(dt) != false)
+                        //        s_replyToUser = "Sorry, the /image command has been used too many times.";
+
+                        //    break;
+                        //}
+
+                        if (body == string.Empty || body == " " || body == "@" || body == null)
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !image [image to look for]";
+
+                            break;
+                        }
+                        else if (body == "help")
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !image [Image to look for]" + Environment.NewLine + "Type '!image help' to see this message again.";
+
+                            break;
+
+                        }
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
+
+                            retryme:
+
+                            // list of urls.
+                            string html = null;
+
+                            // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                            html = GetHtmlCode(body, false, false);
+
+                            List<string> urls = GetUrls(html);
+                            var rnd = new Random();
+
+                            int randomUrl = rnd.Next(0, urls.Count - 1);
+
+                            // Select url from url list.
+                            string luckyUrl = urls[randomUrl];
+
+                            // Check if the file is valid, or throws an unwanted status code.
+                            if (!string.IsNullOrEmpty(luckyUrl))
+                            {
+                                UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                HttpWebResponse response;
+
+                                try
+                                {
+                                    response = (HttpWebResponse)request.GetResponse();
+                                }
+                                catch (WebException we)
+                                {
+                                    response = (HttpWebResponse)we.Response;
+                                }
+
+                                if (response.StatusCode == HttpStatusCode.BadRequest)
+                                {
+                                    Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                                    goto retryme;
+                                }
+                                if (response.StatusCode == HttpStatusCode.Forbidden)
+                                {
+                                    Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
+                                    goto retryme;
+                                }
+                                if (response.StatusCode == HttpStatusCode.NotFound)
+                                {
+                                    Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                                    goto retryme;
+                                }
+                                if (response.StatusCode == HttpStatusCode.OK)
+                                {
+                                    Console.WriteLine("URL appears to be good.");
+                                }
+                                else //There are a lot of other status codes you could check for...
+                                {
+                                    Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                                               response.StatusCode.ToString()));
+                                }
+
+                            }
+
+                            if (luckyUrl.Contains(" ") == true)
+                                luckyUrl.Replace(" ", "%20");
+
+                            replyImage = luckyUrl;
+
+                            //nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
+                            //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
+
+                            break;
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                        }
+
+                        break;
+
+                    case "!jelly": // TODO: Finish this command
+
+                        if (ct == ChatType.Private)
+                        {
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+
+                                await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                                await Task.Delay(500); // simulate longer running task
+
+                                var inlineKeyboard = new InlineKeyboardMarkup(new[]
+                                {
+
+                                    new [] // first row
+                                    {
+                                        InlineKeyboardButton.WithCallbackData("Yes"),
+                                        InlineKeyboardButton.WithCallbackData("No"),
+                                    }
+                                });
+
+                                await Bot.SendTextMessageAsync(
+                                    message.Chat.Id,
+                                    nwRandomGreeting() + " " + message.From.FirstName + ", Would you like a jelly baby?",
+                                    replyMarkup: inlineKeyboard);
+                                break;
+                            }
+                            else
+                            {
+                                Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                            }
+                        }
+                        else
+                        {
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                                s_replyToUser = "This command can only be used in private messages.";
+
+                            break;
+
+                        }
+                        break;
+
+                    case "!humour":
+                    case "!joke": // TODO: Fix this command
+                    case "!dadjoke":
+
+                        //    //int n_jokeuse = nwGrabGlobalUsageDB("joke");
+                        //    //int n_joke_uuse = nwGrabUserUsage(s_username, "joke");
+                        //    int n_joke_gmax = nwGrabGlobalMax("joke");
+                        //    //int n_joke_umax = nwGrabUserMax("joke");
+
+                        //    //if (n_jokeuse == n_joke_gmax)//|| n_joke_uuse == n_joke_umax)
+                        //    //{
+                        //    //    if (nwCheckInReplyTimer(dt) != false)
+                        //    //        s_replyToUser = "Sorry, the /joke command has been used too many times.";
+                        //    //    break;
+                        //    //}
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+                            string textomatic = nwRandomJokeLine();
+
+                            string[] s_mysplit = new string[] { "", "", "" };
+                            string[] s_mysep = new string[] { "\\r", "\\n" };
+                            s_mysplit = textomatic.Split(s_mysep, StringSplitOptions.RemoveEmptyEntries);
+
+                            StringBuilder jokesb = new StringBuilder();
+
+                            foreach (string s_meow in s_mysplit)
+                            {
+                                jokesb.AppendLine(s_meow);
+                            }
+
+                            replyText = jokesb.ToString();
+                        }
+                        else
+                        {
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                        }
+
+                        //    //nwSetGlobalUsageDB("joke", n_jokeuse++); // set global usage incrementally
+                        //    //nwSetUserUsage(s_username, "joke", n_joke_uuse++); // set this users usage incrementally
+
+                        break;
+
+                    case "!link":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                            s_replyToUser = "Chat link: https://t.me/FOW_Official";
+                        else
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+
+                        break;
+
+                    case "!profile":
+                    case "!bio":
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                            replyText = "This command is not yet implemented.";
+                        else
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+
+                        Console.WriteLine("[Debug] * System: The " + command + " has not been implemented.");
+
+                        break;
+
+                    case "!getprofile":
+                    case "!getbio":
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                            replyText = "This command is not yet implemented.";
+                        else
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+
+                        Console.WriteLine("[Debug] * System: The " + command + " has not been implemented.");
+
+                        break;
+
+                    case "!rules":
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                            s_replyToUser = "Group rules: " +
+                                Environment.NewLine + "- All content (chat, images, stickers) must be SFW at all hours of the day." +
+                                Environment.NewLine + "- No flooding or spamming of ANY kind." +
+                                Environment.NewLine + "- Be nice to each other.";
+
+                        break;
+
+                    case "!setbio":
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                            replyText = "This command is not yet implemented.";
+
+                        break;
+
+                    case "!say":
+                    case "/say":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        //nwInsertUserCmdValues(message.From.Id, "say", dt);
+
+                        if (ct == ChatType.Private)
+                        {
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                                await Bot.SendTextMessageAsync(Convert.ToInt64(nwGrabString("chatid")), body);
+                            else
+                                Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+
+                        }
+                        else
+                        {
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                                s_replyToUser = "This command can only be used in private messages.";
+                            else
+                                Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+
+                            break;
+
+                        }
+                        break;
+
+                    case "!announce":
+                    case "!sayhtml":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        //nwInsertUserCmdValues(message.From.Id, "sayhtml", dt);
+
+                        if (ct == ChatType.Private)
+                        {
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                                await Bot.SendTextMessageAsync(Convert.ToInt64(nwGrabString("chatid")), body, ParseMode.Html);
+                            else
+                                Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+
+                        }
+                        else
+                        {
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                                s_replyToUser = "This command can only be used in private messages.";
+                            else
+                                Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+
+                            break;
+
+                        }
+                        break;
+
+                    case "!roll":
+                    case "!diceroll":
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+
+                            string s = "";
+
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            // Roll our dice.
+                            s = nwRollDice(s_mfun, dt, body);
+                            replyText = s;
+
+                        }
+                        else
+                        {
+
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+
+                        }
+
+                        break;
+
+                    case "!me":
+                    case "/me":
+                    case "!action":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (body == string.Empty || body == " ")
+                        {
+                            break;
+                        }
+                        else if (body == "help")
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !me [Action to perform]" + Environment.NewLine + "Type '!me help' to see this message again.";
+
+                            break;
+
+                        }
+
+                        replyText = "*" + message.From.Username + " " + body + "*";
+
+                        break;
+
+                    case "!mow":
+                    case "!homph":
+                    case "!snep":
+
+                        //nwInsertUserCmdValues(message.From.Id, "snep", dt);
+
+                        if (body.Contains(" ") == true)
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !snep";
+
+                            break;
+                        }
+                        else if (body == "help")
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !snep" + Environment.NewLine + "Type '!snep help' to see this message again.";
+
+                            break;
+
+                        }
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
+
+                            replyImage = nwShowSpeciesImage("snow leopard");
+
+                            break;
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                        }
+
+                        break;
+
+                    case "!start":
+                    case "/start":
+                    case "/start@PFStats_bot":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        //nwInsertUserCmdValues(message.From.Id, "start", dt);
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                            s_replyToUser = "This bot does not need to be started in this fashion, see !command or !usage for a list of commands.";
+                        break;
+
+                    case "!test":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (ct == ChatType.Private)
+                        {
+
+                            await Bot.SendTextMessageAsync(
+                                message.Chat.Id,
+                                "Test Successful.");
+
+                            //nwTestDBConnection();
+
+                            //nwInsertUserCmdValues(message.From.Id, "test", dt);
+
+                            //Console.WriteLine(nwGetTimestamp(dt));
+
+                            nwSystemCCWrite(dt.ToString(nwParseFormat(false)), "This is a test.");
+
+                            //nwCreateTable(message.From.Id, "test", nwGetTimestamp(dt));
+
+                            //Console.WriteLine(UnixTimeStampToDateTime(nwGetTimestamp(dt)).ToString());
+
+                            //DateTimeOffset dto = new DateTimeOffset(dt, TimeSpan.Zero);
+                            //Console.WriteLine("{0} --> Unix Seconds: {1}", dto, dto.ToUnixTimeSeconds());
+
+                            //nwCheckInCooldown(dt, message.Chat.Id, message.From);
+
+                        }
+                        else
+                        {
+
+                            if (nwCheckInReplyTimer(dt) != false)
+                                s_replyToUser = "This command can only be used in private messages.";
+
+                            break;
+
+                        }
+                        break;
+
+                    case "!version":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                            s_replyToUser = "Version 2.0, Release 1";
+
+                        break;
+
+                    case "!about":
+                    case "!info":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                            s_replyToUser = "I am the best bot" + Environment.NewLine + "Version 2.0, Release 1" + Environment.NewLine + "By @AnwenSnowMew" + Environment.NewLine + "GitHub: https://github.com/AndyDingo/PerthFurStats_TelegramBot" + Environment.NewLine + "This bot uses open source software.";
+
+                        break;
+
+                    case "!wrists":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                            s_replyToUser = "(╯°□°）╯︵ ┻━┻";
+
+                        break;
+
+                    case "!help":
+                    case "/help":
+                    case "/help@PFStats_bot":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                            replyText = "To view a list of available commands this bot accepts as valid inputs, please see: https://jessicasbots.tumblr.com/post/178207772371/available-bot-commands, or use !list to list them.";
+
+                        break;
+
+                    case "!list":
+                    case "!usage":
+                    case "!command":
+                    case "!commands":
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+
+                            if (body == string.Empty || body == " " || body == "@" || body == null)
+                            {
+                                await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                                StringBuilder clist = new StringBuilder();
+                                clist.AppendLine("Here is a partial list of commands the bot understands:");
+                                clist.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
+                                clist.AppendLine("<b>!admins</b> - show who the group admins are.");
+                                clist.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
+                                clist.AppendLine("<b>!backup</b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
+                                clist.AppendLine("<b>!ball</b> - consult the magic 8 ball, use a ? at the end of your question.");
+                                clist.AppendLine("<b>!bio</b> - show your bio.");
+                                clist.AppendLine("<b>!cat</b> - show a cat image.");
+                                clist.AppendLine("<b>!con</b> - show a list of australian furry conventions");
+                                clist.AppendLine("<b>!count</b> - count number of people in chat. <i>To be revised</i>.");
+                                clist.AppendLine("<b>!debug</b> - enable the bots debug mode. Can only be used in PM. <i>Admin only</i>.");
+                                clist.AppendLine("<b>!e621</b> [topics] - search for stuff on e621, can only be used in PM, or in a group with NSFW or 18+ in the title.");
+                                replyTextEvent = clist.ToString();
+
+                                break;
+                            }
+                            else if (body == "help")
+                            {
+                                await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                                s_replyToUser = "Usage: !list [page number]" + Environment.NewLine + "Type '!list help' to see this message again.";
+
+                                break;
+
+                            }
+
+                            if (body == "1")
+                            {
+
+                                await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                                StringBuilder clist = new StringBuilder();
+                                clist.AppendLine("Here is a partial list of regular commands the bot understands:");
+                                clist.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
+                                clist.AppendLine("<b>!admins</b> - show who the group admins are.");
+                                clist.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
+                                clist.AppendLine("<b>!backup</b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
+                                clist.AppendLine("<b>!ball</b><a title=\"Additional commands: !8ball\" href=\"#\">*</a> - consult the magic 8 ball, use a ? at the end of your question.");
+                                clist.AppendLine("<b>!bio</b> - show your bio.");
+                                clist.AppendLine("<b>!cat</b> - show a cat image.");
+                                clist.AppendLine("<b>!con</b> - show a list of australian furry conventions");
+                                clist.AppendLine("<b>!count</b> - count number of people in chat. <i>To be revised</i>.");
+                                replyTextEvent = clist.ToString();
+
+                                break;
+
+                            }
+
+                            if (body == "2")
+                            {
+
+                                await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                                StringBuilder clist = new StringBuilder();
+                                clist.AppendLine("Here is a partial list of regular commands the bot understands:");
+                                clist.AppendLine("You are currently viewing Page <b>[2]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
+                                clist.AppendLine("<b>!edit</b> [message id] [replacement text] - edit a message posted by the bot. <i>Admin only</i>. <i>To be revised</i>.");
+                                clist.AppendLine("<b>!event</b><a title=\"Additional commands: !events, !meet, !meets\" href=\"#\">*</a> [time constraint in days, optional] - get events list.");
+                                clist.AppendLine("<b>!forecast</b> - get a 7 day weather forecast.");
+                                clist.AppendLine("<b>!gif</b> [topic] - show a GIF based on a given topic. <i>To be revised</i>.");
+                                clist.AppendLine("<b>!image</b><a title=\"Additional commands: !img\" href=\"#\">*</a> [topic] - show an image based on a given topic.");
+                                clist.AppendLine("<b>!joke</b><a title=\"Additional commands: !humour\" href=\"#\">*</a> - get the bot to tell a joke.");
+                                clist.AppendLine("<b>!link</b> - generate a chat link.");
+                                clist.AppendLine("<b>!list</b><a title=\"Additional commands: !command, !commands, !help\" href=\"#\">*</a> - shows this list.");
+                                replyTextEvent = clist.ToString();
+
+                                break;
+
+                            }
+
+                            if (body == "3")
+                            {
+
+                                await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                                StringBuilder clist = new StringBuilder();
+                                clist.AppendLine("Here is a partial list of regular commands the bot understands:");
+                                clist.AppendLine("You are currently viewing Page <b>[3]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
+                                clist.AppendLine("<b>!meme</b> [topic] - show an image based on a given topic.");
+                                clist.AppendLine("<b>!oo</b><a title=\"Additional commands: !optout\" href=\"#\">*</a> - opt out of stats collection.");
+                                clist.AppendLine("<b>!roll</b> [dice] [sides] - roll a dice, with the given number of dice and sides.");
+                                clist.AppendLine("<b>!rules</b> - show group rules.");
+                                clist.AppendLine("<b>!stats</b> [week|month|year|alltime|commands] - generate a link to view stats.");
+                                clist.AppendLine("<b>!weather</b> - Get current weather conditions");
+                                replyTextEvent = clist.ToString();
+
+                                break;
+
+                            }
+
+                            if (body == "4")
+                            {
+
+                                await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                                StringBuilder clist = new StringBuilder();
+                                clist.AppendLine("Here is a partial list of species commands the bot understands:");
+                                clist.AppendLine("You are currently viewing Page <b>[4]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
+                                clist.AppendLine("<b>!clep</b> - show a clouded leopard pic.");
+                                clist.AppendLine("<b>!corgi</b> - show a corgi pic.");
+                                clist.AppendLine("<b>!deer</b> - show a corgi pic.");
+                                clist.AppendLine("<b>!dingo</b> - show a dingo pic.");
+                                clist.AppendLine("<b>!dino</b> - show a dino pic.");
+                                clist.AppendLine("<b>!dog</b><a title=\"Additional commands: !canine, !doggo\" href=\"#\">*</a> - show a dog pic.");
+                                clist.AppendLine("<b>!dragon</b> - show a dragon pic.");
+                                clist.AppendLine("<b>!ermine</b> - show a dragon pic.");
+                                clist.AppendLine("<b>!fennec</b> - show a fennec fox pic.");
+                                clist.AppendLine("<b>!ferret</b> - show a ferret pic.");
+                                clist.AppendLine("<b>!fox</b> - show a fox pic.");
+                                replyTextEvent = clist.ToString();
+
+                                break;
+
+                            }
+
+                            if (body == "5")
+                            {
+
+                                await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                                StringBuilder clist = new StringBuilder();
+                                clist.AppendLine("Here is a partial list of species commands the bot understands:");
+                                clist.AppendLine("You are currently viewing Page <b>[5]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
+                                clist.AppendLine("<b>!gshep</b> - show a german shephard pic.");
+                                clist.AppendLine("<b>!leopard</b> - show a leopard pic.");
+                                clist.AppendLine("<b>!rabbit</b> - show a rabbit pic.");
+                                clist.AppendLine("<b>!rat</b> - show a rat pic.");
+                                clist.AppendLine("<b>!shibe</b> - show a shibe pic.");
+                                clist.AppendLine("<b>!snep</b> - show a snow leopard pic.");
+                                replyTextEvent = clist.ToString();
+
+                                break;
+
+                            }
+                        }
+
+                        break;
+
+                    case "!forecast":
+                    case "!weather2":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+                            XmlDocument dok = new XmlDocument();
+                            XmlDocument dok2 = new XmlDocument();
+                            dok.Load("ftp://ftp.bom.gov.au/anon/gen/fwo/IDW12400.xml");
+                            dok2.Load("ftp://ftp.bom.gov.au/anon/gen/fwo/IDW12300.xml");
+                            DateTime dta1 = new DateTime(2016, 4, 1);
+                            dta1 = DateTime.Now;
+
+                            // Get our nodes
+                            XmlNodeList wnodes;
+                            wnodes = dok.GetElementsByTagName("forecast-period");
+
+                            // Get our nodes
+                            XmlNodeList wnodes2;
+                            wnodes2 = dok2.GetElementsByTagName("forecast-period");
+
+
+                            // Create a new string builder
+                            StringBuilder wString = new StringBuilder();
+                            wString.AppendLine("Forecast for:");
+
+                            // Iterate through available days
+                            for (var i1for = 0; i1for < wnodes.Count; i1for++)
+                            {
+                                dta1 = Convert.ToDateTime(wnodes.Item(i1for).Attributes["start-time-local"].Value);
+
+                                wString.AppendLine(dta1.ToString("ddd d/MM/yyy") + ": " + wnodes.Item(i1for).SelectSingleNode("text").InnerText); // + " [" + pfn_events.url.ToString() + "]");
+                            }
+
+                            replyText = wString.ToString();
+                        }
+
+                        break;
+
+                    case "!weather": // TODO - change to BOM api
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+
+                            ////dynamic dfor = JObject.Parse(httpClient.DownloadString("http://api.wunderground.com/api/" + wundergroundKey + "/forecast/q/" + body + ".json").Result);
+                            dynamic d_weather = JObject.Parse(httpClient.DownloadString("http://www.bom.gov.au/fwo/IDW60801/IDW60801.94608.json").Result);
+
+                            // Create a new string builder
+                            StringBuilder weatherString = new StringBuilder();
+                            weatherString.AppendLine("Here are the current weather conditions for Perth: ");
+                            weatherString.AppendLine("(" + d_weather.observations.header[0].refresh_message.ToString() + ")");
+
+                            weatherString.AppendLine("Apparent temperature; " + d_weather.observations.data[0].apparent_t.ToString());
+                            weatherString.AppendLine("Air temperature; " + d_weather.observations.data[0].air_temp.ToString());
+                            weatherString.AppendLine("Dew point; " + d_weather.observations.data[0].dewpt.ToString());
+                            weatherString.AppendLine("Humidity; " + d_weather.observations.data[0].rel_hum.ToString());
+
+                            // insert rain chance here?
+
+                            weatherString.AppendLine("Rain since 9am; " + d_weather.observations.data[0].rain_trace.ToString() + "mm");
+                            weatherString.AppendLine("Wind speed; " + d_weather.observations.data[0].wind_spd_kmh.ToString() + "kph , Gusting up to " + d_weather.observations.data[0].gust_kmh.ToString() + "kph");
+                            weatherString.AppendLine("Wind direction; " + d_weather.observations.data[0].wind_dir.ToString() + "");
+                            weatherString.AppendLine("This data is refreshed every 10 mins.");
+
+                            replyText = weatherString.ToString();
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                        }
+
+                        break;
+
+                    default:
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+
+                            StringBuilder clist2 = new StringBuilder();
+                            clist2.AppendLine("Here is a partial list of commands the bot understands:");
+                            clist2.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
+                            clist2.AppendLine("<b>!admins</b> - show who the group admins are.");
+                            clist2.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
+                            clist2.AppendLine("<b>!backup</b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
+                            clist2.AppendLine("<b>!ball</b> - consult the magic 8 ball, use a ? at the end of your question.");
+                            clist2.AppendLine("<b>!cat</b> - show a cat image.");
+                            clist2.AppendLine("<b>!con</b> - show a list of australian furry conventions");
+                            clist2.AppendLine("<b>!debug</b> - enable the bots debug mode. Can only be used in PM. <i>Admin only</i>.");
+                            clist2.AppendLine("<b>!edit</b> [message id] [replacement text] - edit a message posted by the bot. <i>Admin only</i>. <i>To be revised</i>.");
+                            clist2.AppendLine("<b>!event</b><a title=\"Additional commands: !events, !meet, !meets\" href=\"#\">*</a> [time constraint in days, optional] - get events list.");
+                            clist2.AppendLine("<b>!forecast</b> - get a 7 day weather forecast.");
+                            clist2.AppendLine("<b>!gif</b> [topic] - show a GIF based on a given topic. <i>To be revised</i>.");
+                            clist2.AppendLine("<b>!image</b><a title=\"Additional commands: !img\" href=\"#\">*</a> [topic] - show an image based on a given topic.");
+                            clist2.AppendLine("<b>!joke</b><a title=\"Additional commands: !humour\" href=\"#\">*</a> - get the bot to tell a joke.");
+                            clist2.AppendLine("<b>!link</b> - generate a chat link.");
+                            clist2.AppendLine("<b>!list</b><a title=\"Additional commands: !command, !commands, !help\" href=\"#\">*</a> - shows this list.");
+
+                            await Bot.SendTextMessageAsync(
+                                message.Chat.Id,
+                                clist2.ToString(),
+                                parseMode: ParseMode.Html,
+                                replyMarkup: new ReplyKeyboardRemove());
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                        }
+
+                        break;
+
+                }
+
+
+                // Output
+                replyText += stringBuilder.ToString();
+
+                if (!string.IsNullOrEmpty(replyText))
+                {
+
+                    if (nwGrabString("debugmode") == "true")
+                        Console.WriteLine("[" + message.Chat.Id + "] [" + message.MessageId + "] [" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + replyText);
+                    else
+                        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + message.Chat.Id + " > " + replyText);
+
+                    await Bot.SendTextMessageAsync(message.Chat.Id, replyText);
+
+                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
+                    {
+                        await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "]  <A.I.D.A> " + replyText);
+                    }
+
+                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+                    {
+                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + n_chanid + ".csv", true))
+                        {
+                            await sw1.WriteLineAsync(message.MessageId + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + message.From.Id + "," + replyText);
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(s_replyToUser))
+                {
+
+                    if (nwGrabString("debugmode") == "true")
+                        Console.WriteLine("[" + message.Chat.Id + "] [" + message.MessageId + "] [" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + s_replyToUser);
+                    else
+                        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + message.Chat.Id + " > " + s_replyToUser);
+
+                    int msgid = 0;
+                    msgid = message.MessageId;
+
+                    await Bot.SendTextMessageAsync(message.Chat.Id, s_replyToUser, ParseMode.Default, false, false, msgid);
+
+                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
+                    {
+                        await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + s_replyToUser);
+                    }
+
+                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+                    {
+
+                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + n_chanid + ".csv", true))
+                        {
+                            await sw1.WriteLineAsync(message.MessageId + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + message.From.Id + "," + s_replyToUser);
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(replyTextEvent))
+                {
+
+                    if (nwGrabString("debugmode") == "true")
+                        Console.WriteLine("[" + message.Chat.Id + "] [" + message.MessageId + "] [" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + replyTextEvent);
+                    else
+                        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + message.Chat.Id + " > " + replyTextEvent);
+
+                    await Bot.SendTextMessageAsync(message.Chat.Id, replyTextEvent, ParseMode.Html, true, false);
+
+                    using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
+                    {
+                        await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + replyTextEvent);
+                    }
+
+                    if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
+                    {
+                        using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + n_chanid + ".csv", true))
+                        {
+                            await sw1.WriteLineAsync(message.MessageId + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + message.From.Id + "," + replyTextEvent);
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(replyImage) && replyImage.Length > 5)
+                {
+                    if (nwGrabString("debugmode") == "true")
+                        Console.WriteLine("[" + message.Chat.Id + "] [" + message.MessageId + "] [" + dt.ToString(nwParseFormat(true)) + "] < A.I.D.A > " + replyImage);
+                    else
+                        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + message.Chat.Id + " > " + replyImage);
+
+                    await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
+
+                    try
+                    {
+
+                        var stream = httpClient.DownloadData(replyImage).Result;
+
+                        var extension = ".jpg";
+                        if (replyImage.Contains(".gif") || replyImage.Contains("image/gif"))
+                        {
+                            extension = ".gif";
+                        }
+                        else if (replyImage.Contains(".png") || replyImage.Contains("image/png"))
+                        {
+                            extension = ".png";
+                        }
+                        else if (replyImage.Contains(".tif"))
+                        {
+                            extension = ".tif";
+                        }
+                        else if (replyImage.Contains(".bmp"))
+                        {
+                            extension = ".bmp";
+                        }
+
+                        if (extension == ".gif")
+                        {
+                            //await Bot.SendDocumentAsync(message.Chat.Id, stream, replyImageCaption == string.Empty ? replyImage : replyImageCaption, parseMode: ParseMode.Html);
+                            await Bot.SendVideoAsync(message.Chat.Id, stream, caption: replyImageCaption == string.Empty ? replyImage : replyImageCaption, parseMode: ParseMode.Html);
+                        }
+                        else
+                        {
+                            await Bot.SendPhotoAsync(message.Chat.Id, stream, replyImageCaption == string.Empty ? replyImage : replyImageCaption, parseMode: ParseMode.Html);
+                        }
+                    }
+                    catch (System.Net.Http.HttpRequestException ex)
+                    {
+                        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: Unable to download " + ex.HResult + " " + ex.Message);
+                        await Bot.SendTextMessageAsync(message.Chat.Id, "Unable to download the requested image due to an error.");
+                    }
+                    catch (System.Net.WebException ex)
+                    {
+                        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: Unable to download " + ex.HResult + " " + ex.Message);
+                        await Bot.SendTextMessageAsync(message.Chat.Id, "Unable to download the requested image due to an error.");
+                    }
+                    catch (NullReferenceException ex)
+                    {
+                        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: " + replyImage + " Threw: " + ex.Message);
+                        await Bot.SendTextMessageAsync(message.Chat.Id, "Unable to download the requested image due to an error.");
+                    }
+                    catch (Exception ex)
+                    {
+                        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: " + replyImage + " Threw: " + ex.Message);
+                        await Bot.SendTextMessageAsync(message.Chat.Id, "Unable to download the requested image due to an error.");
+                    }
+
+                }
+
+                if (!string.IsNullOrEmpty(replyAnimation) && replyAnimation.Length > 5)
+                {
+                    if (nwGrabString("debugmode") == "true")
+                        Console.WriteLine("[" + message.Chat.Id + "] [" + message.MessageId + "] [" + dt.ToString(nwParseFormat(true)) + "] < A.I.D.A > " + replyAnimation);
+                    else
+                        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + message.Chat.Id + " > " + replyAnimation);
+
+                    await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
+
+                    try
+                    {
+
+                        var stream = httpClient.DownloadData(replyAnimation).Result;
+
+                        //await Bot.SendDocumentAsync(message.Chat.Id, stream, replyImageCaption == string.Empty ? replyImage : replyImageCaption, parseMode: ParseMode.Html);
+                        await Bot.SendVideoAsync(message.Chat.Id, stream, caption: replyImageCaption == string.Empty ? replyAnimation : replyImageCaption, parseMode: ParseMode.Html);
+
+                    }
+                    catch (System.Net.Http.HttpRequestException ex)
+                    {
+                        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: Unable to download " + ex.HResult + " " + ex.Message);
+                        await Bot.SendTextMessageAsync(message.Chat.Id, "Unable to download the requested image due to an error.");
+                    }
+                    catch (System.Net.WebException ex)
+                    {
+                        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: Unable to download " + ex.HResult + " " + ex.Message);
+                        await Bot.SendTextMessageAsync(message.Chat.Id, "Unable to download the requested image due to an error.");
+                    }
+                    catch (NullReferenceException ex)
+                    {
+                        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: " + replyAnimation + " Threw: " + ex.Message);
+                        await Bot.SendTextMessageAsync(message.Chat.Id, "Unable to download the requested image due to an error.");
+                    }
+                    catch (Exception ex)
+                    {
+                        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: " + replyAnimation + " Threw: " + ex.Message);
+                        await Bot.SendTextMessageAsync(message.Chat.Id, "Unable to download the requested image due to an error.");
+                    }
+
+                }
+
+            }
+
+            // Unknown Messages
+            // TODO: Work out what to actually flocking do with them.
+            if (message.Type == MessageType.Unknown)
+            {
+                m = message.Date.ToLocalTime();
+
+                using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
+                {
+                    if (nwGrabString("debugmode") == "true")
+                        Console.WriteLine("[" + n_chanid + "] [" + message.MessageId + "] [" + m.ToString(nwParseFormat(true)) + "] * System: Unknown, please report");
+                    else
+                        nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] * System: Unknown, please report");
+
+                    await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: Unknown, please report");
+                }
+
+
+            }
+
         }
+
+        private static void BotOnReceiveError(object sender, ReceiveErrorEventArgs e)
+        {
+            Console.WriteLine("Received error: {0} — {1}",
+                e.ApiRequestException.ErrorCode,
+                e.ApiRequestException.Message);
+        }
+
+        ///// <summary>
+        ///// Process all of our slash commands
+        ///// </summary>
+        ///// <param name="bot">The bot API.</param>
+        ///// <param name="update">The update</param>
+        ///// <param name="me">The user, or bot.</param>
+        ///// <param name="dt">The date/time component.</param>
+        ///// <remarks>Only designed to work if regular commands are enabled.</remarks>
+        //private static async Task nwProcessSlashCommands(TelegramBotClient bot, Update update, Telegram.Bot.Types.User me, DateTime dt)
+        //{
+        //    try
+        //    {
+
+        //    }
+        //    catch (Exception)
+        //    {
+
+        //        throw;
+        //    }
+        //}
 
         //private static void nwSetDragonNoiseCount(string username)
         //{
@@ -1739,2942 +3549,3008 @@ namespace nwTelegramBot
             doc.Save(s_offsetcfg);
         }
 
-        /// <summary>
-        /// Process all of our slash commands
-        /// </summary>
-        /// <param name="bot">The bot API.</param>
-        /// <param name="update">The update</param>
-        /// <param name="me">The user, or bot.</param>
-        /// <param name="dt">The date/time component.</param>
-        /// <remarks>Only designed to work if regular commands are enabled.</remarks>
-        private static async Task nwProcessCommands(TelegramBotClient bot, Update update, Telegram.Bot.Types.User me, DateTime dt)
-        {
-            // read configuration and extract api keys
-            var wundergroundKey = nwGrabString("weatherapi");
-            var nsfwKey = nwGrabString("e621api");
-            string exchangeKey = "";
-
-            // Apparently Telegram sends usernames with extra characters on either side, that the bot hates
-            // This should remove them.
-            string s_username;
-            if (update.Message.From.Username != null)
-            {
-                s_username = update.Message.From.Username.Trim(' ').Trim('\r').Trim('\n');
-            }
-            else
-            {
-                s_username = update.Message.From.FirstName; // Use firstname if username is null
-            }
-
-            // This one is to get the group type.
-            ChatType ct = update.Message.Chat.Type;
-
-            // Process request
-            try
-            {
-                var httpClient = new ProHttpClient();
-                var text = update.Message.Text;
-                var replyText = string.Empty;
-                var replyText2 = string.Empty;
-                var s_replyToUser = string.Empty;
-                var replyTextEvent = string.Empty;
-                var replyTextMarkdown = string.Empty;
-                var replyImage = string.Empty;
-                var replyVideo = string.Empty;
-                var replyImageCaption = string.Empty;
-                var replyDocument = string.Empty;
-                var thischat = bot.GetChatAsync(update.Message.Chat.Id);
-
-                if (text != null && (text.StartsWith("!", StringComparison.Ordinal)))
-                {
-                    // Log to console
-                    Console.WriteLine(update.Message.Chat.Id + " < " + update.Message.From.Username + " - " + text);
-
-                    text = "!" + text.Substring(1);
-
-                    // Strip @BotName
-                    text = text.Replace("@" + me.Username, "");
-
-                    // Parse
-                    string command;
-                    string body;
-
-                    if (text.StartsWith("/s/", StringComparison.Ordinal))
-                    {
-
-                        command = "/s"; // special case for sed
-                        body = text.Substring(2);
-
-                    }
-                    else
-                    {
-
-                        command = text.Split(' ')[0];
-                        body = text.Replace(command, "").Trim();
-
-                    }
-
-                    var stringBuilder = new StringBuilder();
-
-                    //
-
-                    switch (command.ToLowerInvariant())
-                    {
-                        case "!ball":
-                        case "!8ball":
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-                                if (body == string.Empty || body == " " || body == "@" || body.Contains("?") == false || body == null)
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    s_replyToUser = "You haven't given me a question to answer." + Environment.NewLine + "Usage: !8ball question to ask?";
-
-                                    break;
-                                }
-                                else if (body == "help")
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    s_replyToUser = "Usage: !8ball [question to ask, followed by a question mark]" + Environment.NewLine + "Type '!8ball help' to see this message again.";
-
-                                    break;
+        ///// <summary>
+        ///// Process all of our slash commands
+        ///// </summary>
+        ///// <param name="bot">The bot API.</param>
+        ///// <param name="update">The update</param>
+        ///// <param name="me">The user, or bot.</param>
+        ///// <param name="dt">The date/time component.</param>
+        ///// <remarks>Only designed to work if regular commands are enabled.</remarks>
+        //private static async Task nwProcessCommands(TelegramBotClient bot, Update update, Telegram.Bot.Types.User me, DateTime dt)
+        //{
+        //    // read configuration and extract api keys
+        //    var wundergroundKey = nwGrabString("weatherapi");
+        //    var nsfwKey = nwGrabString("e621api");
+        //    string exchangeKey = "";
+
+        //    // Apparently Telegram sends usernames with extra characters on either side, that the bot hates
+        //    // This should remove them.
+        //    string s_username;
+        //    if (update.Message.From.Username != null)
+        //    {
+        //        s_username = update.Message.From.Username.Trim(' ').Trim('\r').Trim('\n');
+        //    }
+        //    else
+        //    {
+        //        s_username = update.Message.From.FirstName; // Use firstname if username is null
+        //    }
+
+        //    // This one is to get the group type.
+        //    ChatType ct = update.Message.Chat.Type;
+
+        //    // Process request
+        //    try
+        //    {
+        //        var httpClient = new ProHttpClient();
+        //        var text = update.Message.Text;
+        //        var replyText = string.Empty;
+        //        var replyText2 = string.Empty;
+        //        var s_replyToUser = string.Empty;
+        //        var replyTextEvent = string.Empty;
+        //        var replyTextMarkdown = string.Empty;
+        //        var replyImage = string.Empty;
+        //        var replyVideo = string.Empty;
+        //        var replyImageCaption = string.Empty;
+        //        var replyDocument = string.Empty;
+        //        var thischat = bot.GetChatAsync(update.Message.Chat.Id);
+
+        //        if (text != null && (text.StartsWith("!", StringComparison.Ordinal)))
+        //        {
+        //            // Log to console
+        //            Console.WriteLine(update.Message.Chat.Id + " < " + update.Message.From.Username + " - " + text);
+
+        //            text = "!" + text.Substring(1);
+
+        //            // Strip @BotName
+        //            text = text.Replace("@" + me.Username, "");
+
+        //            // Parse
+        //            string command;
+        //            string body;
+
+        //            if (text.StartsWith("/s/", StringComparison.Ordinal))
+        //            {
+
+        //                command = "/s"; // special case for sed
+        //                body = text.Substring(2);
+
+        //            }
+        //            else
+        //            {
+
+        //                command = text.Split(' ')[0];
+        //                body = text.Replace(command, "").Trim();
+
+        //            }
+
+        //            var stringBuilder = new StringBuilder();
+
+        //            //
+
+        //            switch (command.ToLowerInvariant())
+        //            {
+        //                case "!ball":
+        //                case "!8ball":
+
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
+        //                        if (body == string.Empty || body == " " || body == "@" || body.Contains("?") == false || body == null)
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                            s_replyToUser = "You haven't given me a question to answer." + Environment.NewLine + "Usage: !8ball question to ask?";
+
+        //                            break;
+        //                        }
+        //                        else if (body == "help")
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                            s_replyToUser = "Usage: !8ball [question to ask, followed by a question mark]" + Environment.NewLine + "Type '!8ball help' to see this message again.";
+
+        //                            break;
 
-                                }
+        //                        }
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                s_replyToUser = nwRandom8BallResponse();
-                                break;
-                            }
-
-                            break;
-
-                        case "!mods":
-                        case "!admin":
-                        case "!admins":
-
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-
-                                StringBuilder sb = new StringBuilder();
-
-                                ChatMember[] mew = await bot.GetChatAdministratorsAsync(update.Message.Chat.Id);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                        s_replyToUser = nwRandom8BallResponse();
+        //                        break;
+        //                    }
+
+        //                    break;
+
+        //                case "!mods":
+        //                case "!admin":
+        //                case "!admins":
+
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
+
+        //                        StringBuilder sb = new StringBuilder();
+
+        //                        ChatMember[] mew = await bot.GetChatAdministratorsAsync(update.Message.Chat.Id);
 
-                                sb.AppendLine("The group admins, to whom all must obey, are:");
-
-                                foreach (ChatMember x in mew)
-                                {
-                                    sb.AppendLine("@" + x.User.Username);
-                                }
-
-                                replyText = sb.ToString();
-                            }
-                            else
-                            {
-                                Console.WriteLine(" The " + command + " failed as it took too long to process.");
-                            }
-
-                            break;
-
-                        case "!alive":
-
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "Hi " + update.Message.From.FirstName + ", I am indeed alive.";
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
-
-                            break;
-
-                        case "!backup":
-
-                            // check to see if private message
-                            if (ct == ChatType.Private)
-                            {
-                                bool b_kat = false;
+        //                        sb.AppendLine("The group admins, to whom all must obey, are:");
+
+        //                        foreach (ChatMember x in mew)
+        //                        {
+        //                            sb.AppendLine("@" + x.User.Username);
+        //                        }
+
+        //                        replyText = sb.ToString();
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine(" The " + command + " failed as it took too long to process.");
+        //                    }
+
+        //                    break;
+
+        //                case "!alive":
+
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                        s_replyToUser = "Hi " + update.Message.From.FirstName + ", I am indeed alive.";
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
+
+        //                    break;
+
+        //                case "!backup":
+
+        //                    // check to see if private message
+        //                    if (ct == ChatType.Private)
+        //                    {
+        //                        bool b_kat = false;
 
-                                // check the username
-                                if (s_username != "AnwenSnowMew")
-                                {
-                                    if (nwCheckInReplyTimer(dt) != false)
-                                        s_replyToUser = "You have insufficient permissions to access this command.";
-                                    break;
-                                }
-                                // if it is okay to reply, do so.
-                                if (nwCheckInReplyTimer(dt) != false)
-                                {
-                                    s_replyToUser = "Starting backup...";
-                                    cZipBackup.Instance.CreateSample(dt.ToString(nwGrabString("dateformat")) + "_backup.zip", null, Environment.CurrentDirectory + @"\logs_tg\");
-                                    b_kat = true;
-                                }
+        //                        // check the username
+        //                        if (s_username != "AnwenSnowMew")
+        //                        {
+        //                            if (nwCheckInReplyTimer(dt) != false)
+        //                                s_replyToUser = "You have insufficient permissions to access this command.";
+        //                            break;
+        //                        }
+        //                        // if it is okay to reply, do so.
+        //                        if (nwCheckInReplyTimer(dt) != false)
+        //                        {
+        //                            s_replyToUser = "Starting backup...";
+        //                            cZipBackup.Instance.CreateSample(dt.ToString(nwGrabString("dateformat")) + "_backup.zip", null, Environment.CurrentDirectory + @"\logs_tg\");
+        //                            b_kat = true;
+        //                        }
 
-                                if (b_kat == true)
-                                {
-                                    s_replyToUser = "Backup complete";
-                                }
-                            }
-                            else
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "This command can only be used in private messages.";
-                                break;
-                            }
+        //                        if (b_kat == true)
+        //                        {
+        //                            s_replyToUser = "Backup complete";
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        if (nwCheckInReplyTimer(dt) != false)
+        //                            s_replyToUser = "This command can only be used in private messages.";
+        //                        break;
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!cat":
+        //                case "!cat":
 
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                            //int n_catuse = nwGrabGlobalUsageDB("cat");
-                            //int n_cat_uuse = nwGrabUserUsage(s_username, "cat");
-                            //int n_cat_gmax = nwGrabGlobalMax("cat");
-                            //int n_cat_umax = nwGrabUserMax("cat");
+        //                    //int n_catuse = nwGrabGlobalUsageDB("cat");
+        //                    //int n_cat_uuse = nwGrabUserUsage(s_username, "cat");
+        //                    //int n_cat_gmax = nwGrabGlobalMax("cat");
+        //                    //int n_cat_umax = nwGrabUserMax("cat");
 
-                            //if (n_catuse == n_cat_gmax || n_catuse == n_cat_umax)
-                            //{
-                            //    if (nwCheckInReplyTimer(dt) != false)
-                            //        s_replyToUser = "Sorry, the /cat command has been used too many times.";
-                            //    break;
-                            //}
+        //                    //if (n_catuse == n_cat_gmax || n_catuse == n_cat_umax)
+        //                    //{
+        //                    //    if (nwCheckInReplyTimer(dt) != false)
+        //                    //        s_replyToUser = "Sorry, the /cat command has been used too many times.";
+        //                    //    break;
+        //                    //}
 
-                            // if it is okay to reply, do so.
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-                                replyImage = "http://thecatapi.com/api/images/get?format=src&type=jpg,png";
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    // if it is okay to reply, do so.
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
+        //                        replyImage = "http://thecatapi.com/api/images/get?format=src&type=jpg,png";
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            //nwSetGlobalUsageDB("cat", n_catuse++); // set global usage incrementally
-                                                                   //nwSetUserUsage(s_username, "cat", n_cat_uuse++); // set this users usage incrementally
+        //                    //nwSetGlobalUsageDB("cat", n_catuse++); // set global usage incrementally
+        //                                                           //nwSetUserUsage(s_username, "cat", n_cat_uuse++); // set this users usage incrementally
 
-                            break;
+        //                    break;
 
-                        case "!die":
-                        case "!kill":
+        //                case "!die":
+        //                case "!kill":
 
-                            if (ct == ChatType.Private)
-                            {
-                                if (s_username != "AnwenSnowMew")
-                                {
-                                    if (nwCheckInReplyTimer(dt) != false)
-                                        s_replyToUser = "You have insufficient permissions to access this command.";
-                                    break;
-                                }
+        //                    if (ct == ChatType.Private)
+        //                    {
+        //                        if (s_username != "AnwenSnowMew")
+        //                        {
+        //                            if (nwCheckInReplyTimer(dt) != false)
+        //                                s_replyToUser = "You have insufficient permissions to access this command.";
+        //                            break;
+        //                        }
 
-                                s_replyToUser = "Goodbye.";
+        //                        s_replyToUser = "Goodbye.";
 
-                                Task.Delay(1000);
+        //                        Task.Delay(1000);
 
-                                Environment.Exit(0);
-                            }
-                            else
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "This command can only be used in private messages.";
-                                break;
-                            }
+        //                        Environment.Exit(0);
+        //                    }
+        //                    else
+        //                    {
+        //                        if (nwCheckInReplyTimer(dt) != false)
+        //                            s_replyToUser = "This command can only be used in private messages.";
+        //                        break;
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!e621":
+        //                case "!e621":
 
-                            if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                            {
+        //                    if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+        //                    {
 
-                                if (body == string.Empty || body == " " || body == "@" || body == null)
-                                {
+        //                        if (body == string.Empty || body == " " || body == "@" || body == null)
+        //                        {
 
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                    body = body.Replace(' ', '+');
-                                    body = body.Replace("@", string.Empty);
+        //                            body = body.Replace(' ', '+');
+        //                            body = body.Replace("@", string.Empty);
 
-                                    string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=220");
+        //                            string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=220");
 
-                                    await bot.SendTextMessageAsync(update.Message.Chat.Id, nwGrabImage("https://e621.net/post/index.xml?limit=220&tags=order:score"), false, false, 0, null, ParseMode.Html);
+        //                            await bot.SendTextMessageAsync(update.Message.Chat.Id, nwGrabImage("https://e621.net/post/index.xml?limit=220&tags=order:score"), false, false, 0, null, ParseMode.Html);
 
-                                    break;
+        //                            break;
 
-                                }
-                                else if (body == "help")
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        }
+        //                        else if (body == "help")
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: !e621 [tag to look for, leave blank for random]" + Environment.NewLine +
-                                        "Tips:" + Environment.NewLine +
-                                        "If you wish to prevent undesireable artwork from appearing you should use some more complex tags." + Environment.NewLine +
-                                        "This bot relies on e621 API and if it's not working, and/or servers are down, then the bot can't do anything about it." + Environment.NewLine +
-                                        "Flash content is completely ignored by this, due to the Telegram api." + Environment.NewLine +
-                                        "Type '!e621 help' to see this message again.";
+        //                            s_replyToUser = "Usage: !e621 [tag to look for, leave blank for random]" + Environment.NewLine +
+        //                                "Tips:" + Environment.NewLine +
+        //                                "If you wish to prevent undesireable artwork from appearing you should use some more complex tags." + Environment.NewLine +
+        //                                "This bot relies on e621 API and if it's not working, and/or servers are down, then the bot can't do anything about it." + Environment.NewLine +
+        //                                "Flash content is completely ignored by this, due to the Telegram api." + Environment.NewLine +
+        //                                "Type '!e621 help' to see this message again.";
 
-                                    break;
+        //                            break;
 
-                                }
-                                else
-                                {
+        //                        }
+        //                        else
+        //                        {
 
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                    body = body.Replace(' ', '+');
-                                    body = body.Replace("@", string.Empty);
+        //                            body = body.Replace(' ', '+');
+        //                            body = body.Replace("@", string.Empty);
 
-                                    string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=220&tags=" + body);
+        //                            string s_img_grabbed = nwGrabImage("https://e621.net/post/index.xml?limit=220&tags=" + body);
 
-                                    await bot.SendTextMessageAsync(update.Message.Chat.Id, s_img_grabbed, false, false, 0, null, ParseMode.Html);
+        //                            await bot.SendTextMessageAsync(update.Message.Chat.Id, s_img_grabbed, false, false, 0, null, ParseMode.Html);
 
-                                    break;
+        //                            break;
 
-                                }
+        //                        }
 
-                            }
-                            else
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "Not happening, outside of private messages, or NSFW channels that is.";
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        if (nwCheckInReplyTimer(dt) != false)
+        //                            s_replyToUser = "Not happening, outside of private messages, or NSFW channels that is.";
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!count":
+        //                case "!count":
 
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (ct != ChatType.Private)
-                            {
-                                ChatMember[] cm_admin = await bot.GetChatAdministratorsAsync(update.Message.Chat.Id);
+        //                    if (ct != ChatType.Private)
+        //                    {
+        //                        ChatMember[] cm_admin = await bot.GetChatAdministratorsAsync(update.Message.Chat.Id);
 
-                                foreach (ChatMember x in cm_admin)
-                                {
+        //                        foreach (ChatMember x in cm_admin)
+        //                        {
 
-                                    if (x.User.Username.Contains(s_username) != true)
-                                    {
+        //                            if (x.User.Username.Contains(s_username) != true)
+        //                            {
 
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = "You have insufficient permissions to access this command.";
-                                        break;
+        //                                if (nwCheckInReplyTimer(dt) != false)
+        //                                    replyText = "You have insufficient permissions to access this command.";
+        //                                break;
 
-                                    }
-                                    else
-                                    {
+        //                            }
+        //                            else
+        //                            {
 
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                        {
+        //                                if (nwCheckInReplyTimer(dt) != false)
+        //                                {
 
-                                            int meow;
-                                            meow = await bot.GetChatMembersCountAsync(update.Message.Chat.Id);
-                                            s_replyToUser = "There are currently " + meow + " people in chat.";
+        //                                    int meow;
+        //                                    meow = await bot.GetChatMembersCountAsync(update.Message.Chat.Id);
+        //                                    s_replyToUser = "There are currently " + meow + " people in chat.";
 
-                                        }
-                                        else
-                                        {
+        //                                }
+        //                                else
+        //                                {
 
-                                            Console.WriteLine(" The " + command + " failed as it took too long to process.");
+        //                                    Console.WriteLine(" The " + command + " failed as it took too long to process.");
 
-                                        }
+        //                                }
 
-                                        break;
-                                    }
+        //                                break;
+        //                            }
 
-                                }
+        //                        }
 
-                            }
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!con":
-                        case "!cons":
-                        case "!convention": // TODO: Finish this command
-                        case "!conventions": // TODO: Finish this command
+        //                case "!con":
+        //                case "!cons":
+        //                case "!convention": // TODO: Finish this command
+        //                case "!conventions": // TODO: Finish this command
 
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-                                XmlDocument dook = new XmlDocument();
-                                dook.Load(ehoh.Directory.GetCurrentDirectory() + @"/data/conventions.xml");
-                                DateTime dta1 = new DateTime(2016, 4, 1);
-                                dta1 = DateTime.Now;
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
+        //                        XmlDocument dook = new XmlDocument();
+        //                        dook.Load(ehoh.Directory.GetCurrentDirectory() + @"/data/conventions.xml");
+        //                        DateTime dta1 = new DateTime(2016, 4, 1);
+        //                        dta1 = DateTime.Now;
 
-                                DateTime dta2 = new DateTime(2016, 4, 1);
-                                dta2 = DateTime.Now;
+        //                        DateTime dta2 = new DateTime(2016, 4, 1);
+        //                        dta2 = DateTime.Now;
 
-                                // Get our nodes
-                                XmlNodeList nodes;
-                                nodes = dook.GetElementsByTagName("event");
+        //                        // Get our nodes
+        //                        XmlNodeList nodes;
+        //                        nodes = dook.GetElementsByTagName("event");
 
-                                // Create a new string builder
-                                StringBuilder eventString = new StringBuilder();
-                                eventString.AppendLine("Here is a list of upcoming (public) Australian conventions. Times are in local time, and may be subject to change.");
+        //                        // Create a new string builder
+        //                        StringBuilder eventString = new StringBuilder();
+        //                        eventString.AppendLine("Here is a list of upcoming (public) Australian conventions. Times are in local time, and may be subject to change.");
 
-                                // Iterate through available events
-                                for (var i1for = 0; i1for < nodes.Count; i1for++)
-                                {
-                                    dta1 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("start").InnerText);
-                                    dta2 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("end").InnerText);
-                                    eventString.AppendLine("<b>"+nodes.Item(i1for).SelectSingleNode("title").InnerText + "</b> [" + nodes.Item(i1for).SelectSingleNode("url").InnerText + "]");
-                                    eventString.AppendLine("Convention starts: " + dta1.ToString("ddd d/MM/yyy") + " (" + dta1.ToString("h:mm tt") + ")");
-                                    eventString.AppendLine("Convention ends: " + dta2.ToString("ddd d/MM/yyy") + " (" + dta2.ToString("h:mm tt") + ")");
-                                    eventString.AppendLine("");
-                                }
+        //                        // Iterate through available events
+        //                        for (var i1for = 0; i1for < nodes.Count; i1for++)
+        //                        {
+        //                            dta1 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("start").InnerText);
+        //                            dta2 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("end").InnerText);
+        //                            eventString.AppendLine("<b>"+nodes.Item(i1for).SelectSingleNode("title").InnerText + "</b> [" + nodes.Item(i1for).SelectSingleNode("url").InnerText + "]");
+        //                            eventString.AppendLine("Convention starts: " + dta1.ToString("ddd d/MM/yyy") + " (" + dta1.ToString("h:mm tt") + ")");
+        //                            eventString.AppendLine("Convention ends: " + dta2.ToString("ddd d/MM/yyy") + " (" + dta2.ToString("h:mm tt") + ")");
+        //                            eventString.AppendLine("");
+        //                        }
 
-                                replyTextEvent = eventString.ToString();
+        //                        replyTextEvent = eventString.ToString();
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!meet":
-                        case "!meets":
-                        case "!event":
-                        case "!events": // TODO: Finish this command
+        //                case "!meet":
+        //                case "!meets":
+        //                case "!event":
+        //                case "!events": // TODO: Finish this command
 
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                if (body == string.Empty || body == " " || body == "@" || body == null)
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        if (body == string.Empty || body == " " || body == "@" || body == null)
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    if (nwReturnEventInfo(dt) != "maow")
-                                        replyTextEvent = nwReturnEventInfo(dt);
-                                    else
-                                        replyText = "I can't let you do that Dave.";
-                                    break;
-                                }
-                                else if (body == "help")
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                            if (nwReturnEventInfo(dt) != "maow")
+        //                                replyTextEvent = nwReturnEventInfo(dt);
+        //                            else
+        //                                replyText = "I can't let you do that Dave.";
+        //                            break;
+        //                        }
+        //                        else if (body == "help")
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: !event [number]" + Environment.NewLine + "The optional parameter number can be omitted, in which it just returns events for last 15 days by default." + Environment.NewLine + "Type '!event help' to see this message again.";
+        //                            s_replyToUser = "Usage: !event [number]" + Environment.NewLine + "The optional parameter number can be omitted, in which it just returns events for last 15 days by default." + Environment.NewLine + "Type '!event help' to see this message again.";
 
-                                    break;
+        //                            break;
 
-                                }
-                                else
-                                {
-                                    if (nwReturnEventInfo(dt) != "maow")
-                                        replyTextEvent = nwReturnEventInfo(dt, Convert.ToInt32(body));
-                                    else
-                                        replyText = "I can't let you do that Dave.";
-                                }
+        //                        }
+        //                        else
+        //                        {
+        //                            if (nwReturnEventInfo(dt) != "maow")
+        //                                replyTextEvent = nwReturnEventInfo(dt, Convert.ToInt32(body));
+        //                            else
+        //                                replyText = "I can't let you do that Dave.";
+        //                        }
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!debug":
+        //                case "!debug":
 
-                            if (ct == ChatType.Private)
-                            {
-                                if (s_username != "AnwenSnowMew" || s_username != "Inflatophin")
-                                {
-                                    if (nwCheckInReplyTimer(dt) != false)
-                                        replyText = "You have insufficient permissions to access this command.";
-                                    break;
-                                }
+        //                    if (ct == ChatType.Private)
+        //                    {
+        //                        if (s_username != "AnwenSnowMew" || s_username != "Inflatophin")
+        //                        {
+        //                            if (nwCheckInReplyTimer(dt) != false)
+        //                                replyText = "You have insufficient permissions to access this command.";
+        //                            break;
+        //                        }
 
-                                if (nwGrabString("debugMode") == "false")
-                                {
-                                    nwSetString("debugMode", "true");
-                                    nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: DEBUG MODE ENABLED!");
-                                }
-                                else
-                                {
-                                    nwSetString("debugMode", "false");
-                                    nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: DEBUG MODE DISABLED!");
-                                }
-                            }
-                            else
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "This command can only be used in private messages.";
-                                break;
-                            }
+        //                        if (nwGrabString("debugMode") == "false")
+        //                        {
+        //                            nwSetString("debugMode", "true");
+        //                            nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: DEBUG MODE ENABLED!");
+        //                        }
+        //                        else
+        //                        {
+        //                            nwSetString("debugMode", "false");
+        //                            nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: DEBUG MODE DISABLED!");
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        if (nwCheckInReplyTimer(dt) != false)
+        //                            replyText = "This command can only be used in private messages.";
+        //                        break;
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!dingo":
+        //                case "!dingo":
 
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !dingo";
+        //                        s_replyToUser = "Usage: !dingo";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !dingo" + Environment.NewLine + "Type '!dingo help' to see this message again.";
+        //                        s_replyToUser = "Usage: !dingo" + Environment.NewLine + "Type '!dingo help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                replyImage = nwShowSpeciesImage("dingo", update, ct);
+        //                        replyImage = nwShowSpeciesImage("dingo", update, ct);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!canine":
-                        case "!dog":
-                        case "!doggo":
+        //                case "!canine":
+        //                case "!dog":
+        //                case "!doggo":
 
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !dog";
+        //                        s_replyToUser = "Usage: !dog";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !dog" + Environment.NewLine + "Type '!dog help' to see this message again.";
+        //                        s_replyToUser = "Usage: !dog" + Environment.NewLine + "Type '!dog help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                replyImage = nwShowSpeciesImage("dog", update, ct);
+        //                        replyImage = nwShowSpeciesImage("dog", update, ct);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!corgi":
+        //                case "!corgi":
 
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !corgi";
+        //                        s_replyToUser = "Usage: !corgi";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !corgi" + Environment.NewLine + "Type '!corgi help' to see this message again.";
+        //                        s_replyToUser = "Usage: !corgi" + Environment.NewLine + "Type '!corgi help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                replyImage = nwShowSpeciesImage("corgi", update, ct);
+        //                        replyImage = nwShowSpeciesImage("corgi", update, ct);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!dino":
+        //                case "!dino":
 
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !dino";
+        //                        s_replyToUser = "Usage: !dino";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !dino" + Environment.NewLine + "Type '!dino help' to see this message again.";
+        //                        s_replyToUser = "Usage: !dino" + Environment.NewLine + "Type '!dino help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                replyImage = nwShowSpeciesImage("dinosaur", update, ct);
+        //                        replyImage = nwShowSpeciesImage("dinosaur", update, ct);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!ferret":
+        //                case "!ferret":
 
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !ferret";
+        //                        s_replyToUser = "Usage: !ferret";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !ferret" + Environment.NewLine + "Type '!ferret help' to see this message again.";
+        //                        s_replyToUser = "Usage: !ferret" + Environment.NewLine + "Type '!ferret help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                replyImage = nwShowSpeciesImage("ferret", update, ct);
+        //                        replyImage = nwShowSpeciesImage("ferret", update, ct);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!fennec":
+        //                case "!fennec":
 
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !fennec";
+        //                        s_replyToUser = "Usage: !fennec";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !fennec" + Environment.NewLine + "Type '!fennec help' to see this message again.";
+        //                        s_replyToUser = "Usage: !fennec" + Environment.NewLine + "Type '!fennec help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                replyImage = nwShowSpeciesImage("fennec fox", update, ct);
+        //                        replyImage = nwShowSpeciesImage("fennec fox", update, ct);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!deer":
+        //                case "!deer":
 
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !deer";
+        //                        s_replyToUser = "Usage: !deer";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !deer" + Environment.NewLine + "Type '!dragon help' to see this message again.";
+        //                        s_replyToUser = "Usage: !deer" + Environment.NewLine + "Type '!dragon help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                replyImage = nwShowSpeciesImage("deer", update, ct);
+        //                        replyImage = nwShowSpeciesImage("deer", update, ct);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!dragon":
+        //                case "!dragon":
 
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !dragon";
+        //                        s_replyToUser = "Usage: !dragon";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !dragon" + Environment.NewLine + "Type '!dragon help' to see this message again.";
+        //                        s_replyToUser = "Usage: !dragon" + Environment.NewLine + "Type '!dragon help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                replyImage = nwShowSpeciesImage("dragon", update, ct);
+        //                        replyImage = nwShowSpeciesImage("dragon", update, ct);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!edit":
+        //                case "!edit":
 
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (s_username != "AnwenSnowMew")
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "You have insufficient permissions to access this command.";
-                                else
-                                {
-                                    Console.WriteLine("The " + command + " failed as it took too long to process.");
-                                }
+        //                    if (s_username != "AnwenSnowMew")
+        //                    {
+        //                        if (nwCheckInReplyTimer(dt) != false)
+        //                            s_replyToUser = "You have insufficient permissions to access this command.";
+        //                        else
+        //                        {
+        //                            Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                        }
 
-                                break;
-                            }
+        //                        break;
+        //                    }
 
-                            // Roll our dice.
-                            nwEditBotMessage(dt, bot, update.Message.Chat.Id, body);
+        //                    // Roll our dice.
+        //                    nwEditBotMessage(dt, bot, update.Message.Chat.Id, body);
 
-                            break;
+        //                    break;
 
-                        case "!echo":
+        //                case "!echo":
 
-                            if (ct == ChatType.Private)
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                {
-                                    if (body == string.Empty || body == " " || body == "@" || body == null)
-                                    {
-                                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (ct == ChatType.Private)
+        //                    {
+        //                        if (nwCheckInReplyTimer(dt) != false)
+        //                        {
+        //                            if (body == string.Empty || body == " " || body == "@" || body == null)
+        //                            {
+        //                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                        s_replyToUser = "Too short.";
+        //                                s_replyToUser = "Too short.";
 
-                                        break;
-                                    }
+        //                                break;
+        //                            }
 
-                                    replyText = body;
-                                    break;
-                                }
-                                else
-                                {
-                                    Console.WriteLine("The " + command + " failed as it took too long to process.");
-                                }
-                            }
-                            else
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "This command can only be used in private messages.";
+        //                            replyText = body;
+        //                            break;
+        //                        }
+        //                        else
+        //                        {
+        //                            Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        if (nwCheckInReplyTimer(dt) != false)
+        //                            s_replyToUser = "This command can only be used in private messages.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!ermine":
+        //                case "!ermine":
 
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !ermine";
+        //                        s_replyToUser = "Usage: !ermine";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !ermine" + Environment.NewLine + "Type '!ermine help' to see this message again.";
+        //                        s_replyToUser = "Usage: !ermine" + Environment.NewLine + "Type '!ermine help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                replyImage = nwShowSpeciesImage("ermine", update, ct);
+        //                        replyImage = nwShowSpeciesImage("ermine", update, ct);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!fox":
+        //                case "!fox":
 
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !fox";
+        //                        s_replyToUser = "Usage: !fox";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !fox" + Environment.NewLine + "Type '!fox help' to see this message again.";
+        //                        s_replyToUser = "Usage: !fox" + Environment.NewLine + "Type '!fox help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                replyImage = nwShowSpeciesImage("fox", update, ct);
+        //                        replyImage = nwShowSpeciesImage("fox", update, ct);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!hare":
-                        case "!rabbit":
+        //                case "!hare":
+        //                case "!rabbit":
 
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !rabbit";
+        //                        s_replyToUser = "Usage: !rabbit";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !rabbit" + Environment.NewLine + "Type '!rabbit help' to see this message again.";
+        //                        s_replyToUser = "Usage: !rabbit" + Environment.NewLine + "Type '!rabbit help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                replyImage = nwShowSpeciesImage("rabbit", update, ct);
+        //                        replyImage = nwShowSpeciesImage("rabbit", update, ct);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!gif":
+        //                case "!gif":
 
-                                if (body == string.Empty || body == " " || body == "@" || body == null)
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        if (body == string.Empty || body == " " || body == "@" || body == null)
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: !gif [image to look for]";
+        //                            s_replyToUser = "Usage: !gif [image to look for]";
 
-                                    break;
-                                }
-                                else if (body == "help")
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                            break;
+        //                        }
+        //                        else if (body == "help")
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: !gif [Image to look for]" + Environment.NewLine + "Type '!gif help' to see this message again.";
+        //                            s_replyToUser = "Usage: !gif [Image to look for]" + Environment.NewLine + "Type '!gif help' to see this message again.";
 
-                                    break;
+        //                            break;
 
-                                }
+        //                        }
 
-                                if (nwCheckInReplyTimer(dt) != false)
-                                {
+        //                        if (nwCheckInReplyTimer(dt) != false)
+        //                        {
 
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                    retryme:
+        //                            retryme:
 
-                                    // list of urls.
-                                    string html = null;
+        //                            // list of urls.
+        //                            string html = null;
 
-                                    // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                                    if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                        html = GetHtmlCode(body, false, true);
-                                    else
-                                        html = GetHtmlCode(body, false, false);
+        //                            // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+        //                            if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+        //                                html = GetHtmlCode(body, false, true);
+        //                            else
+        //                                html = GetHtmlCode(body, false, false);
 
-                                    List<string> urls = GetUrls(html);
-                                    var rnd = new Random();
+        //                            List<string> urls = GetUrls(html);
+        //                            var rnd = new Random();
 
-                                    int randomUrl = rnd.Next(0, urls.Count - 1);
+        //                            int randomUrl = rnd.Next(0, urls.Count - 1);
 
-                                    string luckyUrl = urls[randomUrl];
+        //                            string luckyUrl = urls[randomUrl];
 
-                                    // Check if the file is valid, or throws an unwanted status code.
-                                    if (!string.IsNullOrEmpty(luckyUrl))
-                                    {
-                                        UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                        if (response.StatusCode == HttpStatusCode.NotFound)
-                                        {
-                                            Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                            goto retryme;
-                                        }
-                                    if (response.StatusCode == HttpStatusCode.BadRequest)
-                                    {
-                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                        {
-                                            Console.WriteLine("URL appears to be good.");
-                                        }
-                                        else //There are a lot of other status codes you could check for...
-                                        {
-                                            Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                       response.StatusCode.ToString()));
-                                        }
-                                    }
+        //                            // Check if the file is valid, or throws an unwanted status code.
+        //                            if (!string.IsNullOrEmpty(luckyUrl))
+        //                            {
+        //                                UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+        //                                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+        //                                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+        //                                if (response.StatusCode == HttpStatusCode.NotFound)
+        //                                {
+        //                                    Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+        //                                    goto retryme;
+        //                                }
+        //                            if (response.StatusCode == HttpStatusCode.BadRequest)
+        //                            {
+        //                                Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+        //                                goto retryme;
+        //                            }
+        //                            if (response.StatusCode == HttpStatusCode.OK)
+        //                                {
+        //                                    Console.WriteLine("URL appears to be good.");
+        //                                }
+        //                                else //There are a lot of other status codes you could check for...
+        //                                {
+        //                                    Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+        //                                                               response.StatusCode.ToString()));
+        //                                }
+        //                            }
 
-                                    if (luckyUrl.Contains(" ") == true)
-                                        luckyUrl.Replace(" ", "%20");
+        //                            if (luckyUrl.Contains(" ") == true)
+        //                                luckyUrl.Replace(" ", "%20");
 
-                                    replyImage = luckyUrl;
+        //                            replyImage = luckyUrl;
 
-                                    //nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
-                                    //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
+        //                            //nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
+        //                            //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
 
-                                    break;
+        //                            break;
 
-                                }
-                                else
-                                {
-                                    Console.WriteLine("The " + command + " failed as it took too long to process.");
-                                }
+        //                        }
+        //                        else
+        //                        {
+        //                            Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                        }
 
-                            break;
+        //                    break;
 
-                        case "!jelly": // TODO: Finish this command
+        //                case "!jelly": // TODO: Finish this command
 
-                            // usage /jelly [yes|no] leave blank and bot will repeat query.
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "This command is not yet implemented.";
+        //                    // usage /jelly [yes|no] leave blank and bot will repeat query.
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                        replyText = "This command is not yet implemented.";
 
-                            break;
+        //                    break;
 
-                        case "!bio": // Get a persons bio.
+        //                case "!bio": // Get a persons bio.
 
-                            if (body == string.Empty || body == " " || body == "@" || body == null)
-                            {
+        //                    if (body == string.Empty || body == " " || body == "@" || body == null)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                //s_replyToUser = nwShowBio(update.Message.From.Username);
+        //                        //s_replyToUser = nwShowBio(update.Message.From.Username);
 
-                                break;
+        //                        break;
 
-                            }
-                            else if (body == "help")
-                            {
+        //                    }
+        //                    else if (body == "help")
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !bio" + Environment.NewLine + "Type '!bio help' to see this message again.";
+        //                        s_replyToUser = "Usage: !bio" + Environment.NewLine + "Type '!bio help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
-                            else
-                            {
-                                s_replyToUser = "Usage: !bio [username]" + Environment.NewLine + "Type '!bio help' to see this message again.";
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        s_replyToUser = "Usage: !bio [username]" + Environment.NewLine + "Type '!bio help' to see this message again.";
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!getbio":
+        //                case "!getbio":
 
-                            if (body == string.Empty || body == " " || body == "@" || body == null)
-                            {
+        //                    if (body == string.Empty || body == " " || body == "@" || body == null)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                //s_replyToUser = nwShowBio(body);
+        //                        //s_replyToUser = nwShowBio(body);
 
-                                break;
+        //                        break;
 
-                            }
-                            else if (body == "help")
-                            {
+        //                    }
+        //                    else if (body == "help")
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !getbio [username]" + Environment.NewLine + "Type '!getbio help' to see this message again.";
+        //                        s_replyToUser = "Usage: !getbio [username]" + Environment.NewLine + "Type '!getbio help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
-                            else
-                            {
-                                s_replyToUser = "Usage: !getbio [username]" + Environment.NewLine + "Type '!getbio help' to see this message again.";
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        s_replyToUser = "Usage: !getbio [username]" + Environment.NewLine + "Type '!getbio help' to see this message again.";
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!setbio": // SET YOUR BIO
+        //                case "!setbio": // SET YOUR BIO
 
-                            if (body == string.Empty || body == " " || body == "@" || body == null)
-                            {
+        //                    if (body == string.Empty || body == " " || body == "@" || body == null)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "You haven't given me a message to put in your bio.";
+        //                        s_replyToUser = "You haven't given me a message to put in your bio.";
 
-                                break;
+        //                        break;
 
-                            }
-                            else
-                            {
+        //                    }
+        //                    else
+        //                    {
                                 
-                                nwSetBio(update.Message.From.Username, body);
-                            }
+        //                        nwSetBio(update.Message.From.Username, body);
+        //                    }
 
 
-                            if (body == "help")
-                            {
+        //                    if (body == "help")
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !setbio [text to send]" + Environment.NewLine + "Type '!setbio help' to see this message again.";
+        //                        s_replyToUser = "Usage: !setbio [text to send]" + Environment.NewLine + "Type '!setbio help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!genstats":
+        //                case "!genstats":
 
-                            nwGenerateStatsPage(update.Message.Chat.Id);
+        //                    nwGenerateStatsPage(update.Message.Chat.Id);
 
-                            break;
+        //                    break;
 
-                        case "!img":
-                        case "!image": // TODO: Finish this command
+        //                case "!img":
+        //                case "!image": // TODO: Finish this command
 
-                            //int n_imguse = nwGrabGlobalUsageDB("img"); // GLOBAL USAGE
-                            //int n_img_uuse = nwGrabUserUsage(s_username, "img");
-                            //int n_img_gmax = nwGrabGlobalMax("img"); // GLOBAL MAXIMUM
-                            //int n_img_umax = nwGrabUserMax("img"); // USER MAXIMUM
+        //                    //int n_imguse = nwGrabGlobalUsageDB("img"); // GLOBAL USAGE
+        //                    //int n_img_uuse = nwGrabUserUsage(s_username, "img");
+        //                    //int n_img_gmax = nwGrabGlobalMax("img"); // GLOBAL MAXIMUM
+        //                    //int n_img_umax = nwGrabUserMax("img"); // USER MAXIMUM
 
-                            //if (n_imguse == n_img_gmax || n_img_uuse == n_img_umax)
-                            //{
-                            //    if (nwCheckInReplyTimer(dt) != false)
-                            //        s_replyToUser = "Sorry, the /image command has been used too many times.";
+        //                    //if (n_imguse == n_img_gmax || n_img_uuse == n_img_umax)
+        //                    //{
+        //                    //    if (nwCheckInReplyTimer(dt) != false)
+        //                    //        s_replyToUser = "Sorry, the /image command has been used too many times.";
 
-                            //    break;
-                            //}
+        //                    //    break;
+        //                    //}
 
-                                if (body == string.Empty || body == " " || body == "@" || body == null)
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        if (body == string.Empty || body == " " || body == "@" || body == null)
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: !image [image to look for]";
+        //                            s_replyToUser = "Usage: !image [image to look for]";
 
-                                    break;
-                                }
-                                else if (body == "help")
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                            break;
+        //                        }
+        //                        else if (body == "help")
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: !image [Image to look for]" + Environment.NewLine + "Type '!image help' to see this message again.";
+        //                            s_replyToUser = "Usage: !image [Image to look for]" + Environment.NewLine + "Type '!image help' to see this message again.";
 
-                                    break;
+        //                            break;
 
-                                }
+        //                        }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                retryme:
+        //                        retryme:
 
-                                // list of urls.
-                                string html = null;
+        //                        // list of urls.
+        //                        string html = null;
 
-                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                    html = GetHtmlCode(body, false, true);
-                                else
-                                    html = GetHtmlCode(body, false, false);
+        //                        // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+        //                        if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+        //                            html = GetHtmlCode(body, false, true);
+        //                        else
+        //                            html = GetHtmlCode(body, false, false);
 
-                                List<string> urls = GetUrls(html);
-                                var rnd = new Random();
+        //                        List<string> urls = GetUrls(html);
+        //                        var rnd = new Random();
 
-                                int randomUrl = rnd.Next(0, urls.Count - 1);
+        //                        int randomUrl = rnd.Next(0, urls.Count - 1);
 
-                                // Select url from url list.
-                                string luckyUrl = urls[randomUrl];
+        //                        // Select url from url list.
+        //                        string luckyUrl = urls[randomUrl];
 
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(luckyUrl))
-                                {
-                                    UriBuilder uriBuilder = new UriBuilder(luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                    if (response.StatusCode == HttpStatusCode.BadRequest)
-                                    {
-                                        Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.Forbidden)
-                                    {
-                                        Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine("URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
-
-                                }
-
-                                if (luckyUrl.Contains(" ") == true)
-                                    luckyUrl.Replace(" ", "%20");
-
-                                replyImage = luckyUrl;
-
-                                //nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
-                                                                       //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
-
-                                break;
-
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
-
-                            break;
-
-                        case "!help":
-                        case "!command":
-                        case "!commands":
-                        case "!list":
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-
-                                if (body == string.Empty || body == " " || body == "@" || body == null)
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    StringBuilder clist = new StringBuilder();
-                                    clist.AppendLine("Here is a partial list of commands the bot understands:");
-                                    clist.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
-                                    clist.AppendLine("<b>!admins</b> - show who the group admins are.");
-                                    clist.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
-                                    clist.AppendLine("<b>!backup</b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
-                                    clist.AppendLine("<b>!ball</b> - consult the magic 8 ball, use a ? at the end of your question.");
-                                    clist.AppendLine("<b>!bio</b> - show your bio.");
-                                    clist.AppendLine("<b>!cat</b> - show a cat image.");
-                                    clist.AppendLine("<b>!con</b> - show a list of australian furry conventions");
-                                    clist.AppendLine("<b>!count</b> - count number of people in chat. <i>To be revised</i>.");
-                                    clist.AppendLine("<b>!debug</b> - enable the bots debug mode. Can only be used in PM. <i>Admin only</i>.");
-                                    clist.AppendLine("<b>!e621</b> [topics] - search for stuff on e621, can only be used in PM, or in a group with NSFW or 18+ in the title.");
-                                    replyTextEvent = clist.ToString();
-
-                                    break;
-                                }
-                                else if (body == "help")
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    s_replyToUser = "Usage: !list [page number]" + Environment.NewLine + "Type '!list help' to see this message again.";
-
-                                    break;
-
-                                }
-
-                                if (body == "1")
-                                {
-
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    StringBuilder clist = new StringBuilder();
-                                    clist.AppendLine("Here is a partial list of regular commands the bot understands:");
-                                    clist.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
-                                    clist.AppendLine("<b>!admins</b> - show who the group admins are.");
-                                    clist.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
-                                    clist.AppendLine("<b>!backup</b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
-                                    clist.AppendLine("<b>!ball</b><a title=\"Additional commands: !8ball\" href=\"#\">*</a> - consult the magic 8 ball, use a ? at the end of your question.");
-                                    clist.AppendLine("<b>!bio</b> - show your bio.");
-                                    clist.AppendLine("<b>!cat</b> - show a cat image.");
-                                    clist.AppendLine("<b>!con</b> - show a list of australian furry conventions");
-                                    clist.AppendLine("<b>!count</b> - count number of people in chat. <i>To be revised</i>.");
-                                    clist.AppendLine("<b>!debug</b> - enable the bots debug mode. Can only be used in PM. <i>Admin only</i>.");
-                                    clist.AppendLine("<b>!e621</b> [topics] - search for stuff on e621, can only be used in PM, or in a group with NSFW or 18+ in the title.");
-                                    replyTextEvent = clist.ToString();
-
-                                    break;
-
-                                }
-
-                                if (body == "2")
-                                {
-
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    StringBuilder clist = new StringBuilder();
-                                    clist.AppendLine("Here is a partial list of regular commands the bot understands:");
-                                    clist.AppendLine("You are currently viewing Page <b>[2]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
-                                    clist.AppendLine("<b>!edit</b> [message id] [replacement text] - edit a message posted by the bot. <i>Admin only</i>. <i>To be revised</i>.");
-                                    clist.AppendLine("<b>!event</b><a title=\"Additional commands: !events, !meet, !meets\" href=\"#\">*</a> [time constraint in days, optional] - get events list.");
-                                    clist.AppendLine("<b>!forecast</b> - get a 7 day weather forecast.");
-                                    clist.AppendLine("<b>!getbio</b> [username] - get anothers bio via their username. <i>To be revised</i>.");
-                                    clist.AppendLine("<b>!getstats</b> - generate stats. <i>Admin only</i>. <i>To be revised</i>.");
-                                    clist.AppendLine("<b>!gif</b> [topic] - show a GIF based on a given topic. <i>To be revised</i>.");
-                                    clist.AppendLine("<b>!image</b><a title=\"Additional commands: !img\" href=\"#\">*</a> [topic] - show an image based on a given topic.");
-                                    clist.AppendLine("<b>!joke</b><a title=\"Additional commands: !humour\" href=\"#\">*</a> - get the bot to tell a joke.");
-                                    clist.AppendLine("<b>!kill</b><a title=\"Additional commands: !die\" href=\"#\">*</a> - kill the bot. Can only be used in PM. <i>Admin only</i>.");
-                                    clist.AppendLine("<b>!link</b> - generate a chat link.");
-                                    clist.AppendLine("<b>!list</b><a title=\"Additional commands: !command, !commands, !help\" href=\"#\">*</a> - shows this list.");
-                                    replyTextEvent = clist.ToString();
-
-                                    break;
-
-                                }
-
-                                if (body == "3")
-                                {
-
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    StringBuilder clist = new StringBuilder();
-                                    clist.AppendLine("Here is a partial list of regular commands the bot understands:");
-                                    clist.AppendLine("You are currently viewing Page <b>[3]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
-                                    clist.AppendLine("<b>!meme</b> [topic] - show an image based on a given topic.");
-                                    clist.AppendLine("<b>!oo</b><a title=\"Additional commands: !optout\" href=\"#\">*</a> - opt out of stats collection.");
-                                    clist.AppendLine("<b>!quote</b> - get the bot to quote something from chat.");
-                                    clist.AppendLine("<b>!roll</b> [dice] [sides] - roll a dice, with the given number of dice and sides.");
-                                    clist.AppendLine("<b>!rules</b> - show group rules.");
-                                    clist.AppendLine("<b>!setbio</b> - set your bio.");
-                                    clist.AppendLine("<b>!stats</b> [week|month|year|alltime|commands] - generate a link to view stats.");
-                                    clist.AppendLine("<b>!weather</b> - Get current weather conditions");
-                                    replyTextEvent = clist.ToString();
-
-                                    break;
-
-                                }
-
-                                if (body == "4")
-                                {
-
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    StringBuilder clist = new StringBuilder();
-                                    clist.AppendLine("Here is a partial list of species commands the bot understands:");
-                                    clist.AppendLine("You are currently viewing Page <b>[4]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
-                                    clist.AppendLine("<b>!clep</b> - show a clouded leopard pic.");
-                                    clist.AppendLine("<b>!corgi</b> - show a corgi pic.");
-                                    clist.AppendLine("<b>!deer</b> - show a corgi pic.");
-                                    clist.AppendLine("<b>!dingo</b> - show a dingo pic.");
-                                    clist.AppendLine("<b>!dino</b> - show a dino pic.");
-                                    clist.AppendLine("<b>!dog</b><a title=\"Additional commands: !canine, !doggo\" href=\"#\">*</a> - show a dog pic.");
-                                    clist.AppendLine("<b>!dragon</b> - show a dragon pic.");
-                                    clist.AppendLine("<b>!ermine</b> - show a dragon pic.");
-                                    clist.AppendLine("<b>!fennec</b> - show a fennec fox pic.");
-                                    clist.AppendLine("<b>!ferret</b> - show a ferret pic.");
-                                    clist.AppendLine("<b>!fox</b> - show a fox pic.");
-                                    replyTextEvent = clist.ToString();
-
-                                    break;
-
-                                }
-
-                                if (body == "5")
-                                {
-
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    StringBuilder clist = new StringBuilder();
-                                    clist.AppendLine("Here is a partial list of species commands the bot understands:");
-                                    clist.AppendLine("You are currently viewing Page <b>[5]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
-                                    clist.AppendLine("<b>!gshep</b> - show a german shephard pic.");
-                                    clist.AppendLine("<b>!leopard</b> - show a leopard pic.");
-                                    clist.AppendLine("<b>!rabbit</b> - show a rabbit pic.");
-                                    clist.AppendLine("<b>!rat</b> - show a rat pic.");
-                                    clist.AppendLine("<b>!shibe</b> - show a shibe pic.");
-                                    clist.AppendLine("<b>!snep</b> - show a snow leopard pic.");
-                                    replyTextEvent = clist.ToString();
-
-                                    break;
-
-                                }
-
-                                //StringBuilder clist = new StringBuilder();
-                                //clist.AppendLine("Here is a partial list of commands the bot understands:");
-                                //clist.AppendLine("<b>!admins</b> - show who the group admins are.");
-                                //clist.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
-                                //clist.AppendLine("<b>!backup/b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
-                                //clist.AppendLine("<b>!ball</b> - consult the magic 8 ball, use a ? at the end of your question.");
-                                //clist.AppendLine("<b>!bio</b> - show your bio.");
-                                //clist.AppendLine("<b>!cat</b> - show a cat image.");
-                                //clist.AppendLine("<b>!con</b> - show a list of australian furry conventions");
-                                //clist.AppendLine("<b>!count</b> - count number of people in chat. <i>To be revised</i>.");
-                                //clist.AppendLine("<b>!debug</b> - enable the bots debug mode. Can only be used in PM. <i>Admin only</i>.");
-                                //clist.AppendLine("<b>!e621</b> [topics] - search for stuff on e621, can only be used in PM, or in a group with NSFW or 18+ in the title.");
-                                //clist.AppendLine("<b>!edit</b> [message id] [replacement text] - edit a message posted by the bot. <i>Admin only</i>. <i>To be revised</i>.");
-                                //clist.AppendLine("<b>!event</b> [time constraint in days, optional] - get events list.");
-                                //clist.AppendLine("<b>!forecast</b> - get a 7 day weather forecast.");
-                                //clist.AppendLine("<b>!getbio</b> [username] - get anothers bio via their username. <i>To be revised</i>.");
-                                //clist.AppendLine("<b>!getstats</b> - generate stats. <i>Admin only</i>. <i>To be revised</i>.");
-                                //clist.AppendLine("<b>!gif</b> [topic] - show a GIF based on a given topic. <i>To be revised</i>.");
-                                //clist.AppendLine("<b>!image</b> [topic] - show an image based on a given topic.");
-                                //clist.AppendLine("<b>!joke</b> - get the bot to tell a joke.");
-                                //clist.AppendLine("<b>!kill</b> - kill the bot. Can only be used in PM. <i>Admin only</i>.");
-                                //clist.AppendLine("<b>!link</b> - generate a chat link.");
-                                //clist.AppendLine("<b>!list</b> - shows this list.");
-                                //clist.AppendLine("<b>!meme</b> [topic] - show an image based on a given topic.");
-                                //clist.AppendLine("<b>!oo</b> - opt out of stats collection.");
-                                //clist.AppendLine("<b>!quote</b> - get the bot to quote something from chat.");
-                                //clist.AppendLine("<b>!roll</b> [dice] [sides] - roll a dice, with the given number of dice and sides.");
-                                //clist.AppendLine("<b>!rules</b> - show group rules.");
-                                //clist.AppendLine("<b>!setbio</b> - set your bio.");
-                                //clist.AppendLine("<b>!stats</b> [week|month|year|alltime|commands] - generate a link to view stats.");
-                                //clist.AppendLine("<b>!weather</b> - Get current weather conditions");
-                                ////clist.AppendLine("<b>!profile</b> - get perthfurs.net profile for yourself.");
-                                ////clist.AppendLine("<b>!getprofile</b> - get perthfurs.net profile for someone else.");
-                                //clist.AppendLine("");
-                                //clist.AppendLine("Commands for species: ");
-                                //clist.AppendLine("<b>!corgi</b> - show a corgi pic.");
-                                //clist.AppendLine("<b>!dingo</b> - show a dingo pic.");
-                                //clist.AppendLine("<b>!dino</b> - show a dino pic.");
-                                //clist.AppendLine("<b>!dog</b> - show a dog pic.");
-                                //clist.AppendLine("<b>!dragon</b> - show a dragon pic.");
-                                //clist.AppendLine("<b>!fennec</b> - show a fennec fox pic.");
-                                //clist.AppendLine("<b>!ferret</b> - show a ferret pic.");
-                                //clist.AppendLine("<b>!fox</b> - show a fox pic.");
-                                //clist.AppendLine("<b>!gshep</b> - show a german shephard pic.");
-                                //clist.AppendLine("<b>!shibe</b> - show a shibe pic.");
-                                //clist.AppendLine("<b>!snep</b> - show a snow leopard pic.");
-                                ////clist.AppendLine("<b>!deer</b> - show a deer pic.");
-                                ////clist.AppendLine("<b>!rabbit</b> - show a deer pic.");
-                                ////clist.AppendLine("<b>!ermine</b> - show a deer pic.");
-                                ////clist.AppendLine("<b>!bat</b> - show a ferret pic.");
-                                ////clist.AppendLine("<b>!bear</b> - show a ferret pic.");
-
-
-
-                                //replyTextEvent = clist.ToString();
-
-                            }
-
-                            break;
-
-                        case "!humour":
-                        //case "!joke": // TODO: Fix this command
-
-                        //    //int n_jokeuse = nwGrabGlobalUsageDB("joke");
-                        //    //int n_joke_uuse = nwGrabUserUsage(s_username, "joke");
-                        //    int n_joke_gmax = nwGrabGlobalMax("joke");
-                        //    //int n_joke_umax = nwGrabUserMax("joke");
-
-                        //    //if (n_jokeuse == n_joke_gmax)//|| n_joke_uuse == n_joke_umax)
-                        //    //{
-                        //    //    if (nwCheckInReplyTimer(dt) != false)
-                        //    //        s_replyToUser = "Sorry, the /joke command has been used too many times.";
-                        //    //    break;
-                        //    //}
-
-                        //    //bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                        //    //if (nwCheckInReplyTimer(dt) != false)
-                        //    //{
-                        //    //    string textomatic = nwRandomJokeLine();
-
-                        //    //    string[] s_mysplit = new string[] { "", "", "" };
-                        //    //    string[] s_mysep = new string[] { "\\r", "\\n" };
-                        //    //    s_mysplit = textomatic.Split(s_mysep, StringSplitOptions.RemoveEmptyEntries);
-
-                        //    //    StringBuilder jokesb = new StringBuilder();
-
-                        //    //    foreach (string s_meow in s_mysplit)
-                        //    //    {
-                        //    //        jokesb.AppendLine(s_meow);
-                        //    //    }
-
-                        //    //    replyText = jokesb.ToString();
-                        //    //}
-                        //    //else
-                        //    //{
-                        //    //    Console.WriteLine("The " + command + " failed as it took too long to process.");
-                        //    //}
-
-                        //    //nwSetGlobalUsageDB("joke", n_jokeuse++); // set global usage incrementally
-                        //    //nwSetUserUsage(s_username, "joke", n_joke_uuse++); // set this users usage incrementally
-
-                        //    break;
-
-                        case "!link":
-
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "Chat link: https://telegram.me/joinchat/ByYWcD2FFG72gZK04d6lLg";
-
-                            break;
-
-                        case "!oo":
-                        case "!optout":
-
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-                                //s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following form to opt-out from stats collection. Bare in mind that your request might not be implemented till the next stats run, as it requires manual intervention. URL: http://www.perthfurstats.net/node/10";
-
-                                if (body == string.Empty || body == " " || body == "@" || body == null)
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    s_replyToUser = "Usage: !oo [reason for the]";
-
-                                    break;
-                                }
-                                else if (body == "help")
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                    s_replyToUser = "Usage: !oo [reason, leave blank if you want]" + Environment.NewLine + "Type '!oo help' to see this message again.";
-
-                                    break;
-
-                                }
-
-
-                                // write request to database
-                                //nwWriteORToDB(update.Message.From.Username, body);
-
-                                // write and send email
-                                nwSendEmail(update.Message.From.Username, body);
-
-                                // final
-
-
-
-                            }
-
-                            break;
-
-                        case "!profile":
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "This command is not yet implemented.";
-
-                            break;
-
-                        case "!getprofile":
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "This command is not yet implemented.";
-
-                            break;
+        //                        // Check if the file is valid, or throws an unwanted status code.
+        //                        if (!string.IsNullOrEmpty(luckyUrl))
+        //                        {
+        //                            UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+        //                            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+        //                            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+        //                            if (response.StatusCode == HttpStatusCode.BadRequest)
+        //                            {
+        //                                Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+        //                                goto retryme;
+        //                            }
+        //                            if (response.StatusCode == HttpStatusCode.Forbidden)
+        //                            {
+        //                                Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
+        //                                goto retryme;
+        //                            }
+        //                            if (response.StatusCode == HttpStatusCode.NotFound)
+        //                            {
+        //                                Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+        //                                goto retryme;
+        //                            }
+        //                            if (response.StatusCode == HttpStatusCode.OK)
+        //                            {
+        //                                Console.WriteLine("URL appears to be good.");
+        //                            }
+        //                            else //There are a lot of other status codes you could check for...
+        //                            {
+        //                                Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+        //                                                           response.StatusCode.ToString()));
+        //                            }
+
+        //                        }
+
+        //                        if (luckyUrl.Contains(" ") == true)
+        //                            luckyUrl.Replace(" ", "%20");
+
+        //                        replyImage = luckyUrl;
+
+        //                        //nwSetGlobalUsageDB("img", n_imguse++); // set global usage incrementally
+        //                                                               //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
+
+        //                        break;
+
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
+
+        //                    break;
+
+        //                case "!help":
+        //                case "!command":
+        //                case "!commands":
+        //                case "!list":
+
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
+
+        //                        if (body == string.Empty || body == " " || body == "@" || body == null)
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                            StringBuilder clist = new StringBuilder();
+        //                            clist.AppendLine("Here is a partial list of commands the bot understands:");
+        //                            clist.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
+        //                            clist.AppendLine("<b>!admins</b> - show who the group admins are.");
+        //                            clist.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
+        //                            clist.AppendLine("<b>!backup</b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
+        //                            clist.AppendLine("<b>!ball</b> - consult the magic 8 ball, use a ? at the end of your question.");
+        //                            clist.AppendLine("<b>!bio</b> - show your bio.");
+        //                            clist.AppendLine("<b>!cat</b> - show a cat image.");
+        //                            clist.AppendLine("<b>!con</b> - show a list of australian furry conventions");
+        //                            clist.AppendLine("<b>!count</b> - count number of people in chat. <i>To be revised</i>.");
+        //                            clist.AppendLine("<b>!debug</b> - enable the bots debug mode. Can only be used in PM. <i>Admin only</i>.");
+        //                            clist.AppendLine("<b>!e621</b> [topics] - search for stuff on e621, can only be used in PM, or in a group with NSFW or 18+ in the title.");
+        //                            replyTextEvent = clist.ToString();
+
+        //                            break;
+        //                        }
+        //                        else if (body == "help")
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                            s_replyToUser = "Usage: !list [page number]" + Environment.NewLine + "Type '!list help' to see this message again.";
+
+        //                            break;
+
+        //                        }
+
+        //                        if (body == "1")
+        //                        {
+
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                            StringBuilder clist = new StringBuilder();
+        //                            clist.AppendLine("Here is a partial list of regular commands the bot understands:");
+        //                            clist.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
+        //                            clist.AppendLine("<b>!admins</b> - show who the group admins are.");
+        //                            clist.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
+        //                            clist.AppendLine("<b>!backup</b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
+        //                            clist.AppendLine("<b>!ball</b><a title=\"Additional commands: !8ball\" href=\"#\">*</a> - consult the magic 8 ball, use a ? at the end of your question.");
+        //                            clist.AppendLine("<b>!bio</b> - show your bio.");
+        //                            clist.AppendLine("<b>!cat</b> - show a cat image.");
+        //                            clist.AppendLine("<b>!con</b> - show a list of australian furry conventions");
+        //                            clist.AppendLine("<b>!count</b> - count number of people in chat. <i>To be revised</i>.");
+        //                            clist.AppendLine("<b>!debug</b> - enable the bots debug mode. Can only be used in PM. <i>Admin only</i>.");
+        //                            clist.AppendLine("<b>!e621</b> [topics] - search for stuff on e621, can only be used in PM, or in a group with NSFW or 18+ in the title.");
+        //                            replyTextEvent = clist.ToString();
+
+        //                            break;
+
+        //                        }
+
+        //                        if (body == "2")
+        //                        {
+
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                            StringBuilder clist = new StringBuilder();
+        //                            clist.AppendLine("Here is a partial list of regular commands the bot understands:");
+        //                            clist.AppendLine("You are currently viewing Page <b>[2]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
+        //                            clist.AppendLine("<b>!edit</b> [message id] [replacement text] - edit a message posted by the bot. <i>Admin only</i>. <i>To be revised</i>.");
+        //                            clist.AppendLine("<b>!event</b><a title=\"Additional commands: !events, !meet, !meets\" href=\"#\">*</a> [time constraint in days, optional] - get events list.");
+        //                            clist.AppendLine("<b>!forecast</b> - get a 7 day weather forecast.");
+        //                            clist.AppendLine("<b>!getbio</b> [username] - get anothers bio via their username. <i>To be revised</i>.");
+        //                            clist.AppendLine("<b>!getstats</b> - generate stats. <i>Admin only</i>. <i>To be revised</i>.");
+        //                            clist.AppendLine("<b>!gif</b> [topic] - show a GIF based on a given topic. <i>To be revised</i>.");
+        //                            clist.AppendLine("<b>!image</b><a title=\"Additional commands: !img\" href=\"#\">*</a> [topic] - show an image based on a given topic.");
+        //                            clist.AppendLine("<b>!joke</b><a title=\"Additional commands: !humour\" href=\"#\">*</a> - get the bot to tell a joke.");
+        //                            clist.AppendLine("<b>!kill</b><a title=\"Additional commands: !die\" href=\"#\">*</a> - kill the bot. Can only be used in PM. <i>Admin only</i>.");
+        //                            clist.AppendLine("<b>!link</b> - generate a chat link.");
+        //                            clist.AppendLine("<b>!list</b><a title=\"Additional commands: !command, !commands, !help\" href=\"#\">*</a> - shows this list.");
+        //                            replyTextEvent = clist.ToString();
+
+        //                            break;
+
+        //                        }
+
+        //                        if (body == "3")
+        //                        {
+
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                            StringBuilder clist = new StringBuilder();
+        //                            clist.AppendLine("Here is a partial list of regular commands the bot understands:");
+        //                            clist.AppendLine("You are currently viewing Page <b>[3]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
+        //                            clist.AppendLine("<b>!meme</b> [topic] - show an image based on a given topic.");
+        //                            clist.AppendLine("<b>!oo</b><a title=\"Additional commands: !optout\" href=\"#\">*</a> - opt out of stats collection.");
+        //                            clist.AppendLine("<b>!quote</b> - get the bot to quote something from chat.");
+        //                            clist.AppendLine("<b>!roll</b> [dice] [sides] - roll a dice, with the given number of dice and sides.");
+        //                            clist.AppendLine("<b>!rules</b> - show group rules.");
+        //                            clist.AppendLine("<b>!setbio</b> - set your bio.");
+        //                            clist.AppendLine("<b>!stats</b> [week|month|year|alltime|commands] - generate a link to view stats.");
+        //                            clist.AppendLine("<b>!weather</b> - Get current weather conditions");
+        //                            replyTextEvent = clist.ToString();
+
+        //                            break;
+
+        //                        }
+
+        //                        if (body == "4")
+        //                        {
+
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                            StringBuilder clist = new StringBuilder();
+        //                            clist.AppendLine("Here is a partial list of species commands the bot understands:");
+        //                            clist.AppendLine("You are currently viewing Page <b>[4]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
+        //                            clist.AppendLine("<b>!clep</b> - show a clouded leopard pic.");
+        //                            clist.AppendLine("<b>!corgi</b> - show a corgi pic.");
+        //                            clist.AppendLine("<b>!deer</b> - show a corgi pic.");
+        //                            clist.AppendLine("<b>!dingo</b> - show a dingo pic.");
+        //                            clist.AppendLine("<b>!dino</b> - show a dino pic.");
+        //                            clist.AppendLine("<b>!dog</b><a title=\"Additional commands: !canine, !doggo\" href=\"#\">*</a> - show a dog pic.");
+        //                            clist.AppendLine("<b>!dragon</b> - show a dragon pic.");
+        //                            clist.AppendLine("<b>!ermine</b> - show a dragon pic.");
+        //                            clist.AppendLine("<b>!fennec</b> - show a fennec fox pic.");
+        //                            clist.AppendLine("<b>!ferret</b> - show a ferret pic.");
+        //                            clist.AppendLine("<b>!fox</b> - show a fox pic.");
+        //                            replyTextEvent = clist.ToString();
+
+        //                            break;
+
+        //                        }
+
+        //                        if (body == "5")
+        //                        {
+
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                            StringBuilder clist = new StringBuilder();
+        //                            clist.AppendLine("Here is a partial list of species commands the bot understands:");
+        //                            clist.AppendLine("You are currently viewing Page <b>[5]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
+        //                            clist.AppendLine("<b>!gshep</b> - show a german shephard pic.");
+        //                            clist.AppendLine("<b>!leopard</b> - show a leopard pic.");
+        //                            clist.AppendLine("<b>!rabbit</b> - show a rabbit pic.");
+        //                            clist.AppendLine("<b>!rat</b> - show a rat pic.");
+        //                            clist.AppendLine("<b>!shibe</b> - show a shibe pic.");
+        //                            clist.AppendLine("<b>!snep</b> - show a snow leopard pic.");
+        //                            replyTextEvent = clist.ToString();
+
+        //                            break;
+
+        //                        }
+
+        //                        //StringBuilder clist = new StringBuilder();
+        //                        //clist.AppendLine("Here is a partial list of commands the bot understands:");
+        //                        //clist.AppendLine("<b>!admins</b> - show who the group admins are.");
+        //                        //clist.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
+        //                        //clist.AppendLine("<b>!backup/b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
+        //                        //clist.AppendLine("<b>!ball</b> - consult the magic 8 ball, use a ? at the end of your question.");
+        //                        //clist.AppendLine("<b>!bio</b> - show your bio.");
+        //                        //clist.AppendLine("<b>!cat</b> - show a cat image.");
+        //                        //clist.AppendLine("<b>!con</b> - show a list of australian furry conventions");
+        //                        //clist.AppendLine("<b>!count</b> - count number of people in chat. <i>To be revised</i>.");
+        //                        //clist.AppendLine("<b>!debug</b> - enable the bots debug mode. Can only be used in PM. <i>Admin only</i>.");
+        //                        //clist.AppendLine("<b>!e621</b> [topics] - search for stuff on e621, can only be used in PM, or in a group with NSFW or 18+ in the title.");
+        //                        //clist.AppendLine("<b>!edit</b> [message id] [replacement text] - edit a message posted by the bot. <i>Admin only</i>. <i>To be revised</i>.");
+        //                        //clist.AppendLine("<b>!event</b> [time constraint in days, optional] - get events list.");
+        //                        //clist.AppendLine("<b>!forecast</b> - get a 7 day weather forecast.");
+        //                        //clist.AppendLine("<b>!getbio</b> [username] - get anothers bio via their username. <i>To be revised</i>.");
+        //                        //clist.AppendLine("<b>!getstats</b> - generate stats. <i>Admin only</i>. <i>To be revised</i>.");
+        //                        //clist.AppendLine("<b>!gif</b> [topic] - show a GIF based on a given topic. <i>To be revised</i>.");
+        //                        //clist.AppendLine("<b>!image</b> [topic] - show an image based on a given topic.");
+        //                        //clist.AppendLine("<b>!joke</b> - get the bot to tell a joke.");
+        //                        //clist.AppendLine("<b>!kill</b> - kill the bot. Can only be used in PM. <i>Admin only</i>.");
+        //                        //clist.AppendLine("<b>!link</b> - generate a chat link.");
+        //                        //clist.AppendLine("<b>!list</b> - shows this list.");
+        //                        //clist.AppendLine("<b>!meme</b> [topic] - show an image based on a given topic.");
+        //                        //clist.AppendLine("<b>!oo</b> - opt out of stats collection.");
+        //                        //clist.AppendLine("<b>!quote</b> - get the bot to quote something from chat.");
+        //                        //clist.AppendLine("<b>!roll</b> [dice] [sides] - roll a dice, with the given number of dice and sides.");
+        //                        //clist.AppendLine("<b>!rules</b> - show group rules.");
+        //                        //clist.AppendLine("<b>!setbio</b> - set your bio.");
+        //                        //clist.AppendLine("<b>!stats</b> [week|month|year|alltime|commands] - generate a link to view stats.");
+        //                        //clist.AppendLine("<b>!weather</b> - Get current weather conditions");
+        //                        ////clist.AppendLine("<b>!profile</b> - get perthfurs.net profile for yourself.");
+        //                        ////clist.AppendLine("<b>!getprofile</b> - get perthfurs.net profile for someone else.");
+        //                        //clist.AppendLine("");
+        //                        //clist.AppendLine("Commands for species: ");
+        //                        //clist.AppendLine("<b>!corgi</b> - show a corgi pic.");
+        //                        //clist.AppendLine("<b>!dingo</b> - show a dingo pic.");
+        //                        //clist.AppendLine("<b>!dino</b> - show a dino pic.");
+        //                        //clist.AppendLine("<b>!dog</b> - show a dog pic.");
+        //                        //clist.AppendLine("<b>!dragon</b> - show a dragon pic.");
+        //                        //clist.AppendLine("<b>!fennec</b> - show a fennec fox pic.");
+        //                        //clist.AppendLine("<b>!ferret</b> - show a ferret pic.");
+        //                        //clist.AppendLine("<b>!fox</b> - show a fox pic.");
+        //                        //clist.AppendLine("<b>!gshep</b> - show a german shephard pic.");
+        //                        //clist.AppendLine("<b>!shibe</b> - show a shibe pic.");
+        //                        //clist.AppendLine("<b>!snep</b> - show a snow leopard pic.");
+        //                        ////clist.AppendLine("<b>!deer</b> - show a deer pic.");
+        //                        ////clist.AppendLine("<b>!rabbit</b> - show a deer pic.");
+        //                        ////clist.AppendLine("<b>!ermine</b> - show a deer pic.");
+        //                        ////clist.AppendLine("<b>!bat</b> - show a ferret pic.");
+        //                        ////clist.AppendLine("<b>!bear</b> - show a ferret pic.");
+
+
+
+        //                        //replyTextEvent = clist.ToString();
+
+        //                    }
+
+        //                    break;
+
+        //                case "!humour":
+        //                //case "!joke": // TODO: Fix this command
+
+        //                //    //int n_jokeuse = nwGrabGlobalUsageDB("joke");
+        //                //    //int n_joke_uuse = nwGrabUserUsage(s_username, "joke");
+        //                //    int n_joke_gmax = nwGrabGlobalMax("joke");
+        //                //    //int n_joke_umax = nwGrabUserMax("joke");
+
+        //                //    //if (n_jokeuse == n_joke_gmax)//|| n_joke_uuse == n_joke_umax)
+        //                //    //{
+        //                //    //    if (nwCheckInReplyTimer(dt) != false)
+        //                //    //        s_replyToUser = "Sorry, the /joke command has been used too many times.";
+        //                //    //    break;
+        //                //    //}
+
+        //                //    //bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                //    //if (nwCheckInReplyTimer(dt) != false)
+        //                //    //{
+        //                //    //    string textomatic = nwRandomJokeLine();
+
+        //                //    //    string[] s_mysplit = new string[] { "", "", "" };
+        //                //    //    string[] s_mysep = new string[] { "\\r", "\\n" };
+        //                //    //    s_mysplit = textomatic.Split(s_mysep, StringSplitOptions.RemoveEmptyEntries);
+
+        //                //    //    StringBuilder jokesb = new StringBuilder();
+
+        //                //    //    foreach (string s_meow in s_mysplit)
+        //                //    //    {
+        //                //    //        jokesb.AppendLine(s_meow);
+        //                //    //    }
+
+        //                //    //    replyText = jokesb.ToString();
+        //                //    //}
+        //                //    //else
+        //                //    //{
+        //                //    //    Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                //    //}
+
+        //                //    //nwSetGlobalUsageDB("joke", n_jokeuse++); // set global usage incrementally
+        //                //    //nwSetUserUsage(s_username, "joke", n_joke_uuse++); // set this users usage incrementally
+
+        //                //    break;
+
+        //                case "!link":
+
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                        s_replyToUser = "Chat link: https://telegram.me/joinchat/ByYWcD2FFG72gZK04d6lLg";
+
+        //                    break;
+
+        //                case "!oo":
+        //                case "!optout":
+
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
+        //                        //s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following form to opt-out from stats collection. Bare in mind that your request might not be implemented till the next stats run, as it requires manual intervention. URL: http://www.perthfurstats.net/node/10";
+
+        //                        if (body == string.Empty || body == " " || body == "@" || body == null)
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                            s_replyToUser = "Usage: !oo [reason for the]";
+
+        //                            break;
+        //                        }
+        //                        else if (body == "help")
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                            s_replyToUser = "Usage: !oo [reason, leave blank if you want]" + Environment.NewLine + "Type '!oo help' to see this message again.";
+
+        //                            break;
+
+        //                        }
+
+
+        //                        // write request to database
+        //                        //nwWriteORToDB(update.Message.From.Username, body);
+
+        //                        // write and send email
+        //                        nwSendEmail(update.Message.From.Username, body);
+
+        //                        // final
+
+
+
+        //                    }
+
+        //                    break;
+
+        //                case "!profile":
+
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                        replyText = "This command is not yet implemented.";
+
+        //                    break;
+
+        //                case "!getprofile":
+
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                        replyText = "This command is not yet implemented.";
+
+        //                    break;
 
-                        case "!quote":
+        //                case "!quote":
 
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-                                string fchosen = null;
-                                string[] fileEntries = null;
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
+        //                        string fchosen = null;
+        //                        string[] fileEntries = null;
 
-                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                    fileEntries = ehoh.Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg", @"-1001052518605.*.log");
-                                else
-                                    fileEntries = ehoh.Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg", @"-1001032131694.*.log");
+        //                        if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+        //                            fileEntries = ehoh.Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg", @"-1001052518605.*.log");
+        //                        else
+        //                            fileEntries = ehoh.Directory.GetFiles(Environment.CurrentDirectory + @"\logs_tg", @"-1001032131694.*.log");
 
-                                fchosen = fileEntries[new Random().Next(0, fileEntries.Length)];
+        //                        fchosen = fileEntries[new Random().Next(0, fileEntries.Length)];
 
-                                if (fchosen == null) { replyText = "An error has occurred, please try this command again, and/or quote 'fchosen returned null' to @AndyDingoFolf"; }
+        //                        if (fchosen == null) { replyText = "An error has occurred, please try this command again, and/or quote 'fchosen returned null' to @AndyDingoFolf"; }
 
-                                string textomatic1 = "";
+        //                        string textomatic1 = "";
 
-                                blah:
+        //                        blah:
 
-                                // if blank, get quote line without a body
-                                if (body == string.Empty || body == " " || body == "@" || body == null)
-                                {
-                                    textomatic1 = nwRandomQuoteLine(fchosen);
-                                }
-                                else if (body == "help")
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        // if blank, get quote line without a body
+        //                        if (body == string.Empty || body == " " || body == "@" || body == null)
+        //                        {
+        //                            textomatic1 = nwRandomQuoteLine(fchosen);
+        //                        }
+        //                        else if (body == "help")
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: !quote [name of person to quote, or leave blank for random]" + Environment.NewLine + "Type '!quote help' to see this message again.";
+        //                            s_replyToUser = "Usage: !quote [name of person to quote, or leave blank for random]" + Environment.NewLine + "Type '!quote help' to see this message again.";
 
-                                    break;
+        //                            break;
 
-                                }
-                                else
-                                {
-                                    textomatic1 = nwRandomQuoteLine(fchosen, body);
-                                }
+        //                        }
+        //                        else
+        //                        {
+        //                            textomatic1 = nwRandomQuoteLine(fchosen, body);
+        //                        }
 
-                                // If our code doesn't contain our test string
-                                if (textomatic1.Contains("Test message. Do not report."))
-                                {
-                                    textomatic1 = nwRandomQuoteLine(fchosen);
-                                    goto blah;
-                                }
+        //                        // If our code doesn't contain our test string
+        //                        if (textomatic1.Contains("Test message. Do not report."))
+        //                        {
+        //                            textomatic1 = nwRandomQuoteLine(fchosen);
+        //                            goto blah;
+        //                        }
 
-                                string sayrandom = nwRandomSaidLine();
+        //                        string sayrandom = nwRandomSaidLine();
 
-                                string[] s_mysplit1 = new string[] { "", "", "" };
-                                string[] s_mysplit2 = new string[] { "", "", "" };
-                                int[] n_mysplit = new int[] { 2016, 9, 1, 0, 0 };
-                                string[] s_mysep1 = new string[] { "\\r", "\\n", "[", "] <", "> " };
-                                string[] s_splitfile = new string[] { "." };
+        //                        string[] s_mysplit1 = new string[] { "", "", "" };
+        //                        string[] s_mysplit2 = new string[] { "", "", "" };
+        //                        int[] n_mysplit = new int[] { 2016, 9, 1, 0, 0 };
+        //                        string[] s_mysep1 = new string[] { "\\r", "\\n", "[", "] <", "> " };
+        //                        string[] s_splitfile = new string[] { "." };
 
-                                s_mysplit1 = textomatic1.Split(s_mysep1, StringSplitOptions.RemoveEmptyEntries);
-                                s_mysplit2 = fchosen.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
+        //                        s_mysplit1 = textomatic1.Split(s_mysep1, StringSplitOptions.RemoveEmptyEntries);
+        //                        s_mysplit2 = fchosen.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
 
-                                n_mysplit[0] = Convert.ToInt32(s_mysplit2[1].Substring(0, 4)); // YEAR
-                                n_mysplit[1] = Convert.ToInt32(s_mysplit2[1].Substring(4, 2)); // MONTH
-                                n_mysplit[2] = Convert.ToInt32(s_mysplit2[1].Substring(6)); // DAY
-                                n_mysplit[3] = Convert.ToInt32(s_mysplit1[0].Substring(0, 2)); // HOUR
-                                n_mysplit[4] = Convert.ToInt32(s_mysplit1[0].Substring(3, 2)); // MINUTE
+        //                        n_mysplit[0] = Convert.ToInt32(s_mysplit2[1].Substring(0, 4)); // YEAR
+        //                        n_mysplit[1] = Convert.ToInt32(s_mysplit2[1].Substring(4, 2)); // MONTH
+        //                        n_mysplit[2] = Convert.ToInt32(s_mysplit2[1].Substring(6)); // DAY
+        //                        n_mysplit[3] = Convert.ToInt32(s_mysplit1[0].Substring(0, 2)); // HOUR
+        //                        n_mysplit[4] = Convert.ToInt32(s_mysplit1[0].Substring(3, 2)); // MINUTE
 
-                                DateTime mdt = new DateTime(n_mysplit[0], n_mysplit[1], n_mysplit[2], n_mysplit[3], n_mysplit[4], 0);
+        //                        DateTime mdt = new DateTime(n_mysplit[0], n_mysplit[1], n_mysplit[2], n_mysplit[3], n_mysplit[4], 0);
 
-                                replyText = string.Format("On {0}, at {1}, the user \"{2}\" {3} the following: " + Environment.NewLine + "{4}", mdt.ToString("ddd d/MM/yyy"), mdt.ToShortTimeString(), s_mysplit1[1], sayrandom, s_mysplit1[2]);
+        //                        replyText = string.Format("On {0}, at {1}, the user \"{2}\" {3} the following: " + Environment.NewLine + "{4}", mdt.ToString("ddd d/MM/yyy"), mdt.ToShortTimeString(), s_mysplit1[1], sayrandom, s_mysplit1[2]);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!roll":
-                        case "!diceroll":
+        //                case "!roll":
+        //                case "!diceroll":
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                string s = "";
+        //                        string s = "";
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                // Roll our dice.
-                                s = nwRollDice(s_username, dt, body);
-                                replyText = s;
+        //                        // Roll our dice.
+        //                        s = nwRollDice(s_username, dt, body);
+        //                        replyText = s;
 
-                            }
-                            else
-                            {
+        //                    }
+        //                    else
+        //                    {
 
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
 
-                            }
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!rules":
+        //                case "!rules":
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "Group rules: " + Environment.NewLine + "- All content (chat, images, stickers) must be SFW at all hours of the day." + Environment.NewLine + "- No flooding or spamming of ANY kind." + Environment.NewLine + "- Be nice to each other.";
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                        s_replyToUser = "Group rules: " + Environment.NewLine + "- All content (chat, images, stickers) must be SFW at all hours of the day." + Environment.NewLine + "- No flooding or spamming of ANY kind." + Environment.NewLine + "- Be nice to each other.";
 
-                            break;
+        //                    break;
 
-                        case "!slap": // TODO: Finish this command
+        //                case "!slap": // TODO: Finish this command
 
-                            // usage /slap [nickname] bot will slap the person matching the nickname.
-                            // will return "yournickname slaps targetnickname around with [randomobject]
+        //                    // usage /slap [nickname] bot will slap the person matching the nickname.
+        //                    // will return "yournickname slaps targetnickname around with [randomobject]
 
-                            //int n_emouse = nwGrabGlobalUsageDB("emote");
-                            //int n_emo_uuse = nwGrabUserUsage(s_username, "emote");
-                            //int n_emo_gmax = nwGrabGlobalMax("emote");
-                            //int n_emo_umax = nwGrabUserMax("emote");
+        //                    //int n_emouse = nwGrabGlobalUsageDB("emote");
+        //                    //int n_emo_uuse = nwGrabUserUsage(s_username, "emote");
+        //                    //int n_emo_gmax = nwGrabGlobalMax("emote");
+        //                    //int n_emo_umax = nwGrabUserMax("emote");
 
-                            //if (n_emouse == n_emo_gmax || n_emo_uuse == n_emo_umax)
-                            //{
-                            //    if (nwCheckInReplyTimer(dt) != false)
-                            //        s_replyToUser = "Sorry, the /slap command has been used too many times.";
+        //                    //if (n_emouse == n_emo_gmax || n_emo_uuse == n_emo_umax)
+        //                    //{
+        //                    //    if (nwCheckInReplyTimer(dt) != false)
+        //                    //        s_replyToUser = "Sorry, the /slap command has been used too many times.";
 
-                            //    break;
+        //                    //    break;
 
-                            //}
+        //                    //}
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-                                if (body == string.Empty || body == " " || body == "@" || body == null)
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
+        //                        if (body == string.Empty || body == " " || body == "@" || body == null)
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    replyText = "*@PFStats_bot slaps @" + s_username + " around a bit with a large trout!*";
+        //                            replyText = "*@PFStats_bot slaps @" + s_username + " around a bit with a large trout!*";
 
-                                    //nwSetGlobalUsageDB("emote", n_emouse++); // set global usage incrementally
-                                    //nwSetUserUsage(s_username, "emote", n_emouse++); // set this users usage incrementally
+        //                            //nwSetGlobalUsageDB("emote", n_emouse++); // set global usage incrementally
+        //                            //nwSetUserUsage(s_username, "emote", n_emouse++); // set this users usage incrementally
 
-                                    break;
+        //                            break;
 
-                                }
-                                else if (body == "help")
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        }
+        //                        else if (body == "help")
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                    s_replyToUser = "Usage: !slap [name of person to slap, or leave blank for random]" + Environment.NewLine + "Type '!slap help' to see this message again.";
+        //                            s_replyToUser = "Usage: !slap [name of person to slap, or leave blank for random]" + Environment.NewLine + "Type '!slap help' to see this message again.";
 
-                                    break;
+        //                            break;
 
-                                }
+        //                        }
 
-                                // Sanitise target string.
-                                string s_target = body;
+        //                        // Sanitise target string.
+        //                        string s_target = body;
 
-                                //break on empty strings
-                                if (s_target == string.Empty || s_target == " " || s_target == null)
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-                                    s_replyToUser = "No target was selected. Usage: !slap @username";
-                                    break;
-                                }
+        //                        //break on empty strings
+        //                        if (s_target == string.Empty || s_target == " " || s_target == null)
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                            s_replyToUser = "No target was selected. Usage: !slap @username";
+        //                            break;
+        //                        }
 
-                                if (s_username == string.Empty)
-                                {
-                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-                                    s_replyToUser = "I'm sorry, I can't let you do that Dave";
+        //                        if (s_username == string.Empty)
+        //                        {
+        //                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                            s_replyToUser = "I'm sorry, I can't let you do that Dave";
 
-                                    //nwSetGlobalUsageDB("emote", n_emouse++); // Write new value. // set global usage incrementally
-                                    //nwSetUserUsage(s_username, "emote", n_emouse++); // set this users usage incrementally
+        //                            //nwSetGlobalUsageDB("emote", n_emouse++); // Write new value. // set global usage incrementally
+        //                            //nwSetUserUsage(s_username, "emote", n_emouse++); // set this users usage incrementally
 
-                                    break;
-                                }
+        //                            break;
+        //                        }
 
-                                if (s_target != string.Empty)
-                                {
-                                    replyText = "*@" + s_username + " slaps @" + s_target + " around a bit with a large sea trout!*";
-                                }
-                                else
-                                {
-                                    replyText = "*@PFStats_bot slaps @" + s_username + " around a bit with a large sea trout!*";
-                                }
-                            }
+        //                        if (s_target != string.Empty)
+        //                        {
+        //                            replyText = "*@" + s_username + " slaps @" + s_target + " around a bit with a large sea trout!*";
+        //                        }
+        //                        else
+        //                        {
+        //                            replyText = "*@PFStats_bot slaps @" + s_username + " around a bit with a large sea trout!*";
+        //                        }
+        //                    }
 
-                            //nwSetGlobalUsageDB("emote", n_emouse++); // Write new value. // set global usage incrementally
-                            //nwSetUserUsage(s_username, "emote", n_emo_uuse++); // set this users usage incrementally
+        //                    //nwSetGlobalUsageDB("emote", n_emouse++); // Write new value. // set global usage incrementally
+        //                    //nwSetUserUsage(s_username, "emote", n_emo_uuse++); // set this users usage incrementally
 
-                            break;
+        //                    break;
 
-                        case "!sfw":
-                        case "!safeforwork":
+        //                case "!sfw":
+        //                case "!safeforwork":
 
-                            //int n_sfwuse = nwGrabGlobalUsageDB("sfw");
-                            int n_sfwmax1 = nwGrabGlobalMax("sfw");
-                            int n_sfwmax2 = nwGrabUserMax("sfw");
+        //                    //int n_sfwuse = nwGrabGlobalUsageDB("sfw");
+        //                    int n_sfwmax1 = nwGrabGlobalMax("sfw");
+        //                    int n_sfwmax2 = nwGrabUserMax("sfw");
 
-                            //if (n_sfwuse == n_sfwmax1 || n_sfwuse == n_sfwmax2)
-                            //{
-                            //    if (nwCheckInReplyTimer(dt) != false)
-                            //        s_replyToUser = "Sorry, the /sfw command has been used too many times.";
-                            //    break;
-                            //}
+        //                    //if (n_sfwuse == n_sfwmax1 || n_sfwuse == n_sfwmax2)
+        //                    //{
+        //                    //    if (nwCheckInReplyTimer(dt) != false)
+        //                    //        s_replyToUser = "Sorry, the /sfw command has been used too many times.";
+        //                    //    break;
+        //                    //}
 
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadVideo);
-                            string s_fname = ehoh.Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadVideo);
+        //                    string s_fname = ehoh.Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-                                // Create an instance of StreamReader to read from a file.
-                                // The using statement also closes the StreamReader.
-                                using (ehoh.StreamReader sr = new ehoh.StreamReader(s_fname))
-                                {
-                                    FileToSend fts = new FileToSend();
-                                    fts.Content = sr.BaseStream;
-                                    fts.Filename = ehoh.Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
-                                    // Send to the channel
-                                    await bot.SendVideoAsync(update.Message.Chat.Id, fts, 0, "", false, update.Message.MessageId);
-                                }
-                                break;
-                            }
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
+        //                        // Create an instance of StreamReader to read from a file.
+        //                        // The using statement also closes the StreamReader.
+        //                        using (ehoh.StreamReader sr = new ehoh.StreamReader(s_fname))
+        //                        {
+        //                            FileToSend fts = new FileToSend();
+        //                            fts.Content = sr.BaseStream;
+        //                            fts.Filename = ehoh.Directory.GetCurrentDirectory() + @"\data\sfw.mp4";
+        //                            // Send to the channel
+        //                            await bot.SendVideoAsync(update.Message.Chat.Id, fts, 0, "", false, update.Message.MessageId);
+        //                        }
+        //                        break;
+        //                    }
 
-                            //nwSetGlobalUsageDB("sfw", n_sfwuse++); // Write new value. // set global usage incrementally
-                            //nwSetUserUsage(s_username, "sfw", n_sfwuse++); // set this users usage incrementally
+        //                    //nwSetGlobalUsageDB("sfw", n_sfwuse++); // Write new value. // set global usage incrementally
+        //                    //nwSetUserUsage(s_username, "sfw", n_sfwuse++); // set this users usage incrementally
 
-                            break;
+        //                    break;
 
-                        case "!set":
-                        case "!settings":
+        //                case "!set":
+        //                case "!settings":
 
-                            // TODO: This would ideally need to be one of any of the config file settings
-                            // Example of Usage: !set -[option to set] -[new value]
+        //                    // TODO: This would ideally need to be one of any of the config file settings
+        //                    // Example of Usage: !set -[option to set] -[new value]
 
-                            if (ct != ChatType.Private)
-                            {
+        //                    if (ct != ChatType.Private)
+        //                    {
 
-                                ChatMember[] cm_admin2 = await bot.GetChatAdministratorsAsync(update.Message.Chat.Id);
+        //                        ChatMember[] cm_admin2 = await bot.GetChatAdministratorsAsync(update.Message.Chat.Id);
 
-                                foreach (ChatMember x in cm_admin2)
-                                {
+        //                        foreach (ChatMember x in cm_admin2)
+        //                        {
 
-                                    if (x.User.Username.Contains(s_username) != true)
-                                    {
+        //                            if (x.User.Username.Contains(s_username) != true)
+        //                            {
 
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = "You have insufficient permissions to access this command.";
+        //                                if (nwCheckInReplyTimer(dt) != false)
+        //                                    replyText = "You have insufficient permissions to access this command.";
 
-                                        break;
+        //                                break;
 
-                                    }
-                                    else
-                                    {
+        //                            }
+        //                            else
+        //                            {
 
-                                        string[] s_splitfile = new string[] { "-" };
-                                        string[] sp_body = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
+        //                                string[] s_splitfile = new string[] { "-" };
+        //                                string[] sp_body = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
 
-                                        switch (sp_body[0])
-                                        {
-                                            case "egg":
+        //                                switch (sp_body[0])
+        //                                {
+        //                                    case "egg":
 
-                                                if (sp_body[1] != null && sp_body[1] == "disable")
-                                                    nwSetString("eastereggs", "false");
-                                                if (sp_body[1] != null && sp_body[1] == "enable")
-                                                    nwSetString("eastereggs", "true");
+        //                                        if (sp_body[1] != null && sp_body[1] == "disable")
+        //                                            nwSetString("eastereggs", "false");
+        //                                        if (sp_body[1] != null && sp_body[1] == "enable")
+        //                                            nwSetString("eastereggs", "true");
 
-                                                if (nwCheckInReplyTimer(dt) != false)
-                                                    replyText = "The setting " + sp_body[0] + " was changed.";
+        //                                        if (nwCheckInReplyTimer(dt) != false)
+        //                                            replyText = "The setting " + sp_body[0] + " was changed.";
 
-                                                break;
-                                            default:
-                                                break;
-                                        }
+        //                                        break;
+        //                                    default:
+        //                                        break;
+        //                                }
 
-                                        //if (nwCheckInReplyTimer(dt) != false)
-                                        //    replyText = "This command is not yet implemented.";
+        //                                //if (nwCheckInReplyTimer(dt) != false)
+        //                                //    replyText = "This command is not yet implemented.";
 
-                                        break;
+        //                                break;
 
-                                    }
+        //                            }
 
-                                }
+        //                        }
 
-                            }
-                            else
-                            {
+        //                    }
+        //                    else
+        //                    {
 
-                                string[] stuff1 = nwGrabAdminsFromList(Environment.CurrentDirectory + @"\data\adminlist.txt");
+        //                        string[] stuff1 = nwGrabAdminsFromList(Environment.CurrentDirectory + @"\data\adminlist.txt");
                                 
-                                foreach (string x in stuff1)
-                                {
+        //                        foreach (string x in stuff1)
+        //                        {
 
-                                    if (x.Contains(s_username) != true)
-                                    {
+        //                            if (x.Contains(s_username) != true)
+        //                            {
 
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = "You have insufficient permissions to access this command.";
-                                        break;
+        //                                if (nwCheckInReplyTimer(dt) != false)
+        //                                    replyText = "You have insufficient permissions to access this command.";
+        //                                break;
 
-                                    }
-                                    else
-                                    {
+        //                            }
+        //                            else
+        //                            {
                                         
-                                        string[] s_splitfile = new string[] { "-" };
-                                        string[] sp_body = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
+        //                                string[] s_splitfile = new string[] { "-" };
+        //                                string[] sp_body = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
 
-                                        switch (sp_body[0])
-                                        {
-                                            case "egg":
+        //                                switch (sp_body[0])
+        //                                {
+        //                                    case "egg":
 
-                                                if (sp_body[1] != null && sp_body[1] == "disable")
-                                                    nwSetString("eastereggs", "false");
-                                                if (sp_body[1] != null && sp_body[1] == "enable")
-                                                    nwSetString("eastereggs", "true");
+        //                                        if (sp_body[1] != null && sp_body[1] == "disable")
+        //                                            nwSetString("eastereggs", "false");
+        //                                        if (sp_body[1] != null && sp_body[1] == "enable")
+        //                                            nwSetString("eastereggs", "true");
 
-                                                if (nwCheckInReplyTimer(dt) != false)
-                                                    replyText = "The setting " + sp_body[0] + " was changed.";
+        //                                        if (nwCheckInReplyTimer(dt) != false)
+        //                                            replyText = "The setting " + sp_body[0] + " was changed.";
 
-                                                break;
-                                            default:
-                                                break;
-                                        }
+        //                                        break;
+        //                                    default:
+        //                                        break;
+        //                                }
 
-                                        //if (nwCheckInReplyTimer(dt) != false)
-                                        //    replyText = "This command is not yet implemented.";
+        //                                //if (nwCheckInReplyTimer(dt) != false)
+        //                                //    replyText = "This command is not yet implemented.";
 
-                                        break;
+        //                                break;
 
-                                    }
+        //                            }
 
-                                }
-                            }
+        //                        }
+        //                    }
 
-                            break;
-
-
-                        case "!test":
-
-                            if (ct == ChatType.Private)
-                            {
-
-                                //int n = nwGrabGlobalUsageDB("total");
-                                //replyText = n.ToString();
-                                nwTestColoredConsoleWrite(" mrew ");
-                                // WAITING FOR THE NEXT TEST
-
-                                //await bot.SendTextMessageAsync(update.Message.Chat.Id, nwGrabImage("https://e621.net/post/index.xml?limit=100&tags=feline%20dickgirl%20solo%20rating:safe%20order:score"), false, false, 0, null, ParseMode.Html);
-
-                            }
-                            else
-                            {
-
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    s_replyToUser = "This command can only be used in private messages.";
-
-                                break;
-
-                            }
-
-                            break;
-
-                        case "!shibe":
-                        case "!shiba":
-
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                s_replyToUser = "Usage: !shibe";
-
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
-
-                                s_replyToUser = "Usage: !shibe" + Environment.NewLine + "Type '!shibe help' to see this message again.";
-
-                                break;
-
-                            }
-
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
-
-                                replyImage = nwShowSpeciesImage("shiba inu", update, ct);
-
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
-
-                            break;
-
-                        case "!say":
-
-                            //int n_sayuse = nwGrabGlobalUsageDB("say");
-                            //int n_say_gmax = nwGrabGlobalMax("say");
-
-                            // if (n_sayuse == n_say_gmax)
-                            //  {
-                            //      if (nwCheckInReplyTimer(dt) != false)
-                            //          s_replyToUser = "Sorry, the /say command has been used too many times.";
-                            //      break;
-                            //  }
-
-                            if (ct == ChatType.Private)
-                            {
-
-                                string[] stuff = nwGrabAdminsFromList(Environment.CurrentDirectory + @"\data\adminlist.txt");
+        //                    break;
 
 
-                                foreach (string x in stuff)
-                                {
+        //                case "!test":
 
-                                    if (x.Contains(s_username) != true)
-                                    {
+        //                    if (ct == ChatType.Private)
+        //                    {
 
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = "You have insufficient permissions to access this command.";
-                                        break;
+        //                        //int n = nwGrabGlobalUsageDB("total");
+        //                        //replyText = n.ToString();
+        //                        nwTestColoredConsoleWrite(" mrew ");
+        //                        // WAITING FOR THE NEXT TEST
 
-                                    }
-                                    else
-                                    {
+        //                        //await bot.SendTextMessageAsync(update.Message.Chat.Id, nwGrabImage("https://e621.net/post/index.xml?limit=100&tags=feline%20dickgirl%20solo%20rating:safe%20order:score"), false, false, 0, null, ParseMode.Html);
 
-                                        if (body == string.Empty || body == " ")
-                                        {
-                                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    }
+        //                    else
+        //                    {
 
-                                            if (nwCheckInReplyTimer(dt) != false)
-                                                s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular Usage: !stats [week|fortnight|month|year|alltime|archive|commands]";
+        //                        if (nwCheckInReplyTimer(dt) != false)
+        //                            s_replyToUser = "This command can only be used in private messages.";
 
-                                            break;
+        //                        break;
 
-                                        }
-                                        else if (body == "help")
-                                        {
-                                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    }
 
-                                            s_replyToUser = "Usage: !say [thing to say]" + Environment.NewLine + "Type '!say help' to see this message again.";
+        //                    break;
 
-                                            break;
+        //                case "!shibe":
+        //                case "!shiba":
 
-                                        }
-                                        else
-                                        {
-                                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                                if (nwCheckInReplyTimer(dt) != false)
-                                                    await bot.SendTextMessageAsync(-1001100571930, body);
+        //                        s_replyToUser = "Usage: !shibe";
+
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                        s_replyToUser = "Usage: !shibe" + Environment.NewLine + "Type '!shibe help' to see this message again.";
+
+        //                        break;
+
+        //                    }
+
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
+
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+
+        //                        replyImage = nwShowSpeciesImage("shiba inu", update, ct);
+
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
+
+        //                    break;
+
+        //                case "!say":
+
+        //                    //int n_sayuse = nwGrabGlobalUsageDB("say");
+        //                    //int n_say_gmax = nwGrabGlobalMax("say");
+
+        //                    // if (n_sayuse == n_say_gmax)
+        //                    //  {
+        //                    //      if (nwCheckInReplyTimer(dt) != false)
+        //                    //          s_replyToUser = "Sorry, the /say command has been used too many times.";
+        //                    //      break;
+        //                    //  }
+
+        //                    if (ct == ChatType.Private)
+        //                    {
+
+        //                        string[] stuff = nwGrabAdminsFromList(Environment.CurrentDirectory + @"\data\adminlist.txt");
+
+
+        //                        foreach (string x in stuff)
+        //                        {
+
+        //                            if (x.Contains(s_username) != true)
+        //                            {
+
+        //                                if (nwCheckInReplyTimer(dt) != false)
+        //                                    replyText = "You have insufficient permissions to access this command.";
+        //                                break;
+
+        //                            }
+        //                            else
+        //                            {
+
+        //                                if (body == string.Empty || body == " ")
+        //                                {
+        //                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                                    if (nwCheckInReplyTimer(dt) != false)
+        //                                        s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular Usage: !stats [week|fortnight|month|year|alltime|archive|commands]";
+
+        //                                    break;
+
+        //                                }
+        //                                else if (body == "help")
+        //                                {
+        //                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                                    s_replyToUser = "Usage: !say [thing to say]" + Environment.NewLine + "Type '!say help' to see this message again.";
+
+        //                                    break;
+
+        //                                }
+        //                                else
+        //                                {
+        //                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+
+        //                                        if (nwCheckInReplyTimer(dt) != false)
+        //                                            await bot.SendTextMessageAsync(-1001100571930, body);
                                                 
-                                            break;
+        //                                    break;
 
-                                        }
+        //                                }
 
-                                    }
+        //                            }
 
-                                }
+        //                        }
 
-                            }
-                            else
-                            {
+        //                    }
+        //                    else
+        //                    {
 
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    //replyText2 = body;
-                                    await bot.SendTextMessageAsync(update.Message.Chat.Id, "Not working.");
-                                break;
+        //                        if (nwCheckInReplyTimer(dt) != false)
+        //                            //replyText2 = body;
+        //                            await bot.SendTextMessageAsync(update.Message.Chat.Id, "Not working.");
+        //                        break;
 
-                            }
+        //                    }
 
-                            //if (body.Length > 2)
-                            //{
-                            //    break;
-                            //}
+        //                    //if (body.Length > 2)
+        //                    //{
+        //                    //    break;
+        //                    //}
 
-                            //nwSetGlobalUsage("say", n_sayuse++); // Write new value. // set global usage incrementally
+        //                    //nwSetGlobalUsage("say", n_sayuse++); // Write new value. // set global usage incrementally
 
-                            break;
+        //                    break;
 
-                        case "!sayhtml":
+        //                case "!sayhtml":
 
-                            //int n_sayuse = nwGrabGlobalUsageDB("say");
-                            //int n_say_gmax = nwGrabGlobalMax("say");
+        //                    //int n_sayuse = nwGrabGlobalUsageDB("say");
+        //                    //int n_say_gmax = nwGrabGlobalMax("say");
 
-                            // if (n_sayuse == n_say_gmax)
-                            //  {
-                            //      if (nwCheckInReplyTimer(dt) != false)
-                            //          s_replyToUser = "Sorry, the /say command has been used too many times.";
-                            //      break;
-                            //  }
+        //                    // if (n_sayuse == n_say_gmax)
+        //                    //  {
+        //                    //      if (nwCheckInReplyTimer(dt) != false)
+        //                    //          s_replyToUser = "Sorry, the /say command has been used too many times.";
+        //                    //      break;
+        //                    //  }
 
-                            if (ct == ChatType.Private)
-                            {
+        //                    if (ct == ChatType.Private)
+        //                    {
 
-                                string[] stuff = nwGrabAdminsFromList(Environment.CurrentDirectory + @"\data\adminlist.txt");
+        //                        string[] stuff = nwGrabAdminsFromList(Environment.CurrentDirectory + @"\data\adminlist.txt");
 
 
-                                foreach (string x in stuff)
-                                {
+        //                        foreach (string x in stuff)
+        //                        {
 
-                                    if (x.Contains(s_username) != true)
-                                    {
+        //                            if (x.Contains(s_username) != true)
+        //                            {
 
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = "You have insufficient permissions to access this command.";
-                                        break;
+        //                                if (nwCheckInReplyTimer(dt) != false)
+        //                                    replyText = "You have insufficient permissions to access this command.";
+        //                                break;
 
-                                    }
-                                    else
-                                    {
+        //                            }
+        //                            else
+        //                            {
 
-                                        if (body == string.Empty || body == " ")
-                                        {
-                                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                                if (body == string.Empty || body == " ")
+        //                                {
+        //                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                            if (nwCheckInReplyTimer(dt) != false)
-                                                s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular Usage: !stats [week|fortnight|month|year|alltime|archive|commands]";
+        //                                    if (nwCheckInReplyTimer(dt) != false)
+        //                                        s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular Usage: !stats [week|fortnight|month|year|alltime|archive|commands]";
 
-                                            break;
+        //                                    break;
 
-                                        }
-                                        else if (body == "help")
-                                        {
-                                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                                }
+        //                                else if (body == "help")
+        //                                {
+        //                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                            s_replyToUser = "Usage: !sayhtml [thing to say]" + Environment.NewLine + "Type '!sayhtml help' to see this message again.";
+        //                                    s_replyToUser = "Usage: !sayhtml [thing to say]" + Environment.NewLine + "Type '!sayhtml help' to see this message again.";
 
-                                            break;
+        //                                    break;
 
-                                        }
-                                        else
-                                        {
-                                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                                }
+        //                                else
+        //                                {
+        //                                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                            string[] s_splitfile = new string[] { "-" };
-                                            string[] boob = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
+        //                                    string[] s_splitfile = new string[] { "-" };
+        //                                    string[] boob = body.Split(s_splitfile, StringSplitOptions.RemoveEmptyEntries);
 
-                                            StringBuilder saysb = new StringBuilder();
+        //                                    StringBuilder saysb = new StringBuilder();
 
-                                            if (Regex.IsMatch(boob[0], @"\bsfw\b", RegexOptions.IgnoreCase) == true)
-                                            {
+        //                                    if (Regex.IsMatch(boob[0], @"\bsfw\b", RegexOptions.IgnoreCase) == true)
+        //                                    {
 
-                                                boob[0] = boob[0].Replace("sfw", "");
+        //                                        boob[0] = boob[0].Replace("sfw", "");
 
-                                                //foreach (string s_meow in boob)
-                                                //{
-                                                //    saysb.Append(s_meow);
-                                                //}
+        //                                        //foreach (string s_meow in boob)
+        //                                        //{
+        //                                        //    saysb.Append(s_meow);
+        //                                        //}
 
-                                                //if (boob[1] == null) { replyText = "You didn't use the prefix, silly"; }
+        //                                        //if (boob[1] == null) { replyText = "You didn't use the prefix, silly"; }
 
-                                                if (nwCheckInReplyTimer(dt) != false)
-                                                    await bot.SendTextMessageAsync(-1001032131694, boob[0].ToString(), true, false, 0, null, ParseMode.Html);
+        //                                        if (nwCheckInReplyTimer(dt) != false)
+        //                                            await bot.SendTextMessageAsync(-1001032131694, boob[0].ToString(), true, false, 0, null, ParseMode.Html);
 
 
 
-                                            }
-                                            else if (Regex.IsMatch(boob[0], @"\bnsfw\b", RegexOptions.IgnoreCase) == true)
-                                            {
-                                                boob[0] = boob[0].Replace("nsfw", "");
+        //                                    }
+        //                                    else if (Regex.IsMatch(boob[0], @"\bnsfw\b", RegexOptions.IgnoreCase) == true)
+        //                                    {
+        //                                        boob[0] = boob[0].Replace("nsfw", "");
 
-                                                //foreach (string s_meow in boob)
-                                                //{
-                                                //    saysb.Append(s_meow);
-                                                //}
+        //                                        //foreach (string s_meow in boob)
+        //                                        //{
+        //                                        //    saysb.Append(s_meow);
+        //                                        //}
 
-                                                if (boob[1] == null) { replyText = "You didn't use the prefix, silly"; }
+        //                                        if (boob[1] == null) { replyText = "You didn't use the prefix, silly"; }
 
-                                                if (nwCheckInReplyTimer(dt) != false)
-                                                    await bot.SendTextMessageAsync(-1001052518605, boob[1].ToString(), true, false, 0, null, ParseMode.Html);
-                                            }
-                                            //boob.
+        //                                        if (nwCheckInReplyTimer(dt) != false)
+        //                                            await bot.SendTextMessageAsync(-1001052518605, boob[1].ToString(), true, false, 0, null, ParseMode.Html);
+        //                                    }
+        //                                    //boob.
 
-                                            //if boob.
+        //                                    //if boob.
 
 
 
-                                            break;
+        //                                    break;
 
-                                        }
+        //                                }
 
-                                    }
+        //                            }
 
-                                }
+        //                        }
 
-                            }
-                            else
-                            {
+        //                    }
+        //                    else
+        //                    {
 
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    //replyText2 = body;
-                                    await bot.SendTextMessageAsync(update.Message.Chat.Id, "Not working.");
-                                break;
+        //                        if (nwCheckInReplyTimer(dt) != false)
+        //                            //replyText2 = body;
+        //                            await bot.SendTextMessageAsync(update.Message.Chat.Id, "Not working.");
+        //                        break;
 
-                            }
+        //                    }
 
-                            //if (body.Length > 2)
-                            //{
-                            //    break;
-                            //}
+        //                    //if (body.Length > 2)
+        //                    //{
+        //                    //    break;
+        //                    //}
 
-                            //nwSetGlobalUsage("say", n_sayuse++); // Write new value. // set global usage incrementally
+        //                    //nwSetGlobalUsage("say", n_sayuse++); // Write new value. // set global usage incrementally
 
-                            break;
+        //                    break;
 
-                        case "!mow":
-                        case "!homph":
-                        case "!snep":
+        //                case "!mow":
+        //                case "!homph":
+        //                case "!snep":
 
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !snep";
+        //                        s_replyToUser = "Usage: !snep";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !snep" + Environment.NewLine + "Type '!snep help' to see this message again.";
+        //                        s_replyToUser = "Usage: !snep" + Environment.NewLine + "Type '!snep help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                replyImage = nwShowSpeciesImage("snow leopard", update, ct);
+        //                        replyImage = nwShowSpeciesImage("snow leopard", update, ct);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!clep":
+        //                case "!clep":
 
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !clep";
+        //                        s_replyToUser = "Usage: !clep";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !clep" + Environment.NewLine + "Type '!clep help' to see this message again.";
+        //                        s_replyToUser = "Usage: !clep" + Environment.NewLine + "Type '!clep help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                replyImage = nwShowSpeciesImage("clouded leopard", update, ct);
+        //                        replyImage = nwShowSpeciesImage("clouded leopard", update, ct);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!leopard":
+        //                case "!leopard":
 
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !leopard";
+        //                        s_replyToUser = "Usage: !leopard";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !leopard" + Environment.NewLine + "Type '!leopard help' to see this message again.";
+        //                        s_replyToUser = "Usage: !leopard" + Environment.NewLine + "Type '!leopard help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                replyImage = nwShowSpeciesImage("leopard", update, ct);
+        //                        replyImage = nwShowSpeciesImage("leopard", update, ct);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!stat":
-                        case "!stats": // change to /stats [week|month|year|alltime]
+        //                case "!stat":
+        //                case "!stats": // change to /stats [week|month|year|alltime]
 
-                            int n_statuse = nwGrabGlobalUsage("stats");
-                            int n_stat_gmax = nwGrabGlobalMax("stats");
-                            int n_stat_umax = nwGrabUserMax("stats");
+        //                    int n_statuse = nwGrabGlobalUsage("stats");
+        //                    int n_stat_gmax = nwGrabGlobalMax("stats");
+        //                    int n_stat_umax = nwGrabUserMax("stats");
 
-                            if (n_statuse == n_stat_gmax || n_statuse == n_stat_umax)
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "Sorry, the /stat command has been used too many times.";
-                                break;
-                            }
+        //                    if (n_statuse == n_stat_gmax || n_statuse == n_stat_umax)
+        //                    {
+        //                        if (nwCheckInReplyTimer(dt) != false)
+        //                            replyText = "Sorry, the /stat command has been used too many times.";
+        //                        break;
+        //                    }
 
-                            if (body == string.Empty || body == " ")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body == string.Empty || body == " ")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular Usage: !stats [week|fortnight|month|year|alltime|archive|commands]";
+        //                        if (nwCheckInReplyTimer(dt) != false)
+        //                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular Usage: !stats [week|fortnight|month|year|alltime|archive|commands]";
 
-                                nwSetGlobalUsage("stats", n_statuse++); // set global usage incrementally
-                                nwSetUserUsage(s_username, "stats", n_statuse++); // set this users usage incrementally
+        //                        nwSetGlobalUsage("stats", n_statuse++); // set global usage incrementally
+        //                        nwSetUserUsage(s_username, "stats", n_statuse++); // set this users usage incrementally
 
-                                break;
+        //                        break;
 
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !stats [timeframe to generate a link for, could be week, month, fortnight, year or alltime]" + Environment.NewLine + "Type '!stats help' to see this message again.";
+        //                        s_replyToUser = "Usage: !stats [timeframe to generate a link for, could be week, month, fortnight, year or alltime]" + Environment.NewLine + "Type '!stats help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
-                            else
-                            {
+        //                    }
+        //                    else
+        //                    {
 
-                                string ms2a = body;
+        //                        string ms2a = body;
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                switch (ms2a)
-                                {
-                                    case "week":
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last weeks stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
-                                        break;
-                                    case "month":
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last months stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
-                                        break;
-                                    case "fortnight":
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last fortnights stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
-                                        break;
-                                    case "year:":
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last years stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
-                                        break;
-                                    case "decade":
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last decades stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
-                                        break;
-                                    case "alltime":
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view the alltime stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
-                                        break;
-                                    case "archive":
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view the stats archives: http://www.perthfurstats.net/node/2";
-                                        break;
-                                    case "command":
-                                    case "commands":
-                                        //int tuse = nwCountTotalCommands("total");
-                                        //int tuse2 = nwCountTotalCommands(update.Message.From.Username);
-                                        //if (nwCheckInReplyTimer(dt) != false)
-                                        //    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Since inception on Feb 15 2016, this bot has processed " + Convert.ToString(tuse) + " total commands." + Environment.NewLine + "You have personally sent the bot " + Convert.ToString(tuse2) + " total commands.";
-                                        break;
-                                    default:
-                                        if (nwCheckInReplyTimer(dt) != false)
-                                            replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last weeks stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular Usage: !stats [week|month|year|alltime|archive]";
-                                        break;
-                                }
+        //                        switch (ms2a)
+        //                        {
+        //                            case "week":
+        //                                if (nwCheckInReplyTimer(dt) != false)
+        //                                    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last weeks stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
+        //                                break;
+        //                            case "month":
+        //                                if (nwCheckInReplyTimer(dt) != false)
+        //                                    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last months stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
+        //                                break;
+        //                            case "fortnight":
+        //                                if (nwCheckInReplyTimer(dt) != false)
+        //                                    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last fortnights stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
+        //                                break;
+        //                            case "year:":
+        //                                if (nwCheckInReplyTimer(dt) != false)
+        //                                    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last years stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
+        //                                break;
+        //                            case "decade":
+        //                                if (nwCheckInReplyTimer(dt) != false)
+        //                                    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last decades stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
+        //                                break;
+        //                            case "alltime":
+        //                                if (nwCheckInReplyTimer(dt) != false)
+        //                                    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view the alltime stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html";
+        //                                break;
+        //                            case "archive":
+        //                                if (nwCheckInReplyTimer(dt) != false)
+        //                                    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view the stats archives: http://www.perthfurstats.net/node/2";
+        //                                break;
+        //                            case "command":
+        //                            case "commands":
+        //                                //int tuse = nwCountTotalCommands("total");
+        //                                //int tuse2 = nwCountTotalCommands(update.Message.From.Username);
+        //                                //if (nwCheckInReplyTimer(dt) != false)
+        //                                //    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Since inception on Feb 15 2016, this bot has processed " + Convert.ToString(tuse) + " total commands." + Environment.NewLine + "You have personally sent the bot " + Convert.ToString(tuse2) + " total commands.";
+        //                                break;
+        //                            default:
+        //                                if (nwCheckInReplyTimer(dt) != false)
+        //                                    replyText = nwRandomGreeting() + " " + update.Message.From.FirstName + ", Please use the following URL to view this last weeks stats: http://www.perthfurstats.net/node/stats/thisweek/perthfurs.html" + Environment.NewLine + "Note: Regular Usage: !stats [week|month|year|alltime|archive]";
+        //                                break;
+        //                        }
 
-                                nwSetGlobalUsage("stats", n_statuse++); // set global usage incrementally
-                                nwSetUserUsage(s_username, "stats", n_statuse++); // set this users usage incrementally
+        //                        nwSetGlobalUsage("stats", n_statuse++); // set global usage incrementally
+        //                        nwSetUserUsage(s_username, "stats", n_statuse++); // set this users usage incrementally
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                        case "!start":
+        //                case "!start":
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "This bot does not need to be started in this fashion, see /command for a list of commands.";
-                            break;
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                        s_replyToUser = "This bot does not need to be started in this fashion, see /command for a list of commands.";
+        //                    break;
 
-                        case "!greet":
-                        case "!greeting":
+        //                case "!greet":
+        //                case "!greeting":
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-                                s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + "!";
-                                break;
-                            }
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
+        //                        s_replyToUser = nwRandomGreeting() + " " + update.Message.From.FirstName + "!";
+        //                        break;
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!meme":
+        //                case "!meme":
 
-                            if (body == string.Empty || body == " " || body == "@" || body == null)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body == string.Empty || body == " " || body == "@" || body == null)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !meme [image to look for]";
+        //                        s_replyToUser = "Usage: !meme [image to look for]";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !meme [image to look for]" + Environment.NewLine + "Type '!mee help' to see this message again.";
+        //                        s_replyToUser = "Usage: !meme [image to look for]" + Environment.NewLine + "Type '!mee help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                retryme:
+        //                        retryme:
 
-                                // list of urls.
-                                string html1 = null;
+        //                        // list of urls.
+        //                        string html1 = null;
 
-                                // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                                if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
-                                    html1 = GetHtmlCode(body, false, true);
-                                else
-                                    html1 = GetHtmlCode(body, false, false);
+        //                        // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+        //                        if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+        //                            html1 = GetHtmlCode(body, false, true);
+        //                        else
+        //                            html1 = GetHtmlCode(body, false, false);
 
-                                List<string> urls1 = GetUrls(html1);
+        //                        List<string> urls1 = GetUrls(html1);
 
-                                int memecount = urls1.Count;
+        //                        int memecount = urls1.Count;
 
-                                string s_luckyUrl = urls1[0];
+        //                        string s_luckyUrl = urls1[0];
 
-                                // Check if the file is valid, or throws an unwanted status code.
-                                if (!string.IsNullOrEmpty(s_luckyUrl))
-                                {
-                                    UriBuilder uriBuilder = new UriBuilder(s_luckyUrl);
-                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+        //                        // Check if the file is valid, or throws an unwanted status code.
+        //                        if (!string.IsNullOrEmpty(s_luckyUrl))
+        //                        {
+        //                            UriBuilder uriBuilder = new UriBuilder(s_luckyUrl);
+        //                            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+        //                            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
-                                    if (response.StatusCode == HttpStatusCode.Forbidden)
-                                    {
-                                        Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.NotFound)
-                                    {
-                                        Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
-                                        goto retryme;
-                                    }
-                                    if (response.StatusCode == HttpStatusCode.OK)
-                                    {
-                                        Console.WriteLine("URL appears to be good.");
-                                    }
-                                    else //There are a lot of other status codes you could check for...
-                                    {
-                                        Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
-                                                                   response.StatusCode.ToString()));
-                                    }
-                                }
+        //                            if (response.StatusCode == HttpStatusCode.Forbidden)
+        //                            {
+        //                                Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
+        //                                goto retryme;
+        //                            }
+        //                            if (response.StatusCode == HttpStatusCode.NotFound)
+        //                            {
+        //                                Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+        //                                goto retryme;
+        //                            }
+        //                            if (response.StatusCode == HttpStatusCode.OK)
+        //                            {
+        //                                Console.WriteLine("URL appears to be good.");
+        //                            }
+        //                            else //There are a lot of other status codes you could check for...
+        //                            {
+        //                                Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+        //                                                           response.StatusCode.ToString()));
+        //                            }
+        //                        }
 
-                                if (s_luckyUrl.Contains(" ") == true)
-                                    s_luckyUrl.Replace(" ", "%20");
+        //                        if (s_luckyUrl.Contains(" ") == true)
+        //                            s_luckyUrl.Replace(" ", "%20");
 
-                                replyImage = s_luckyUrl;
-                                break;
+        //                        replyImage = s_luckyUrl;
+        //                        break;
 
-                            }
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!shep":
-                        case "!gshep":
+        //                case "!shep":
+        //                case "!gshep":
 
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !shep";
+        //                        s_replyToUser = "Usage: !shep";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !shep" + Environment.NewLine + "Type '!shep help' to see this message again.";
+        //                        s_replyToUser = "Usage: !shep" + Environment.NewLine + "Type '!shep help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                replyImage = nwShowSpeciesImage("german shepherd", update, ct);
+        //                        replyImage = nwShowSpeciesImage("german shepherd", update, ct);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        //Added by LachBee, 01/03/2017
-                        //Just a copy-paste of !gshep (It's a learning experience okay?)
-                        case "!rat": 
+        //                //Added by LachBee, 01/03/2017
+        //                //Just a copy-paste of !gshep (It's a learning experience okay?)
+        //                case "!rat": 
 
-                            if (body.Contains(" ") == true)
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body.Contains(" ") == true)
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !rat";
+        //                        s_replyToUser = "Usage: !rat";
 
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !rat" + Environment.NewLine + "Type '!rat help' to see this message again.";
+        //                        s_replyToUser = "Usage: !rat" + Environment.NewLine + "Type '!rat help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                                replyImage = nwShowSpeciesImage("rat", update, ct);
+        //                        replyImage = nwShowSpeciesImage("rat", update, ct);
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("The " + command + " failed as it took too long to process.");
-                            }
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine("The " + command + " failed as it took too long to process.");
+        //                    }
 
-                            break;
+        //                    break;
 
-                        case "!action":
-                        case "!me": // TODO: Finish this command
-                                    // performs an action on the caller
-                                    // usage /em -[action (see list of actions)]
-                                    //            //usage
-                                    //    emuse = nwGrabInt("cusage/emote");
-                                    //    int n_memax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/emote");
-                                    //    int n_memax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/emote");
+        //                case "!action":
+        //                case "!me": // TODO: Finish this command
+        //                            // performs an action on the caller
+        //                            // usage /em -[action (see list of actions)]
+        //                            //            //usage
+        //                            //    emuse = nwGrabInt("cusage/emote");
+        //                            //    int n_memax1 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits_user/emote");
+        //                            //    int n_memax2 = cSettings.Instance.nwGrabInt(s_gcmd_cfgfile, "climits/emote");
 
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (body == string.Empty || body == " ")
-                            {
-                                break;
-                            }
-                            else if (body == "help")
-                            {
-                                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    if (body == string.Empty || body == " ")
+        //                    {
+        //                        break;
+        //                    }
+        //                    else if (body == "help")
+        //                    {
+        //                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                                s_replyToUser = "Usage: !me [Action to perform]" + Environment.NewLine + "Type '!me help' to see this message again.";
+        //                        s_replyToUser = "Usage: !me [Action to perform]" + Environment.NewLine + "Type '!me help' to see this message again.";
 
-                                break;
+        //                        break;
 
-                            }
+        //                    }
 
-                            replyText = "*" + update.Message.From.Username + " " + body + "*";
+        //                    replyText = "*" + update.Message.From.Username + " " + body + "*";
 
-                            //    replyText = nwRandomGreeting() + ". This command is coming soon. *pokes @TsarTheErmine *";
+        //                    //    replyText = nwRandomGreeting() + ". This command is coming soon. *pokes @TsarTheErmine *";
 
-                            //    nwSetString("cusage/emote", Convert.ToString(emuse++));
-                            //    nwSetUserString(update.Message.From.FirstName + "/cmd_counts/emote", Convert.ToString(emuse++));
+        //                    //    nwSetString("cusage/emote", Convert.ToString(emuse++));
+        //                    //    nwSetUserString(update.Message.From.FirstName + "/cmd_counts/emote", Convert.ToString(emuse++));
 
-                            break;
+        //                    break;
 
-                        case "!exchange":
-                        case "!rate":
+        //                case "!exchange":
+        //                case "!rate":
 
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            exchangeKey = nwGrabString("exchangeapi");
+        //                    exchangeKey = nwGrabString("exchangeapi");
 
-                            //https://www.exchangerate-api.com/AUD/USD?k=4a9ee4be2f2c0675d0417e64
-                            string exo = httpClient.DownloadString("https://www.exchangerate-api.com/AUD/USD?k=" + exchangeKey).Result;
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "1 USD = " + exo + " AUD";
+        //                    //https://www.exchangerate-api.com/AUD/USD?k=4a9ee4be2f2c0675d0417e64
+        //                    string exo = httpClient.DownloadString("https://www.exchangerate-api.com/AUD/USD?k=" + exchangeKey).Result;
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                        replyText = "1 USD = " + exo + " AUD";
 
-                            break;
+        //                    break;
                             
-                        case "!weather": // TODO - change to BOM api
+        //                case "!weather": // TODO - change to BOM api
 
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            ////dynamic dfor = JObject.Parse(httpClient.DownloadString("http://api.wunderground.com/api/" + wundergroundKey + "/forecast/q/" + body + ".json").Result);
-                            dynamic d_weather = JObject.Parse(httpClient.DownloadString("http://www.bom.gov.au/fwo/IDW60801/IDW60801.94608.json").Result);
+        //                    ////dynamic dfor = JObject.Parse(httpClient.DownloadString("http://api.wunderground.com/api/" + wundergroundKey + "/forecast/q/" + body + ".json").Result);
+        //                    dynamic d_weather = JObject.Parse(httpClient.DownloadString("http://www.bom.gov.au/fwo/IDW60801/IDW60801.94608.json").Result);
 
-                            // Create a new string builder
-                            StringBuilder weatherString = new StringBuilder();
-                            weatherString.AppendLine("Here are the current weather conditions for Perth: ");
-                            weatherString.AppendLine("(" + d_weather.observations.header[0].refresh_message.ToString() + ")");
+        //                    // Create a new string builder
+        //                    StringBuilder weatherString = new StringBuilder();
+        //                    weatherString.AppendLine("Here are the current weather conditions for Perth: ");
+        //                    weatherString.AppendLine("(" + d_weather.observations.header[0].refresh_message.ToString() + ")");
 
-                            weatherString.AppendLine("Apparent temperature; " + d_weather.observations.data[0].apparent_t.ToString());
-                            weatherString.AppendLine("Air temperature; " + d_weather.observations.data[0].air_temp.ToString());
-                            weatherString.AppendLine("Dew point; " + d_weather.observations.data[0].dewpt.ToString());
-                            weatherString.AppendLine("Humidity; " + d_weather.observations.data[0].rel_hum.ToString());
+        //                    weatherString.AppendLine("Apparent temperature; " + d_weather.observations.data[0].apparent_t.ToString());
+        //                    weatherString.AppendLine("Air temperature; " + d_weather.observations.data[0].air_temp.ToString());
+        //                    weatherString.AppendLine("Dew point; " + d_weather.observations.data[0].dewpt.ToString());
+        //                    weatherString.AppendLine("Humidity; " + d_weather.observations.data[0].rel_hum.ToString());
 
-                            // insert rain chance here?
+        //                    // insert rain chance here?
 
-                            weatherString.AppendLine("Rain since 9am; " + d_weather.observations.data[0].rain_trace.ToString() + "mm");
-                            weatherString.AppendLine("Wind speed; " + d_weather.observations.data[0].wind_spd_kmh.ToString() + "kph , Gusting up to " + d_weather.observations.data[0].gust_kmh.ToString()+ "kph");
-                            weatherString.AppendLine("Wind direction; " + d_weather.observations.data[0].wind_dir.ToString() + "");
-                            weatherString.AppendLine("This data is refreshed every 10 mins.");
+        //                    weatherString.AppendLine("Rain since 9am; " + d_weather.observations.data[0].rain_trace.ToString() + "mm");
+        //                    weatherString.AppendLine("Wind speed; " + d_weather.observations.data[0].wind_spd_kmh.ToString() + "kph , Gusting up to " + d_weather.observations.data[0].gust_kmh.ToString()+ "kph");
+        //                    weatherString.AppendLine("Wind direction; " + d_weather.observations.data[0].wind_dir.ToString() + "");
+        //                    weatherString.AppendLine("This data is refreshed every 10 mins.");
                             
-                            replyText = weatherString.ToString();
+        //                    replyText = weatherString.ToString();
 
-                            break;
+        //                    break;
 
-                        case "!forecast":
-                        case "!weather2":
+        //                case "!forecast":
+        //                case "!weather2":
                            
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-                                XmlDocument dok = new XmlDocument();
-                                dok.Load("ftp://ftp.bom.gov.au/anon/gen/fwo/IDW12400.xml");
-                                DateTime dta1 = new DateTime(2016, 4, 1);
-                                dta1 = DateTime.Now;
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
+        //                        XmlDocument dok = new XmlDocument();
+        //                        dok.Load("ftp://ftp.bom.gov.au/anon/gen/fwo/IDW12400.xml");
+        //                        DateTime dta1 = new DateTime(2016, 4, 1);
+        //                        dta1 = DateTime.Now;
 
-                                // Get our nodes
-                                XmlNodeList wnodes;
-                                wnodes = dok.GetElementsByTagName("forecast-period");
+        //                        // Get our nodes
+        //                        XmlNodeList wnodes;
+        //                        wnodes = dok.GetElementsByTagName("forecast-period");
 
-                                // Create a new string builder
-                                StringBuilder wString = new StringBuilder();
-                                wString.AppendLine("Forecast for:");
+        //                        // Create a new string builder
+        //                        StringBuilder wString = new StringBuilder();
+        //                        wString.AppendLine("Forecast for:");
 
-                                // Iterate through available days
-                                for (var i1for = 0; i1for < wnodes.Count; i1for++)
-                                {
-                                    dta1 = Convert.ToDateTime(wnodes.Item(i1for).Attributes["start-time-local"].Value);
+        //                        // Iterate through available days
+        //                        for (var i1for = 0; i1for < wnodes.Count; i1for++)
+        //                        {
+        //                            dta1 = Convert.ToDateTime(wnodes.Item(i1for).Attributes["start-time-local"].Value);
 
-                                    wString.AppendLine(dta1.ToString("ddd d/MM/yyy") + ": " + wnodes.Item(i1for).SelectSingleNode("text").InnerText); // + " [" + pfn_events.url.ToString() + "]");
-                                }
+        //                            wString.AppendLine(dta1.ToString("ddd d/MM/yyy") + ": " + wnodes.Item(i1for).SelectSingleNode("text").InnerText); // + " [" + pfn_events.url.ToString() + "]");
+        //                        }
 
-                                replyText = wString.ToString();
-                            }
+        //                        replyText = wString.ToString();
+        //                    }
 
-                                break;
+        //                        break;
 
-                        case "!warn":
-                        case "!warning":
-                            // TODO : FINISH THIS COMMAND.
+        //                case "!warn":
+        //                case "!warning":
+        //                    // TODO : FINISH THIS COMMAND.
 
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (body == string.Empty || body == " ")
-                            {
-                                break;
-                            }
+        //                    if (body == string.Empty || body == " ")
+        //                    {
+        //                        break;
+        //                    }
 
-                            if (ct == ChatType.Private)
-                            {
+        //                    if (ct == ChatType.Private)
+        //                    {
 
-                                string[] stuff = nwGrabAdminsFromList(Environment.CurrentDirectory + @"\data\adminlist.txt");
+        //                        string[] stuff = nwGrabAdminsFromList(Environment.CurrentDirectory + @"\data\adminlist.txt");
 
 
-                                foreach (string x in stuff)
-                                {
+        //                        foreach (string x in stuff)
+        //                        {
 
-                                }
-                            }
-                            else
-                            {
-                                replyText = "This command only works in private messages.";
-                            }
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        replyText = "This command only works in private messages.";
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "Sorry, the /stat command has been used too many times.";
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                        replyText = "Sorry, the /stat command has been used too many times.";
 
-                            break;
-                        case "!wiki":
-                            // TODO : Finish this command.
+        //                    break;
+        //                case "!wiki":
+        //                    // TODO : Finish this command.
 
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.Typing);
 
-                            if (body == string.Empty || body == " ")
-                            {
-                                break;
-                            }
+        //                    if (body == string.Empty || body == " ")
+        //                    {
+        //                        break;
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                                replyText = "Sorry, the /stat command has been used too many times.";
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                        replyText = "Sorry, the /stat command has been used too many times.";
 
-                            break;
-                        case "!user": // TODO : Finish this command
-                            // This command returns a users permission level.
-                            // Defaults to the person who used the command.
+        //                    break;
+        //                case "!user": // TODO : Finish this command
+        //                    // This command returns a users permission level.
+        //                    // Defaults to the person who used the command.
 
-                            int n_useruse = nwGrabGlobalUsage("user");
-                            int n_user_gmax = nwGrabGlobalMax("user");
-                            int n_user_umax = nwGrabUserMax("user");
+        //                    int n_useruse = nwGrabGlobalUsage("user");
+        //                    int n_user_gmax = nwGrabGlobalMax("user");
+        //                    int n_user_umax = nwGrabUserMax("user");
 
-                            if (n_useruse == n_user_gmax || n_useruse == n_user_umax)
-                            {
-                                if (nwCheckInReplyTimer(dt) != false)
-                                    replyText = "Sorry, the /user command has been used too many times.";
-                                break;
-                            }
+        //                    if (n_useruse == n_user_gmax || n_useruse == n_user_umax)
+        //                    {
+        //                        if (nwCheckInReplyTimer(dt) != false)
+        //                            replyText = "Sorry, the /user command has been used too many times.";
+        //                        break;
+        //                    }
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
 
-                                if (ct == ChatType.Private)
-                                {
+        //                        if (ct == ChatType.Private)
+        //                        {
 
-                                    replyText = "Your permissions are listed below: " + Environment.NewLine + nwGetUserPermissions(s_username);
+        //                            replyText = "Your permissions are listed below: " + Environment.NewLine + nwGetUserPermissions(s_username);
 
-                                    break;
+        //                            break;
                                     
-                                }
-                                else
-                                {
-                                    replyText = "This command can only be used in a private message.";
-                                }
+        //                        }
+        //                        else
+        //                        {
+        //                            replyText = "This command can only be used in a private message.";
+        //                        }
                             
-                            }
+        //                    }
 
-                            nwSetGlobalUsage("user", n_useruse++); // set global usage incrementally
-                            nwSetUserUsage(s_username, "user", n_useruse++); // set this users usage incrementally
+        //                    nwSetGlobalUsage("user", n_useruse++); // set global usage incrementally
+        //                    nwSetUserUsage(s_username, "user", n_useruse++); // set this users usage incrementally
 
-                            break;
+        //                    break;
 
-                        case "!version":
+        //                case "!version":
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "Version " + cExtensions.nwGetFileVersionInfo.FileMajorPart + "." + cExtensions.nwGetFileVersionInfo.FileMinorPart + ", Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart;
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                        s_replyToUser = "Version " + cExtensions.nwGetFileVersionInfo.FileMajorPart + "." + cExtensions.nwGetFileVersionInfo.FileMinorPart + ", Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart;
 
-                            break;
+        //                    break;
 
-                        case "!about":
-                        case "!info":
+        //                case "!about":
+        //                case "!info":
 
-                            //int n_nfouse = nwGrabGlobalUsage("about");
+        //                    //int n_nfouse = nwGrabGlobalUsage("about");
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "PerthFurStats is the best bot" + Environment.NewLine + "Version " + cExtensions.nwGetFileVersionInfo.FileMajorPart + "." + cExtensions.nwGetFileVersionInfo.FileMinorPart + ", Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart + Environment.NewLine + "By @AnwenSnowMew" + Environment.NewLine + "GitHub: https://github.com/AndyDingo/PerthFurStats_TelegramBot" + Environment.NewLine + "This bot uses open source software.";
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                        s_replyToUser = "PerthFurStats is the best bot" + Environment.NewLine + "Version " + cExtensions.nwGetFileVersionInfo.FileMajorPart + "." + cExtensions.nwGetFileVersionInfo.FileMinorPart + ", Release " + cExtensions.nwGetFileVersionInfo.FilePrivatePart + Environment.NewLine + "By @AnwenSnowMew" + Environment.NewLine + "GitHub: https://github.com/AndyDingo/PerthFurStats_TelegramBot" + Environment.NewLine + "This bot uses open source software.";
 
-                            //nwSetGlobalUsage("about", n_nfouse++); // set global usage incrementally
-                            //nwSetUserUsage(s_username, "about", n_nfouse++); // set this users usage incrementally
+        //                    //nwSetGlobalUsage("about", n_nfouse++); // set global usage incrementally
+        //                    //nwSetUserUsage(s_username, "about", n_nfouse++); // set this users usage incrementally
 
-                            break;
+        //                    break;
 
-                        case "!wrist":
-                        case "!wrists":
+        //                case "!wrist":
+        //                case "!wrists":
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "(╯°□°）╯︵ ┻━┻";
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                        s_replyToUser = "(╯°□°）╯︵ ┻━┻";
 
-                            break;
+        //                    break;
 
-                        case "!zalgo":
+        //                case "!zalgo":
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "O҉̢͎̗̯̪̤͍̯͎n̠̖̙͘é͕̜̦͉̤ ̷̷̩͖̹͔̲͕̻̼d͏͖͕͟o͏̼̺̰͘͠e̴̢͖̺̕s̵̵̮͇͈̩͎͢ ̢͓̱̪͇̞̮̦͉͟ͅn̝̪̩͙͘͡ͅò̢̬͈̮̙̘t̴̪̳͉̳͢͡ ̵͍̬͔̝͘ͅͅͅs҉̟͎̖͓į̳͓́m͏̰̼̻͔̩͉̺̙p̶͕̙ͅl̛͓̝̪͘y̟̝͝ ̗̪͜i̷̺͉̹n̷̢͎̮͖̜̤̼̻̙v͙͉̘͉̘͍̳o̧̖͈̩̘͝k͎͖̬̘̣̭͟e͏̟̳͚͈͈́ ̵̜͖͜Ẕ̨͎̖̖̘͟Ḁ̞͚̮̝̻͞L̶͎̙̘͠G҉̴͖̺̹̳̘͕̬͇O̸͔̞͎̻ͅ,̩͉ͅͅ";
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                        s_replyToUser = "O҉̢͎̗̯̪̤͍̯͎n̠̖̙͘é͕̜̦͉̤ ̷̷̩͖̹͔̲͕̻̼d͏͖͕͟o͏̼̺̰͘͠e̴̢͖̺̕s̵̵̮͇͈̩͎͢ ̢͓̱̪͇̞̮̦͉͟ͅn̝̪̩͙͘͡ͅò̢̬͈̮̙̘t̴̪̳͉̳͢͡ ̵͍̬͔̝͘ͅͅͅs҉̟͎̖͓į̳͓́m͏̰̼̻͔̩͉̺̙p̶͕̙ͅl̛͓̝̪͘y̟̝͝ ̗̪͜i̷̺͉̹n̷̢͎̮͖̜̤̼̻̙v͙͉̘͉̘͍̳o̧̖͈̩̘͝k͎͖̬̘̣̭͟e͏̟̳͚͈͈́ ̵̜͖͜Ẕ̨͎̖̖̘͟Ḁ̞͚̮̝̻͞L̶͎̙̘͠G҉̴͖̺̹̳̘͕̬͇O̸͔̞͎̻ͅ,̩͉ͅͅ";
 
-                            break;
+        //                    break;
 
-                        default:
+        //                default:
 
-                            if (nwCheckInReplyTimer(dt) != false)
-                            {
-                                s_replyToUser = "The command '" + update.Message.Text + "' was not found in my command database.";
-                                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: " + replyText);
-                            }
+        //                    if (nwCheckInReplyTimer(dt) != false)
+        //                    {
+        //                        s_replyToUser = "The command '" + update.Message.Text + "' was not found in my command database.";
+        //                        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: " + replyText);
+        //                    }
 
-                            break;
+        //                    break;
 
-                    }
+        //            }
 
-                    // Add to total command use
-                    //nwSetTotalCommandUsage("global");
-                    // Add to total command use for a given user
-                    //nwSetTotalCommandUsage(update.Message.From.Username);
+        //            // Add to total command use
+        //            //nwSetTotalCommandUsage("global");
+        //            // Add to total command use for a given user
+        //            //nwSetTotalCommandUsage(update.Message.From.Username);
 
-                    // Output
-                    replyText += stringBuilder.ToString();
+        //            // Output
+        //            replyText += stringBuilder.ToString();
 
-                    if (!string.IsNullOrEmpty(replyText))
-                    {
+        //            if (!string.IsNullOrEmpty(replyText))
+        //            {
 
-                        if (nwGrabString("debugmode") == "true")
-                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyText);
-                        else
-                            nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyText);
+        //                if (nwGrabString("debugmode") == "true")
+        //                    Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyText);
+        //                else
+        //                    nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyText);
 
-                        await bot.SendTextMessageAsync(update.Message.Chat.Id, replyText);
+        //                await bot.SendTextMessageAsync(update.Message.Chat.Id, replyText);
 
-                        using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
-                        {
-                            await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyText);
-                        }
-                    }
+        //                using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                {
+        //                    await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyText);
+        //                }
+        //            }
 
-                    if (!string.IsNullOrEmpty(s_replyToUser))
-                    {
+        //            if (!string.IsNullOrEmpty(s_replyToUser))
+        //            {
 
-                        if (nwGrabString("debugmode") == "true")
-                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + s_replyToUser);
-                        else
-                            nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + s_replyToUser);
+        //                if (nwGrabString("debugmode") == "true")
+        //                    Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + s_replyToUser);
+        //                else
+        //                    nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + s_replyToUser);
 
-                        int msgid = 0;
-                        msgid = update.Message.MessageId;
+        //                int msgid = 0;
+        //                msgid = update.Message.MessageId;
 
-                        await bot.SendTextMessageAsync(update.Message.Chat.Id, s_replyToUser, false, false, msgid);
+        //                await bot.SendTextMessageAsync(update.Message.Chat.Id, s_replyToUser, false, false, msgid);
 
-                        using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
-                        {
-                            await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + s_replyToUser);
-                        }
-                    }
+        //                using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                {
+        //                    await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + s_replyToUser);
+        //                }
+        //            }
 
 
-                    replyText2 += stringBuilder.ToString();
-                    if (!string.IsNullOrEmpty(replyText2))
-                    {
+        //            replyText2 += stringBuilder.ToString();
+        //            if (!string.IsNullOrEmpty(replyText2))
+        //            {
 
-                        if (nwGrabString("debugmode") == "true")
-                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyText2);
-                        else
-                            nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyText2);
+        //                if (nwGrabString("debugmode") == "true")
+        //                    Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyText2);
+        //                else
+        //                    nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyText2);
 
-                        await bot.SendTextMessageAsync(-1001032131694, replyText2);
+        //                await bot.SendTextMessageAsync(-1001032131694, replyText2);
 
-                        using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
-                        {
-                            await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyText2);
-                        }
-                    }
-                    // replyText3 For text containing urls
-                    if (!string.IsNullOrEmpty(replyTextEvent))
-                    {
+        //                using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                {
+        //                    await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyText2);
+        //                }
+        //            }
+        //            // replyText3 For text containing urls
+        //            if (!string.IsNullOrEmpty(replyTextEvent))
+        //            {
 
-                        if (nwGrabString("debugmode") == "true")
-                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyTextEvent);
-                        else
-                            nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyTextEvent);
+        //                if (nwGrabString("debugmode") == "true")
+        //                    Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyTextEvent);
+        //                else
+        //                    nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyTextEvent);
 
-                        await bot.SendTextMessageAsync(update.Message.Chat.Id, replyTextEvent, true, false, 0, null, ParseMode.Html);
+        //                await bot.SendTextMessageAsync(update.Message.Chat.Id, replyTextEvent, true, false, 0, null, ParseMode.Html);
 
-                        using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
-                        {
-                            await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] " + me.Username + " " + replyTextEvent);
-                        }
-                    }
-                    if (!string.IsNullOrEmpty(replyTextMarkdown))
-                    {
-                        if (nwGrabString("debugmode") == "true")
-                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyTextMarkdown);
-                        else
-                            nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyTextMarkdown);
+        //                using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                {
+        //                    await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] " + me.Username + " " + replyTextEvent);
+        //                }
+        //            }
+        //            if (!string.IsNullOrEmpty(replyTextMarkdown))
+        //            {
+        //                if (nwGrabString("debugmode") == "true")
+        //                    Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyTextMarkdown);
+        //                else
+        //                    nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyTextMarkdown);
 
-                        await bot.SendTextMessageAsync(update.Message.Chat.Id, replyTextMarkdown, false, false, 0, null, ParseMode.Markdown);
+        //                await bot.SendTextMessageAsync(update.Message.Chat.Id, replyTextMarkdown, false, false, 0, null, ParseMode.Markdown);
 
-                        using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
-                        {
-                            await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] " + me.Username + " " + replyTextMarkdown);
-                        }
-                    }
+        //                using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs_tg\" + update.Message.Chat.Id + "." + dt.ToString(nwGrabString("dateformat")) + ".log", true))
+        //                {
+        //                    await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "] " + me.Username + " " + replyTextMarkdown);
+        //                }
+        //            }
 
-                    if (!string.IsNullOrEmpty(replyImage) && replyImage.Length > 5)
-                    {
-                        if (nwGrabString("debugmode") == "true")
-                            Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyImage);
-                        else
-                            nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyImage);
+        //            if (!string.IsNullOrEmpty(replyImage) && replyImage.Length > 5)
+        //            {
+        //                if (nwGrabString("debugmode") == "true")
+        //                    Console.WriteLine("[" + update.Message.Chat.Id + "] [" + update.Id + "] [" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + replyImage);
+        //                else
+        //                    nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <" + me.FirstName + "> " + update.Message.Chat.Id + " > " + replyImage);
 
-                        bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
 
-                        try
-                        {
-                            var stream = httpClient.DownloadData(replyImage).Result;
-                            var extension = ".jpg";
-                            if (replyImage.Contains(".gif") || replyImage.Contains("image/gif"))
-                            {
-                                extension = ".gif";
-                            }
-                            else if (replyImage.Contains(".png") || replyImage.Contains("image/png"))
-                            {
-                                extension = ".png";
-                            }
-                            else if (replyImage.Contains(".tif"))
-                            {
-                                extension = ".tif";
-                            }
-                            else if (replyImage.Contains(".bmp"))
-                            {
-                                extension = ".bmp";
-                            }
-                            var photo = new FileToSend("Photo" + extension, stream);
-                            bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
-                            if (extension == ".gif")
-                            {
-                                await bot.SendDocumentAsync(update.Message.Chat.Id, photo);
-                            }
-                            else
-                            {
-                                await bot.SendPhotoAsync(update.Message.Chat.Id, photo, replyImageCaption == string.Empty ? replyImage : replyImageCaption);
-                            }
-                        }
-                        catch (System.Net.Http.HttpRequestException ex)
-                        {
-                            nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: Unable to download " + ex.HResult + " " + ex.Message);
-                            await bot.SendTextMessageAsync(update.Message.Chat.Id, replyImage);
-                        }
-                        catch (System.Net.WebException ex)
-                        {
-                            nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: Unable to download " + ex.HResult + " " + ex.Message);
-                            await bot.SendTextMessageAsync(update.Message.Chat.Id, replyImage);
-                        }
-                        catch (NullReferenceException ex)
-                        {
-                            nwErrorCatcher(ex);
-                        }
-                        catch (Exception ex)
-                        {
-                            nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: " + replyImage + " Threw: " + ex.Message);
-                            await bot.SendTextMessageAsync(update.Message.Chat.Id, replyImage);
-                        }
-                    }
+        //                try
+        //                {
+        //                    var stream = httpClient.DownloadData(replyImage).Result;
+        //                    var extension = ".jpg";
+        //                    if (replyImage.Contains(".gif") || replyImage.Contains("image/gif"))
+        //                    {
+        //                        extension = ".gif";
+        //                    }
+        //                    else if (replyImage.Contains(".png") || replyImage.Contains("image/png"))
+        //                    {
+        //                        extension = ".png";
+        //                    }
+        //                    else if (replyImage.Contains(".tif"))
+        //                    {
+        //                        extension = ".tif";
+        //                    }
+        //                    else if (replyImage.Contains(".bmp"))
+        //                    {
+        //                        extension = ".bmp";
+        //                    }
+        //                    var photo = new FileToSend("Photo" + extension, stream);
+        //                    bot.SendChatActionAsync(update.Message.Chat.Id, ChatAction.UploadPhoto);
+        //                    if (extension == ".gif")
+        //                    {
+        //                        await bot.SendDocumentAsync(update.Message.Chat.Id, photo);
+        //                    }
+        //                    else
+        //                    {
+        //                        await bot.SendPhotoAsync(update.Message.Chat.Id, photo, replyImageCaption == string.Empty ? replyImage : replyImageCaption);
+        //                    }
+        //                }
+        //                catch (System.Net.Http.HttpRequestException ex)
+        //                {
+        //                    nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: Unable to download " + ex.HResult + " " + ex.Message);
+        //                    await bot.SendTextMessageAsync(update.Message.Chat.Id, replyImage);
+        //                }
+        //                catch (System.Net.WebException ex)
+        //                {
+        //                    nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: Unable to download " + ex.HResult + " " + ex.Message);
+        //                    await bot.SendTextMessageAsync(update.Message.Chat.Id, replyImage);
+        //                }
+        //                catch (NullReferenceException ex)
+        //                {
+        //                    nwErrorCatcher(ex);
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: " + replyImage + " Threw: " + ex.Message);
+        //                    await bot.SendTextMessageAsync(update.Message.Chat.Id, replyImage);
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (ehoh.IOException ex)
+        //    {
+        //        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: System has caught an error! " + ex.Message);
+        //        nwErrorCatcher(ex);
+        //    }
+        //    catch (AggregateException ex)
+        //    {
+        //        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: System has caught an error! " + ex.Message);
+        //        nwErrorCatcher(ex);
+        //    }
+        //    catch (FormatException ex)
+        //    {
+        //        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: System has caught an error! " + ex.Message);
+        //        nwErrorCatcher(ex);
+        //    }
+        //    catch (NullReferenceException ex)
+        //    {
+        //        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: System has caught an error! " + ex.Message);
+        //        nwErrorCatcher(ex);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: System has caught an error! " + ex.Message);
+        //        nwErrorCatcher(ex);
+        //    }
+        //}
+
+
+        /// <summary>
+        /// Show an image for a species based on inputs
+        /// </summary>
+        /// <param name="s_name">Species name</param>
+        /// <returns>returns a url, from which an image is extracted.</returns>
+        private static string nwShowSpeciesImage(string s_name /*Update update, ChatType ct*/)
+        {
+            retryme:
+
+            // list of urls.
+            string html = null;
+
+            // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+            //if (ct == ChatType.Private || update.Message.Chat.Title.Contains("NSFW") || update.Message.Chat.Title.Contains("18+"))
+            //    html = GetHtmlCode(s_name, false, true);
+            //else
+            html = GetHtmlCode(s_name, false, false);
+
+            List<string> urls = GetUrls(html);
+            var rnd = new Random();
+
+            int randomUrl = rnd.Next(0, urls.Count - 1);
+
+            // Select url from url list.
+            string luckyUrl = urls[randomUrl];
+
+            // Check if the file is valid, or throws an unwanted status code.
+            if (!string.IsNullOrEmpty(luckyUrl))
+            {
+                UriBuilder uriBuilder = new UriBuilder(luckyUrl);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                if (response.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    Console.WriteLine("Broken - 400 Bad Request, attempting to retry.");
+                    goto retryme;
                 }
+                if (response.StatusCode == HttpStatusCode.Forbidden)
+                {
+                    Console.WriteLine("Broken - 403 Forbidden, attempting to retry.");
+                    goto retryme;
+                }
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    Console.WriteLine("Broken - 404 Not Found, attempting to retry.");
+                    goto retryme;
+                }
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    Console.WriteLine("URL appears to be good.");
+                }
+                else //There are a lot of other status codes you could check for...
+                {
+                    Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
+                                               response.StatusCode.ToString()));
+                }
+
             }
-            catch (ehoh.IOException ex)
-            {
-                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: System has caught an error! " + ex.Message);
-                nwErrorCatcher(ex);
-            }
-            catch (AggregateException ex)
-            {
-                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: System has caught an error! " + ex.Message);
-                nwErrorCatcher(ex);
-            }
-            catch (FormatException ex)
-            {
-                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: System has caught an error! " + ex.Message);
-                nwErrorCatcher(ex);
-            }
-            catch (NullReferenceException ex)
-            {
-                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: System has caught an error! " + ex.Message);
-                nwErrorCatcher(ex);
-            }
-            catch (Exception ex)
-            {
-                nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: System has caught an error! " + ex.Message);
-                nwErrorCatcher(ex);
-            }
+
+            if (luckyUrl.Contains(" ") == true)
+                luckyUrl.Replace(" ", "%20");
+
+            return luckyUrl;
         }
 
         /// <summary>
@@ -5660,7 +7536,57 @@ namespace nwTelegramBot
             }
 
         }
-       
+
+        /// <summary>
+        /// Multi-color line method.
+        /// </summary>
+        /// <param name="color">The ConsoleColor.</param>
+        /// <param name="text">The text to write.</param>
+        public static void nwColoredConsoleWrite(ConsoleColor color, string text)
+        {
+            ConsoleColor originalColor = Console.ForegroundColor;
+            Console.ForegroundColor = color;
+            Console.Write(text);
+            Console.ForegroundColor = originalColor;
+        }
+
+        /// <summary>
+        /// Write system messages in the appropriate colours
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="message"></param>
+        public static void nwSystemCCWrite(string date, string message)
+        {
+            nwColoredConsoleWrite(ConsoleColor.White, "[" + date + "]");
+            nwColoredConsoleWrite(ConsoleColor.Yellow, " * System: ");
+            nwColoredConsoleWrite(ConsoleColor.Cyan, message + "\r\n");
+        }
+
+        /// <summary>
+        /// Write standard messages in the appropriate colours
+        /// </summary>
+        /// <param name="time">Current time.</param>
+        /// <param name="message">The Current message</param>
+        /// <param name="chatid">The ID for the chat/group/user.</param>
+        /// <param name="messageid">The ID of the message.</param>
+        /// <param name="username">The user name or first name of a user.</param>
+        public static void nwStandardCCWrite(long chatid, int messageid, string time, string username, string message)
+        {
+            nwColoredConsoleWrite(ConsoleColor.White, String.Format("[{0}] [{1}] [{2}]", chatid, messageid, time));
+            nwColoredConsoleWrite(ConsoleColor.Yellow, " <" + username + "> ");
+            nwColoredConsoleWrite(ConsoleColor.Green, message + "\r\n");
+        }
+
+        /// <summary>
+        /// Write standard messages in the appropriate colours
+        /// </summary>
+        /// <param name="time">Current time.</param>
+        /// <param name="message">The Current message</param>
+        public static void nwStandardCCWrite(string time, string username, string message)
+        {
+            nwColoredConsoleWrite(ConsoleColor.White, "[" + time + "] <" + username + "> ");
+            nwColoredConsoleWrite(ConsoleColor.Green, message + "\r\n");
+        }
     }
 
     /// <summary>
