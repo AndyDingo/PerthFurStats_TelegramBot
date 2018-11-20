@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2050
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pfsTelegramBot", "pfsTelegramBot\pfsTelegramBot.csproj", "{4DA459DC-DF9D-455B-8F25-08E03B71B554}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramBot1", "pfsTelegramBot\TelegramBot1.csproj", "{4DA459DC-DF9D-455B-8F25-08E03B71B554}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other Stuff", "Other Stuff", "{812C17C6-A6AB-4691-897B-523C536F05FF}"
 	ProjectSection(SolutionItems) = preProject
@@ -42,5 +42,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C1386673-3C6D-4086-B09F-D894FE1E1FDC}
 	EndGlobalSection
 EndGlobal

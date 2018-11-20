@@ -1,5 +1,5 @@
 # PerthFurStats_TelegramBot
-A bot for the Perthfurs Safe for work Telegram group chat. Could in theory be used for other groups, if the dataset is changed.
+A bot for Safe for work Telegram group chats. Could in theory be used for other groups, if the dataset is changed.
 
 # Projects
 - pfsTelegramBot is the main windows UI version of the bot, which has commands enabled.
