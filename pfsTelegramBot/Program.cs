@@ -8,28 +8,29 @@
  * User         : AndyDingoWolf
  * Last Updated : 13/10/2017 by AndyDingo
  * -- VERSION --
- * Version      : 1.0.0.120
+ * Version      : 1.0.0.200
  */
 
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SQLite;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using Telegram.Bot;
+using Telegram.Bot.Args;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using ehoh = System.IO;
 using File = System.IO.File;
-using System.Data;
-using System.Net.Mail;
-using Telegram.Bot.Args;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace nwTelegramBot
 {
@@ -43,7 +44,7 @@ namespace nwTelegramBot
         //public static string s_logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log"; // error log
         public static string s_cfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.cfg"; // Main config
         public static string s_ucfgfile = Environment.CurrentDirectory + @"\pfsPermConfig.cfg"; // User perm config
-        public static string s_offsetcfg = Environment.CurrentDirectory + @"\data\offset.xml"; // User config
+        public static string s_botdb = Environment.CurrentDirectory + @"\data\botdata.s3db"; // Main config
         public static string s_commandcfg = Environment.CurrentDirectory + @"\data\commandlist.xml"; // User config
         private static readonly TelegramBotClient Bot = new TelegramBotClient(nwGrabString("botapitoken")); // Don't hard-code this.
         #endregion
@@ -58,7 +59,7 @@ namespace nwTelegramBot
             var me = Bot.GetMeAsync().Result;
             Console.Title = "Anwen's Telegram Group Command Bot";
 
-            DateTime dt = new DateTime(2016, 2, 2);
+            DateTime dt = new DateTime(2016, 2, 2, 5, 30, 0);
             dt = DateTime.Now;
 
             // Do the title
@@ -436,23 +437,6 @@ namespace nwTelegramBot
 
                 Console.WriteLine("This command has been used " + s + " times.");
 
-                return s;
-
-            }
-            else { return -1; }
-        }
-
-        private static int nwGrabOffset()
-        {
-            XmlDocument doc = new XmlDocument();
-            int s = 0;
-
-            doc.Load(s_offsetcfg);
-
-            if (doc.SelectSingleNode("config/offset") != null)
-            {
-
-                s = Convert.ToInt32(doc.SelectSingleNode("config/offset").InnerText);
                 return s;
 
             }
@@ -1247,7 +1231,6 @@ namespace nwTelegramBot
 
             // END SAVE MESSAGES
 
-
             var httpClient = new ProHttpClient();
             var text = message.Text;
             var s_replyToUser = string.Empty;
@@ -1936,7 +1919,7 @@ namespace nwTelegramBot
 
                                 try
                                 {
-                                    response = (HttpWebResponse)request.GetResponse();
+                                    response = (HttpWebResponse)await request.GetResponseAsync();
                                 }
                                 catch (WebException we)
                                 {
@@ -2048,7 +2031,7 @@ namespace nwTelegramBot
 
                                 try
                                 {
-                                    response = (HttpWebResponse)request.GetResponse();
+                                    response = (HttpWebResponse)await request.GetResponseAsync();
                                 }
                                 catch (WebException we)
                                 {
@@ -2209,6 +2192,42 @@ namespace nwTelegramBot
                             Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
 
                         Console.WriteLine("[Debug] * System: The " + command + " has not been implemented.");
+
+                        break;
+
+                    case "!backup":
+
+                        // check to see if private message
+                        if (ct == ChatType.Private)
+                        {
+                            bool b_kat = false;
+
+                            // check the username
+                            if (s_mfun != "AnwenSnowMew")
+                            {
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    s_replyToUser = "You have insufficient permissions to access this command.";
+                                break;
+                            }
+                            // if it is okay to reply, do so.
+                            if (nwCheckInReplyTimer(dt) != false)
+                            {
+                                s_replyToUser = "Starting backup...";
+                                cZipBackup.Instance.CreateSample(dt.ToString(nwGrabString("dateformat")) + "_backup.zip", null, Environment.CurrentDirectory + @"\logs\");
+                                b_kat = true;
+                            }
+
+                            if (b_kat == true)
+                            {
+                                s_replyToUser = "Backup complete";
+                            }
+                        }
+                        else
+                        {
+                            if (nwCheckInReplyTimer(dt) != false)
+                                s_replyToUser = "This command can only be used in private messages.";
+                            break;
+                        }
 
                         break;
 
@@ -2713,32 +2732,12 @@ namespace nwTelegramBot
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
-                            StringBuilder clist2 = new StringBuilder();
-                            clist2.AppendLine("Here is a partial list of commands the bot understands:");
-                            clist2.AppendLine("You are currently viewing Page <b>[1]</b> of <b>[5]</b>. Use !list [page number] to switch pages");
-                            clist2.AppendLine("<b>!admins</b> - show who the group admins are.");
-                            clist2.AppendLine("<b>!alive</b> - Check if the bot is live, please use in PM with the bot.");
-                            clist2.AppendLine("<b>!backup</b> - Backup bot log files, please use in PM with the bot. <i>Admin only</i>.");
-                            clist2.AppendLine("<b>!ball</b> - consult the magic 8 ball, use a ? at the end of your question.");
-                            clist2.AppendLine("<b>!cat</b> - show a cat image.");
-                            clist2.AppendLine("<b>!con</b> - show a list of australian furry conventions");
-                            clist2.AppendLine("<b>!debug</b> - enable the bots debug mode. Can only be used in PM. <i>Admin only</i>.");
-                            clist2.AppendLine("<b>!edit</b> [message id] [replacement text] - edit a message posted by the bot. <i>Admin only</i>. <i>To be revised</i>.");
-                            clist2.AppendLine("<b>!event</b><a title=\"Additional commands: !events, !meet, !meets\" href=\"#\">*</a> [time constraint in days, optional] - get events list.");
-                            clist2.AppendLine("<b>!forecast</b> - get a 7 day weather forecast.");
-                            clist2.AppendLine("<b>!gif</b> [topic] - show a GIF based on a given topic. <i>To be revised</i>.");
-                            clist2.AppendLine("<b>!image</b><a title=\"Additional commands: !img\" href=\"#\">*</a> [topic] - show an image based on a given topic.");
-                            clist2.AppendLine("<b>!joke</b><a title=\"Additional commands: !humour\" href=\"#\">*</a> - get the bot to tell a joke.");
-                            clist2.AppendLine("<b>!link</b> - generate a chat link.");
-                            clist2.AppendLine("<b>!list</b><a title=\"Additional commands: !command, !commands, !help\" href=\"#\">*</a> - shows this list.");
-
+                            string slist2 = "To view a list of available commands this bot accepts as valid inputs, please see: https://jessicasbots.tumblr.com/post/178207772371/available-bot-commands, or use !list to list them.";
                             await Bot.SendTextMessageAsync(
-                                message.Chat.Id,
-                                clist2.ToString(),
-                                parseMode: ParseMode.Html,
-                                replyMarkup: new ReplyKeyboardRemove());
-
+                                    message.Chat.Id,
+                                    slist2,
+                                    parseMode: ParseMode.Html,
+                                    replyMarkup: new ReplyKeyboardRemove());
                         }
                         else
                         {
@@ -2965,26 +2964,78 @@ namespace nwTelegramBot
                 e.ApiRequestException.Message);
         }
 
-        ///// <summary>
-        ///// Process all of our slash commands
-        ///// </summary>
-        ///// <param name="bot">The bot API.</param>
-        ///// <param name="update">The update</param>
-        ///// <param name="me">The user, or bot.</param>
-        ///// <param name="dt">The date/time component.</param>
-        ///// <remarks>Only designed to work if regular commands are enabled.</remarks>
-        //private static async Task nwProcessSlashCommands(TelegramBotClient bot, Update update, Telegram.Bot.Types.User me, DateTime dt)
-        //{
-        //    try
-        //    {
 
-        //    }
-        //    catch (Exception)
-        //    {
+        /// <summary>
+        /// Set animal noise counter
+        /// </summary>
+        /// <param name="noise"></param>
+        /// <param name="userid"></param>
+        private static void nwSetAnimalNoiseCount(string noise, int userid)
+        {
+            SQLiteConnection m_dbConnection = new SQLiteConnection(@"Data Source=" + s_botdb + ";Version=3;New=False;Compress=True;");
+            m_dbConnection.Open();
 
-        //        throw;
-        //    }
-        //}
+            using (SQLiteCommand command = new SQLiteCommand(m_dbConnection))
+            {
+                command.CommandText = "CREATE TABLE IF NOT EXISTS user_noises (userid int not null, noise text not null)";
+                command.Prepare();
+
+                command.ExecuteNonQuery();
+            }
+
+            using (SQLiteCommand command = new SQLiteCommand(m_dbConnection))
+            {
+                command.CommandText = "INSERT INTO user_noises (userid int, noise text) values (@userid, @noise)";
+
+                command.Parameters.AddWithValue("@userid", userid); // User ID
+                command.Parameters.AddWithValue("@noise", noise); // Command they used
+                command.Prepare();
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// Set animal noise counter
+        /// </summary>
+        /// <param name="noise">The noise for this animal</param>
+        /// <param name="userid">The user id for the last user of this</param>
+        private static int nwGetAnimalNoiseCount(string noise, long userid)
+        {
+            string cs = @"Data Source=" + s_botdb + ";Version=3;New=False;Compress=True;";
+
+            using (SQLiteConnection conn = new SQLiteConnection(cs))
+            {
+                conn.Open();
+
+                string s_cmd = "SELECT * FROM user_noises WHERE userid=" + userid;
+                int output=0;
+
+                using (SQLiteCommand command = new SQLiteCommand(s_cmd, conn))
+                {
+
+                    using (SQLiteDataReader rdr = command.ExecuteReader())
+                    {
+
+                        while(rdr.HasRows)
+                        {
+                            rdr.Read();
+
+                            output= rdr.StepCount;
+
+                        }
+                        return output;
+
+                    }
+
+                }
+
+                conn.Close();
+
+            }
+
+        }
+
 
         //private static void nwSetDragonNoiseCount(string username)
         //{
@@ -3536,18 +3587,6 @@ namespace nwTelegramBot
         //}
 
         #endregion
-
-        /// <summary>
-        /// Set the chat message offset.
-        /// </summary>
-        /// <param name="value">the new offset.</param>
-        private static void nwSetOffset(string value)
-        {
-            XmlDocument doc = new XmlDocument();
-            doc.Load(s_offsetcfg);
-            doc.SelectSingleNode("config/offset").InnerText = value;
-            doc.Save(s_offsetcfg);
-        }
 
         ///// <summary>
         ///// Process all of our slash commands
@@ -7595,6 +7634,7 @@ namespace nwTelegramBot
         /// </summary>
         /// <param name="time">Current time.</param>
         /// <param name="message">The Current message</param>
+        /// <param name="username">The user name or first name of a user.</param>
         public static void nwStandardCCWrite(string time, string username, string message)
         {
             nwColoredConsoleWrite(ConsoleColor.White, "[" + time + "] <" + username + "> ");

@@ -6,7 +6,7 @@ A bot for Safe for work Telegram group chats. Could in theory be used for other 
 - pfsChatLog is the Windows 10 IoT version, for Raspberry Pi, which does not have commands enabled.
 
 # TODO (Copied from TODO.txt)
-- Implement Inline commands added since Api v2.0
+- Implement Inline commands added since Api v4.0
 - Implement permissions system.
 - Better implement photos.
 - Better implement join/leave code.

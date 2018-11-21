@@ -1,5 +1,5 @@
 ﻿/* 
- * All contents copyright 2016-2017, Andy Dingo and Contributors
+ * All contents copyright 2016-2018, Andy Dingo and Contributors
  * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
  * Please read docs/gpl.txt for licensing information.
  * ---------------------------------------------------------------
@@ -8,7 +8,7 @@
  * User         : AndyDingoWolf
  * Last Updated : 12/11/2018 by AnwenEira
  * -- VERSION --
- * Version      : 1.0.0.123
+ * Version      : 1.0.0.200
  */
 
 using System.Reflection;
@@ -46,9 +46,9 @@ using System.Resources;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.123")]
-[assembly: AssemblyFileVersion("1.0.0.123")]
-[assembly: AssemblyInformationalVersion("1.0.0.123")]
+[assembly: AssemblyVersion("1.0.0.200")]
+[assembly: AssemblyFileVersion("1.0.0.200")]
+[assembly: AssemblyInformationalVersion("1.0.0.200")]
 [assembly: NeutralResourcesLanguageAttribute("en-AU")]
 
 //[assembly: PermissionSetAttribute(SecurityAction.RequestMinimum, Name = "FullTrust")]
