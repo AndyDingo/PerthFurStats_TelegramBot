@@ -1622,7 +1622,8 @@ namespace nwTelegramBot
 
                         break;
                         
-                    case "addevent": // TODO: Create events
+                    case "!addevent": // TODO: Create events
+                    case "/addevent": // TODO: Create events
 
                         //<event>
                         //  <id>4</id>
@@ -1657,13 +1658,34 @@ namespace nwTelegramBot
                             else
                             {
 
-                                string[] mysplit = new string[] { "1", "1", "1" ,"1"};
+                                string[] mysplit = new string[] { "1", "1", "1" ,"1","1"};
                                 mysplit = body.Split(',');
 
+                                var fname=ehoh.Directory.GetCurrentDirectory() + @"/data/events.xml";
+
+                                var event1 = new XElement("event", new XElement("id", dt.Ticks), 
+                                    new XElement("url", mysplit[0]), 
+                                    new XElement("title", mysplit[1]), 
+                                    new XElement("location", mysplit[3]),
+                                    new XElement("start", mysplit[2]),
+                                    new XElement("end", "TBD"),
+                                    new XElement("authorid", message.From.Id),
+                                    new XElement("host", mysplit[4]),
+                                    new XElement("created", dt.ToString("yyyy-MM-dd HH:mm")));
+                                
+                                var doc = new XDocument();
+
+                                if (ehoh.File.Exists(fname))
+                                {
+                                    
+                                    doc = XDocument.Load(fname);
+                                    doc.Element("events").Add(event1);
+
+                                }
+
+                                doc.Save(fname);
 
                             }
-
-
 
                         }
                         else
