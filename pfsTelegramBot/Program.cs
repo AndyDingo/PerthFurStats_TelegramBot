@@ -6352,55 +6352,6 @@ namespace nwTelegramBot
             return luckyUrl;
         }
 
-        //private static void nwWriteORToDB(string username, string body)
-        //{
-        //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
-        //    MySqlConnection conn = new MySqlConnection(connStr);
-
-        //    try
-        //    {
-        //        Console.WriteLine("Connecting to MySQL...");
-        //        conn.Open();
-
-        //        string sql = "INSERT INTO tbl_oo (username, reason) VALUES ('" + username + "', '" + body + "')";
-        //        MySqlCommand cmd = new MySqlCommand(sql, conn);
-        //        cmd.ExecuteNonQuery();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.ToString());
-        //    }
-
-        //    conn.Close();
-        //    Console.WriteLine("Done.");
-        //}
-
-        private static void nwSendEmail(string username,string reason)
-        {
-            MailMessage mail = new MailMessage();
-            mail.To.Add("nwcreations@gmail.com");
-            mail.From = new MailAddress("perthfurstats@hotmail.com", "OptOut request", System.Text.Encoding.UTF8);
-            mail.Subject = "This mail is send from asp.net application";
-            mail.SubjectEncoding = System.Text.Encoding.UTF8;
-            mail.Body = "A user has requested to be opted out of stats generation: " + username + Environment.NewLine + "Reason: " + reason;
-            mail.BodyEncoding = System.Text.Encoding.UTF8;
-            mail.IsBodyHtml = true;
-            mail.Priority = MailPriority.High;
-            SmtpClient client = new SmtpClient();
-            client.Credentials = new NetworkCredential("perthfurstats@hotmail.com", "OrangeMango321");
-            client.Port = 587;
-            client.Host = "smtp-mail.outlook.com";
-            client.EnableSsl = true;
-            try
-            {
-                client.Send(mail);
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message.ToString());
-            }
-        }
-
         #region -= Bio command functions =-
 
         private static void nwSetBio(string username,string bio)
