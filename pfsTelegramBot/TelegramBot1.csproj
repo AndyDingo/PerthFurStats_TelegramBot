@@ -100,7 +100,6 @@
     <Compile Include="cExtensions.cs" />
     <Compile Include="cSettings.cs" />
     <Compile Include="cZipBackup.cs" />
-    <Compile Include="Event.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProHttpClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
