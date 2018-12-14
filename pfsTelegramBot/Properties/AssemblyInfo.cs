@@ -8,7 +8,7 @@
  * User         : AndyDingoWolf
  * Last Updated : 12/11/2018 by AnwenEira
  * -- VERSION --
- * Version      : 1.0.0.200
+ * Version      : 1.0.0.202
  */
 
 using System.Reflection;
@@ -46,9 +46,9 @@ using System.Resources;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.201")]
-[assembly: AssemblyFileVersion("1.0.0.201")]
-[assembly: AssemblyInformationalVersion("1.0.0.201")]
+[assembly: AssemblyVersion("1.0.0.202")]
+[assembly: AssemblyFileVersion("1.0.0.202")]
+[assembly: AssemblyInformationalVersion("1.0.0.202")]
 [assembly: NeutralResourcesLanguageAttribute("en-AU")]
 
 //[assembly: PermissionSetAttribute(SecurityAction.RequestMinimum, Name = "FullTrust")]
