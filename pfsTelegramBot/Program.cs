@@ -1593,31 +1593,34 @@ namespace nwTelegramBot
 
                     case "!edit":
 
-                        if (ct == ChatType.Private)
+                        ChatMember[] cm_admine = await Bot.GetChatAdministratorsAsync(message.Chat.Id);
+
+                        foreach (ChatMember x in cm_admine)
                         {
-                            if (nwCheckInReplyTimer(dt) != false)
+
+                            if (x.User.Username.Contains(s_mfun) != true || s_mfun != "AnwenSnowMew")
                             {
 
-                                if (body == string.Empty || body == " " || body == "@" || body == null)
-                                {
-                                    await Bot.EditMessageTextAsync(message.Chat.Id, message.MessageId, body);
-                                }
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "You have insufficient permissions to access this command.";
+
                                 break;
+
                             }
-                            else
+                        }
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+
+                            if (body == string.Empty || body == " " || body == "@" || body == null)
                             {
-                                Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+                                await Bot.EditMessageTextAsync(message.Chat.Id, message.MessageId, body);
                             }
+                            break;
                         }
                         else
                         {
-                            if (nwCheckInReplyTimer(dt) != false)
-                                s_replyToUser = "This command can only be used in private messages.";
-                            else
-                                Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
-
-                            break;
-
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
                         }
 
                         break;
@@ -2268,6 +2271,46 @@ namespace nwTelegramBot
 
                         break;
 
+                    case "!delete":
+                    case "/delete":
+                    case "!deletemsg":
+                    case "/deletemsg":
+
+                        ChatMember[] cm_admind = await Bot.GetChatAdministratorsAsync(message.Chat.Id);
+
+                        foreach (ChatMember x in cm_admind)
+                        {
+
+                            if (x.User.Username.Contains(s_mfun) != true || s_mfun != "AnwenSnowMew")
+                            {
+
+                                if (nwCheckInReplyTimer(dt) != false)
+                                    replyText = "You have insufficient permissions to access this command.";
+
+                                break;
+
+                            }
+                        }
+                        
+                        if (body == string.Empty || body == " " || body == "@" || body == null)
+                        {
+                            await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                            s_replyToUser = "Usage: !delete [message id]";
+
+                            break;
+                        }
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+                            int meow1 = Convert.ToInt32(body);
+                            await Bot.DeleteMessageAsync(message.Chat.Id, meow1);
+                        }
+                        else
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+
+                        break;
+
                     case "!backup":
 
                         // check to see if private message
@@ -2344,7 +2387,11 @@ namespace nwTelegramBot
                         {
 
                             if (nwCheckInReplyTimer(dt) != false)
-                                await Bot.SendTextMessageAsync(Convert.ToInt64(nwGrabString("chatid")), body);
+                            {
+                                var idsetting = nwGrabString("chatid");
+
+                                await Bot.SendTextMessageAsync(Convert.ToInt64(idsetting), body);
+                            }
                             else
                                 Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
 
