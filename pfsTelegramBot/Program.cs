@@ -1674,6 +1674,52 @@ namespace nwTelegramBot
 
                         break;
 
+                    case "!count":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (ct != ChatType.Private)
+                        {
+                            ChatMember[] cm_admin = await Bot.GetChatAdministratorsAsync(message.Chat.Id);
+
+                            foreach (ChatMember x in cm_admin)
+                            {
+
+                                if (x.User.Username.Contains(s_mfun) != true)
+                                {
+
+                                    if (nwCheckInReplyTimer(dt) != false)
+                                        replyText = "You have insufficient permissions to access this command.";
+                                    break;
+
+                                }
+                                else
+                                {
+
+                                    if (nwCheckInReplyTimer(dt) != false)
+                                    {
+
+                                        int meow;
+                                        meow = await Bot.GetChatMembersCountAsync(message.Chat.Id);
+                                        s_replyToUser = "There are currently " + meow + " people in chat.";
+
+                                    }
+                                    else
+                                    {
+
+                                        Console.WriteLine(" The " + command + " failed as it took too long to process.");
+
+                                    }
+
+                                    break;
+                                }
+
+                            }
+
+                        }
+
+                        break;
+
                     case "!getprofile":
                     case "!getbio":
 
