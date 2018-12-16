@@ -1925,6 +1925,38 @@ namespace nwTelegramBot
 
                         break;
 
+                    case "!mods":
+                    case "!admin":
+                    case "!admins":
+                    case "/admin":
+                    case "/admins":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+
+                            StringBuilder sb = new StringBuilder();
+
+                            ChatMember[] mew = await Bot.GetChatAdministratorsAsync(message.Chat.Id);
+
+                            sb.AppendLine("The group admins, to whom all must obey, are:");
+
+                            foreach (ChatMember x in mew)
+                            {
+                                sb.AppendLine("@" + x.User.Username);
+                            }
+
+                            replyText = sb.ToString();
+                        }
+                        else
+                        {
+                            Console.WriteLine(" The " + command + " failed as it took too long to process.");
+                        }
+
+                        break;
+
+
                     case "!wrists":
 
                         await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
