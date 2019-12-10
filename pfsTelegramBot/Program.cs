@@ -8,7 +8,7 @@
  * User         : AndyDingoWolf
  * Last Updated : 13/10/2017 by AndyDingo
  * -- VERSION --
- * Version      : 1.0.0.202
+ * Version      : 1.0.0.203
  */
 
 using Newtonsoft.Json.Linq;
@@ -56,7 +56,7 @@ namespace nwTelegramBot
         {
 
             var me = Bot.GetMeAsync().Result;
-            Console.Title = "Anwen's Telegram Group Command Bot";
+            Console.Title = "Jessica's Telegram Group Command Bot";
 
             DateTime dt = new DateTime(2016, 2, 2, 5, 30, 0);
             dt = DateTime.Now;
@@ -64,7 +64,7 @@ namespace nwTelegramBot
             // Do the title
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("-----------------------------------------------------------------");
-            Console.WriteLine("-------------- Anwen's Telegram Group Command Bot ---------------");
+            Console.WriteLine("-------------- Jessica's Telegram Group Command Bot ---------------");
             Console.WriteLine("-----------------------------------------------------------------");
             Console.ForegroundColor = ConsoleColor.White;
 
@@ -782,7 +782,7 @@ namespace nwTelegramBot
 
                         if (ct == ChatType.Private)
                         {
-                            if (s_mfun != "AnwenSnowMew")
+                            if (s_mfun != "JessicaSnowMew")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     s_replyToUser = "You have insufficient permissions to access this command.";
@@ -815,7 +815,7 @@ namespace nwTelegramBot
 
                         if (ct == ChatType.Private)
                         {
-                            if (s_mfun != "AnwenSnowMew")
+                            if (s_mfun != "JessicaSnowMew")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "You have insufficient permissions to access this command.";
@@ -925,7 +925,7 @@ namespace nwTelegramBot
                         foreach (ChatMember x in cm_admine)
                         {
 
-                            if (x.User.Username.Contains(s_mfun) != true || s_mfun != "AnwenSnowMew")
+                            if (x.User.Username.Contains(s_mfun) != true || s_mfun != "JessicaSnowMew")
                             {
 
                                 if (nwCheckInReplyTimer(dt) != false)
@@ -1608,7 +1608,7 @@ namespace nwTelegramBot
                         foreach (ChatMember x in cm_admind)
                         {
 
-                            if (x.User.Username.Contains(s_mfun) != true || s_mfun != "AnwenSnowMew")
+                            if (x.User.Username.Contains(s_mfun) != true || s_mfun != "JessicaSnowMew")
                             {
 
                                 if (nwCheckInReplyTimer(dt) != false)
@@ -1646,7 +1646,7 @@ namespace nwTelegramBot
                             bool b_kat = false;
 
                             // check the username
-                            if (s_mfun != "AnwenSnowMew")
+                            if (s_mfun != "JessicaSnowMew")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     s_replyToUser = "You have insufficient permissions to access this command.";
@@ -1967,7 +1967,7 @@ namespace nwTelegramBot
                         await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
 
                         if (nwCheckInReplyTimer(dt) != false)
-                            s_replyToUser = "I am the best bot" + Environment.NewLine + "Version 2.0, Release 1" + Environment.NewLine + "By @AnwenSnowMew" + Environment.NewLine + "GitHub: https://github.com/AndyDingo/PerthFurStats_TelegramBot" + Environment.NewLine + "This bot uses open source software.";
+                            s_replyToUser = "I am the best bot" + Environment.NewLine + "Version 2.0, Release 1" + Environment.NewLine + "By @JessicaSnowMew" + Environment.NewLine + "GitHub: https://github.com/AndyDingo/PerthFurStats_TelegramBot" + Environment.NewLine + "This bot uses open source software.";
 
                         break;
 

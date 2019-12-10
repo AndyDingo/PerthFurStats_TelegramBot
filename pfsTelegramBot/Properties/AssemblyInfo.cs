@@ -6,9 +6,9 @@
  * -- CREATOR INFORMATION --
  * Created by   : Microsoft Visual Studio 2015.
  * User         : AndyDingoWolf
- * Last Updated : 12/11/2018 by AnwenEira
+ * Last Updated : 12/11/2018 by JessicaEira
  * -- VERSION --
- * Version      : 1.0.0.202
+ * Version      : 1.0.0.203
  */
 
 using System.Reflection;
@@ -22,9 +22,9 @@ using System.Resources;
 [assembly: AssemblyTitle("Jessica's Chat Command Bot")]
 [assembly: AssemblyDescription("A Bot for Telegram")]
 [assembly: AssemblyConfiguration("Debug")]
-[assembly: AssemblyCompany("Nytewolf Creations")]
+[assembly: AssemblyCompany("Snow Mew Creations")]
 [assembly: AssemblyProduct("Jessica's Chat Command Bot")]
-[assembly: AssemblyCopyright("Copyright © 2016 - 2018 Nytewolf Creations")]
+[assembly: AssemblyCopyright("Copyright © 2016 - 2019 Snow Mew Creations")]
 [assembly: AssemblyTrademark("Telegram is a cloud-based mobile and desktop messaging app with a focus on security and speed.")]
 [assembly: AssemblyCulture("")]
 
@@ -46,9 +46,9 @@ using System.Resources;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.202")]
-[assembly: AssemblyFileVersion("1.0.0.202")]
-[assembly: AssemblyInformationalVersion("1.0.0.202")]
+[assembly: AssemblyVersion("1.0.0.203")]
+[assembly: AssemblyFileVersion("1.0.0.203")]
+[assembly: AssemblyInformationalVersion("1.0.0.203")]
 [assembly: NeutralResourcesLanguageAttribute("en-AU")]
 
 //[assembly: PermissionSetAttribute(SecurityAction.RequestMinimum, Name = "FullTrust")]
