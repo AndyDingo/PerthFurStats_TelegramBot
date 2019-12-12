@@ -1,43 +1,11 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<events version="0.9" botver="1.0.0.113">
+<events version="0.9" botver="1.0.0.203">
 	<event>
 		<id>1</id>
-		<url>http://www.furdu.com.au/</url>
-		<title>FurDU 2017</title>
-		<location>Gold Coast</location>
-		<start>2017-05-05 9:00:00</start>
-		<end>2017-05-07 23:59:00</end>
+		<url>http://www.furoutwest.com/</url>
+		<title>Fur Out West</title>
+		<location>Mandurah</location>
+		<start>2020-03-06 10:00:00</start>
+		<end>2020-03-08 23:59:00</end>
 	</event>
-	<event>
-		<id>2</id>
-		<url>https://www.furcon.com.au/</url>
-		<title>Harbour City Furcon</title>
-		<location>Sydney</location>
-		<start>2017-07-21 14:00:00</start>
-		<end>2017-07-23 23:59:00</end>
-	</event>
-	<event>
-    <id>3</id>
-    <url>http://www.waff.net.au/</url>
-    <title>West Aussie Fur Frenzy</title>
-    <location>Pagoda Resort and Spa</location>
-    <start>2017-09-01 09:00:00</start>
-    <end>2017-09-03 22:00:00</end>
-  </event>
-	<event>
-    <id>4</id>
-    <url>http://www.furoutwest.com/</url>
-    <title>Fur Out West</title>
-    <location>Atrium Hotel Mandurah</location>
-    <start>2017-11-24 09:00:00</start>
-    <end>2017-11-26 23:59:00</end>
-  </event>
-	<event>
-    <id>5</id>
-    <url>http://www.confurgence.com/</url>
-    <title>Confurgence 2018</title>
-    <location>Amora Hotel Melbourne Riverwalk</location>
-    <start>2018-02-23 10:00:00</start>
-    <end>2018-02-25 23:30:00</end>
-  </event>
 </events>

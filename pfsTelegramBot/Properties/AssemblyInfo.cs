@@ -55,6 +55,6 @@ using System.Resources;
 
 #if (OFFICIAL_RELEASE)
 [assembly: AssemblyDelaySign(false)]
-[assembly: AssemblyKeyFile("nwtelegrambot.snk")]
+[assembly: AssemblyKeyFile("pfstelegrambot.snk")]
 [assembly: AssemblyKeyName("")]
 #endif
