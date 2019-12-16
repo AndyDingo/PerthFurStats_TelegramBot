@@ -150,12 +150,6 @@
     <Content Include="docs\changelog.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="docs\devdocs\FEATURE_PROGRESS.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="docs\devdocs\TODO.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="docs\readme.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
