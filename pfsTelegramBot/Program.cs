@@ -2477,7 +2477,6 @@ namespace nwTelegramBot
                     await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: Unknown, please report");
                 }
 
-
             }
 
         }
