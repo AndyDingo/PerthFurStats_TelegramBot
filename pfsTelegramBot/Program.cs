@@ -2179,38 +2179,44 @@ namespace nwTelegramBot
 
                         await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
 
-                        if (nwCheckInReplyTimer(dt) != false)
-                        {
-                            XmlDocument dok = new XmlDocument();
-                            XmlDocument dok2 = new XmlDocument();
-                            dok.Load("ftp://ftp.bom.gov.au/anon/gen/fwo/IDW12400.xml");
-                            dok2.Load("ftp://ftp.bom.gov.au/anon/gen/fwo/IDW12300.xml");
-                            DateTime dta1 = new DateTime(2016, 4, 1);
-                            dta1 = DateTime.Now;
+                        XmlDocument dok = new XmlDocument();
 
-                            // Get our nodes
-                            XmlNodeList wnodes;
-                            wnodes = dok.GetElementsByTagName("forecast-period");
+                        string apistring = "http://api.weatherapi.com/v1/forecast.xml?key=" + nwGrabString("weatherapi") + "&q=Perth&days=7";
 
-                            // Get our nodes
-                            XmlNodeList wnodes2;
-                            wnodes2 = dok2.GetElementsByTagName("forecast-period");
+                        dok.Load(apistring);
+
+                        //if (nwCheckInReplyTimer(dt) != false)
+                        //{
+                        //    XmlDocument dok = new XmlDocument();
+                        //    XmlDocument dok2 = new XmlDocument();
+                        //    dok.Load("ftp://ftp.bom.gov.au/anon/gen/fwo/IDW12400.xml");
+                        //    dok2.Load("ftp://ftp.bom.gov.au/anon/gen/fwo/IDW12300.xml");
+                        //    DateTime dta1 = new DateTime(2016, 4, 1);
+                        //    dta1 = DateTime.Now;
+
+                        //    // Get our nodes
+                        //    XmlNodeList wnodes;
+                        //    wnodes = dok.GetElementsByTagName("forecast-period");
+
+                        //    // Get our nodes
+                        //    XmlNodeList wnodes2;
+                        //    wnodes2 = dok2.GetElementsByTagName("forecast-period");
 
 
-                            // Create a new string builder
-                            StringBuilder wString = new StringBuilder();
-                            wString.AppendLine("Forecast for:");
+                        //    // Create a new string builder
+                        //    StringBuilder wString = new StringBuilder();
+                        //    wString.AppendLine("Forecast for:");
 
-                            // Iterate through available days
-                            for (var i1for = 0; i1for < wnodes.Count; i1for++)
-                            {
-                                dta1 = Convert.ToDateTime(wnodes.Item(i1for).Attributes["start-time-local"].Value);
+                        //    // Iterate through available days
+                        //    for (var i1for = 0; i1for < wnodes.Count; i1for++)
+                        //    {
+                        //        dta1 = Convert.ToDateTime(wnodes.Item(i1for).Attributes["start-time-local"].Value);
 
-                                wString.AppendLine(dta1.ToString("ddd d/MM/yyy") + ": " + wnodes.Item(i1for).SelectSingleNode("text").InnerText); // + " [" + pfn_events.url.ToString() + "]");
-                            }
+                        //        wString.AppendLine(dta1.ToString("ddd d/MM/yyy") + ": " + wnodes.Item(i1for).SelectSingleNode("text").InnerText); // + " [" + pfn_events.url.ToString() + "]");
+                        //    }
 
-                            replyText = wString.ToString();
-                        }
+                        //    replyText = wString.ToString();
+                        //}
 
                         break;
 
