@@ -114,6 +114,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="XMLFile1.xml" />
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>

@@ -1081,11 +1081,11 @@ namespace nwTelegramBot
                         {
                             XmlDocument dook = new XmlDocument();
                             dook.Load(ehoh.Directory.GetCurrentDirectory() + @"/data/conventions.xml");
-                            DateTime dta1 = new DateTime(2016, 4, 1);
-                            dta1 = DateTime.Now;
+                            DateTime _dta1 = new DateTime(2016, 4, 1);
+                            _dta1 = DateTime.Now;
 
-                            DateTime dta2 = new DateTime(2016, 4, 1);
-                            dta2 = DateTime.Now;
+                            DateTime _dta2 = new DateTime(2016, 4, 1);
+                            _dta2 = DateTime.Now;
 
                             // Get our nodes
                             XmlNodeList nodes;
@@ -1098,11 +1098,11 @@ namespace nwTelegramBot
                             // Iterate through available events
                             for (var i1for = 0; i1for < nodes.Count; i1for++)
                             {
-                                dta1 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("start").InnerText);
-                                dta2 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("end").InnerText);
+                                _dta1 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("start").InnerText);
+                                _dta2 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("end").InnerText);
                                 eventString.AppendLine("<b>" + nodes.Item(i1for).SelectSingleNode("title").InnerText + "</b> [" + nodes.Item(i1for).SelectSingleNode("url").InnerText + "]");
-                                eventString.AppendLine("Convention starts: " + dta1.ToString("ddd d/MM/yyy") + " (" + dta1.ToString("h:mm tt") + ")");
-                                eventString.AppendLine("Convention ends: " + dta2.ToString("ddd d/MM/yyy") + " (" + dta2.ToString("h:mm tt") + ")");
+                                eventString.AppendLine("Convention starts: " + _dta1.ToString("ddd d/MM/yyy") + " (" + _dta1.ToString("h:mm tt") + ")");
+                                eventString.AppendLine("Convention ends: " + _dta2.ToString("ddd d/MM/yyy") + " (" + _dta2.ToString("h:mm tt") + ")");
                                 eventString.AppendLine("Location: <i>" + nodes.Item(i1for).SelectSingleNode("location").InnerText + "</i>");
                                 eventString.AppendLine("");
                             }
@@ -2179,44 +2179,36 @@ namespace nwTelegramBot
 
                         await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
 
-                        XmlDocument dok = new XmlDocument();
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
 
-                        string apistring = "http://api.weatherapi.com/v1/forecast.xml?key=" + nwGrabString("weatherapi") + "&q=Perth&days=7";
+                            XmlDocument dok = new XmlDocument();
 
-                        dok.Load(apistring);
+                            string apistring = "http://api.weatherapi.com/v1/forecast.xml?key=" + nwGrabString("weatherapi") + "&q=Perth&days=7";
 
-                        //if (nwCheckInReplyTimer(dt) != false)
-                        //{
-                        //    XmlDocument dok = new XmlDocument();
-                        //    XmlDocument dok2 = new XmlDocument();
-                        //    dok.Load("ftp://ftp.bom.gov.au/anon/gen/fwo/IDW12400.xml");
-                        //    dok2.Load("ftp://ftp.bom.gov.au/anon/gen/fwo/IDW12300.xml");
-                        //    DateTime dta1 = new DateTime(2016, 4, 1);
-                        //    dta1 = DateTime.Now;
+                            dok.Load(apistring);
 
-                        //    // Get our nodes
-                        //    XmlNodeList wnodes;
-                        //    wnodes = dok.GetElementsByTagName("forecast-period");
+                            DateTime dta1 = new DateTime(2016, 4, 1);
+                            dta1 = DateTime.Now;
 
-                        //    // Get our nodes
-                        //    XmlNodeList wnodes2;
-                        //    wnodes2 = dok2.GetElementsByTagName("forecast-period");
+                            // Get our nodes
+                            XmlNodeList wnodes;
+                            wnodes = dok.GetElementsByTagName("forecastday");
 
+                            // Create a new string builder
+                            StringBuilder wString = new StringBuilder();
+                            wString.AppendLine("Forecast for:");
 
-                        //    // Create a new string builder
-                        //    StringBuilder wString = new StringBuilder();
-                        //    wString.AppendLine("Forecast for:");
+                            // Iterate through available days
+                            for (var i1for = 0; i1for < wnodes.Count; i1for++)
+                            {
+                                dta1 = Convert.ToDateTime(wnodes.Item(i1for).SelectSingleNode("date").InnerText);
 
-                        //    // Iterate through available days
-                        //    for (var i1for = 0; i1for < wnodes.Count; i1for++)
-                        //    {
-                        //        dta1 = Convert.ToDateTime(wnodes.Item(i1for).Attributes["start-time-local"].Value);
+                                wString.AppendLine(dta1.ToString("ddd d/MM/yyy") + " > Temps : " + wnodes.Item(i1for).SelectSingleNode("day/mintemp_c").InnerText + " - " + wnodes.Item(i1for).SelectSingleNode("day/maxtemp_c").InnerText + "°C"); // + " [" + pfn_events.url.ToString() + "]");
+                            }
 
-                        //        wString.AppendLine(dta1.ToString("ddd d/MM/yyy") + ": " + wnodes.Item(i1for).SelectSingleNode("text").InnerText); // + " [" + pfn_events.url.ToString() + "]");
-                        //    }
-
-                        //    replyText = wString.ToString();
-                        //}
+                            replyText = wString.ToString();
+                        }
 
                         break;
 
