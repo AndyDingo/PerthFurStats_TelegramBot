@@ -1,14 +1,14 @@
 ﻿/* 
- * All contents copyright 2016-2018, Andy Dingo and Contributors
+ * All contents copyright 2016-2019, Andy Dingo and Contributors
  * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
  * Please read docs/gpl.txt for licensing information.
  * ---------------------------------------------------------------
  * -- CREATOR INFORMATION --
  * Created by   : Microsoft Visual Studio 2015.
  * User         : AndyDingoWolf
- * Last Updated : 13/10/2017 by AnwenEira
+ * Last Updated : 13/10/2017 by JessicaEira
  * -- VERSION --
- * Version      : 1.0.0.200
+ * Version      : 1.0.0.203
  */
 
 using System;

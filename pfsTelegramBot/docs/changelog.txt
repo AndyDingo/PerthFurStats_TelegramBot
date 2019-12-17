@@ -4,7 +4,7 @@
 VERSION: 1.0.0.120
 FOR: WINDOWS 8/10+
 LAST UPDATED ON: 14/10/2017
-LAST UPDATED BY: AnwenEira
+LAST UPDATED BY: JessicaEira
 
 Please use "Word Wrap" if using notepad or wordpad to view this file.
 
@@ -15,11 +15,11 @@ changes were made for. Newest Changes generally go first.
 
 Version 0.114 BETA
 ------------------------------------
-- Remove experimental Twitter code. [AnwenEira]
-- Disable sqlite code to replace with mysql. [AnwenEira]
-- Fix total commands. [AnwenEira]
-- Add total commands for user to stats. [AnwenEira]
-- Shibe commands. [AnwenEira]
+- Remove experimental Twitter code. [JessicaEira]
+- Disable sqlite code to replace with mysql. [JessicaEira]
+- Fix total commands. [JessicaEira]
+- Add total commands for user to stats. [JessicaEira]
+- Shibe commands. [JessicaEira]
 
 Version 0.112 BETA
 ------------------------------------
@@ -39,7 +39,7 @@ Version 0.104 BETA
 - New convention command. [AndyDingo]
 - New meet command. [AndyDingo]
 - Easter eggs can now be toggled on/off. [AndyDingo]
-- Add dog, snep and fox commands. [AnwenEira]
+- Add dog, snep and fox commands. [JessicaEira]
 - e621 command rewritten. [AndyDingo]
 - Added help subcommand to various commands. Will display usage. [AndyDingo]
 - Bug fixes. [AndyDingo]

@@ -1,5 +1,5 @@
 ﻿/* 
- * All contents copyright 2016 - 2018, Andy Dingo and Contributors
+ * All contents copyright 2016 - 2019, Andy Dingo and Contributors
  * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
  * Please read docs/gpl.txt for licensing information.
  * ---------------------------------------------------------------
@@ -8,7 +8,7 @@
  * User         : AndyDingoWolf
  * Last Updated : 13/10/2017 by AndyDingo
  * -- VERSION --
- * Version      : 1.0.0.202
+ * Version      : 1.0.0.203
  */
 
 using Newtonsoft.Json.Linq;
@@ -56,7 +56,7 @@ namespace nwTelegramBot
         {
 
             var me = Bot.GetMeAsync().Result;
-            Console.Title = "Anwen's Telegram Group Command Bot";
+            Console.Title = "Jessica's Telegram Group Command Bot";
 
             DateTime dt = new DateTime(2016, 2, 2, 5, 30, 0);
             dt = DateTime.Now;
@@ -64,7 +64,7 @@ namespace nwTelegramBot
             // Do the title
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("-----------------------------------------------------------------");
-            Console.WriteLine("-------------- Anwen's Telegram Group Command Bot ---------------");
+            Console.WriteLine("-------------- Jessica's Telegram Group Command Bot ---------------");
             Console.WriteLine("-----------------------------------------------------------------");
             Console.ForegroundColor = ConsoleColor.White;
 
@@ -782,7 +782,7 @@ namespace nwTelegramBot
 
                         if (ct == ChatType.Private)
                         {
-                            if (s_mfun != "AnwenSnowMew")
+                            if (s_mfun != "JessicaSnowMew")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     s_replyToUser = "You have insufficient permissions to access this command.";
@@ -815,7 +815,7 @@ namespace nwTelegramBot
 
                         if (ct == ChatType.Private)
                         {
-                            if (s_mfun != "AnwenSnowMew")
+                            if (s_mfun != "JessicaSnowMew")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "You have insufficient permissions to access this command.";
@@ -925,7 +925,7 @@ namespace nwTelegramBot
                         foreach (ChatMember x in cm_admine)
                         {
 
-                            if (x.User.Username.Contains(s_mfun) != true || s_mfun != "AnwenSnowMew")
+                            if (x.User.Username.Contains(s_mfun) != true || s_mfun != "JessicaSnowMew")
                             {
 
                                 if (nwCheckInReplyTimer(dt) != false)
@@ -1081,11 +1081,11 @@ namespace nwTelegramBot
                         {
                             XmlDocument dook = new XmlDocument();
                             dook.Load(ehoh.Directory.GetCurrentDirectory() + @"/data/conventions.xml");
-                            DateTime dta1 = new DateTime(2016, 4, 1);
-                            dta1 = DateTime.Now;
+                            DateTime _dta1 = new DateTime(2016, 4, 1);
+                            _dta1 = DateTime.Now;
 
-                            DateTime dta2 = new DateTime(2016, 4, 1);
-                            dta2 = DateTime.Now;
+                            DateTime _dta2 = new DateTime(2016, 4, 1);
+                            _dta2 = DateTime.Now;
 
                             // Get our nodes
                             XmlNodeList nodes;
@@ -1098,11 +1098,11 @@ namespace nwTelegramBot
                             // Iterate through available events
                             for (var i1for = 0; i1for < nodes.Count; i1for++)
                             {
-                                dta1 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("start").InnerText);
-                                dta2 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("end").InnerText);
+                                _dta1 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("start").InnerText);
+                                _dta2 = Convert.ToDateTime(nodes.Item(i1for).SelectSingleNode("end").InnerText);
                                 eventString.AppendLine("<b>" + nodes.Item(i1for).SelectSingleNode("title").InnerText + "</b> [" + nodes.Item(i1for).SelectSingleNode("url").InnerText + "]");
-                                eventString.AppendLine("Convention starts: " + dta1.ToString("ddd d/MM/yyy") + " (" + dta1.ToString("h:mm tt") + ")");
-                                eventString.AppendLine("Convention ends: " + dta2.ToString("ddd d/MM/yyy") + " (" + dta2.ToString("h:mm tt") + ")");
+                                eventString.AppendLine("Convention starts: " + _dta1.ToString("ddd d/MM/yyy") + " (" + _dta1.ToString("h:mm tt") + ")");
+                                eventString.AppendLine("Convention ends: " + _dta2.ToString("ddd d/MM/yyy") + " (" + _dta2.ToString("h:mm tt") + ")");
                                 eventString.AppendLine("Location: <i>" + nodes.Item(i1for).SelectSingleNode("location").InnerText + "</i>");
                                 eventString.AppendLine("");
                             }
@@ -1608,7 +1608,7 @@ namespace nwTelegramBot
                         foreach (ChatMember x in cm_admind)
                         {
 
-                            if (x.User.Username.Contains(s_mfun) != true || s_mfun != "AnwenSnowMew")
+                            if (x.User.Username.Contains(s_mfun) != true || s_mfun != "JessicaSnowMew")
                             {
 
                                 if (nwCheckInReplyTimer(dt) != false)
@@ -1646,7 +1646,7 @@ namespace nwTelegramBot
                             bool b_kat = false;
 
                             // check the username
-                            if (s_mfun != "AnwenSnowMew")
+                            if (s_mfun != "JessicaSnowMew")
                             {
                                 if (nwCheckInReplyTimer(dt) != false)
                                     s_replyToUser = "You have insufficient permissions to access this command.";
@@ -1967,7 +1967,7 @@ namespace nwTelegramBot
                         await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
 
                         if (nwCheckInReplyTimer(dt) != false)
-                            s_replyToUser = "I am the best bot" + Environment.NewLine + "Version 2.0, Release 1" + Environment.NewLine + "By @AnwenSnowMew" + Environment.NewLine + "GitHub: https://github.com/AndyDingo/PerthFurStats_TelegramBot" + Environment.NewLine + "This bot uses open source software.";
+                            s_replyToUser = "I am the best bot" + Environment.NewLine + "Version 2.0, Release 1" + Environment.NewLine + "By @JessicaSnowMew" + Environment.NewLine + "GitHub: https://github.com/AndyDingo/PerthFurStats_TelegramBot" + Environment.NewLine + "This bot uses open source software.";
 
                         break;
 
@@ -2181,21 +2181,19 @@ namespace nwTelegramBot
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
+
                             XmlDocument dok = new XmlDocument();
-                            XmlDocument dok2 = new XmlDocument();
-                            dok.Load("ftp://ftp.bom.gov.au/anon/gen/fwo/IDW12400.xml");
-                            dok2.Load("ftp://ftp.bom.gov.au/anon/gen/fwo/IDW12300.xml");
+
+                            string apistring = "http://api.weatherapi.com/v1/forecast.xml?key=" + nwGrabString("weatherapi") + "&q=Perth&days=7";
+
+                            dok.Load(apistring);
+
                             DateTime dta1 = new DateTime(2016, 4, 1);
                             dta1 = DateTime.Now;
 
                             // Get our nodes
                             XmlNodeList wnodes;
-                            wnodes = dok.GetElementsByTagName("forecast-period");
-
-                            // Get our nodes
-                            XmlNodeList wnodes2;
-                            wnodes2 = dok2.GetElementsByTagName("forecast-period");
-
+                            wnodes = dok.GetElementsByTagName("forecastday");
 
                             // Create a new string builder
                             StringBuilder wString = new StringBuilder();
@@ -2204,9 +2202,9 @@ namespace nwTelegramBot
                             // Iterate through available days
                             for (var i1for = 0; i1for < wnodes.Count; i1for++)
                             {
-                                dta1 = Convert.ToDateTime(wnodes.Item(i1for).Attributes["start-time-local"].Value);
+                                dta1 = Convert.ToDateTime(wnodes.Item(i1for).SelectSingleNode("date").InnerText);
 
-                                wString.AppendLine(dta1.ToString("ddd d/MM/yyy") + ": " + wnodes.Item(i1for).SelectSingleNode("text").InnerText); // + " [" + pfn_events.url.ToString() + "]");
+                                wString.AppendLine(dta1.ToString("ddd d/MM/yyy") + " > Temps : " + wnodes.Item(i1for).SelectSingleNode("day/mintemp_c").InnerText + " - " + wnodes.Item(i1for).SelectSingleNode("day/maxtemp_c").InnerText + "°C"); // + " [" + pfn_events.url.ToString() + "]");
                             }
 
                             replyText = wString.ToString();
@@ -2476,7 +2474,6 @@ namespace nwTelegramBot
 
                     await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: Unknown, please report");
                 }
-
 
             }
 

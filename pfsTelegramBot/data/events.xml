@@ -1,69 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<events version="0.9" botver="1.0.0.200">
-	<event>
-		<id>133</id>
-		<url>http://www.perthfurs.net/events/view/133</url>
-		<title>West Aussie Fur Frenzy</title>
-		<location>Pagoda Resort and Spa</location>
-		<start>2017-09-02 09:00:00</start>
-		<end>2017-09-03 22:00:00</end>
-	</event>
-	<event>
-		<id>140</id>
-		<url>http://www.perthfurs.net/events/view/140</url>
-		<title>CaFURnated Reborn</title>
-		<location>Miss Maud Carillon City Arcade</location>
-		<start>2017-02-25 11:30:00</start>
-	</event>
+<events version="0.9" botver="1.0.0.203">
   <event>
-    <id>144</id>
-    <url>http://www.perthfurs.net/events/view/144</url>
-    <title>Quay Furs 26 - Weekly PerthFurs Meet!</title>
-    <location>Elizabeth Quay Carousel (Near the Transperth Ferry dock)</location>
-    <start>2017-02-28 18:30:00</start>
-  </event>
-  <event>
-    <id>145</id>
-    <url>http://www.perthfurs.net/events/view/145</url>
-    <title>Quay Furs 27 - Amy's welcome meet</title>
-    <location>Elizabeth Quay Carousel (Near the Transperth ferry dock)</location>
-    <start>2017-03-07 18:30:00</start>
-  </event>
-  <event>
-    <id>146</id>
-    <url>http://www.perthfurs.net/events/view/146</url>
-    <title>Quay Furs 28 - Weekly PerthFurs Meet!</title>
-    <location>Elizabeth Quay Carousel (Near the Transperth ferry dock)</location>
-    <start>2017-03-14 18:30:00</start>
-  </event>
-  <event>
-    <id>146</id>
-    <url></url>
-    <title>Quay Furs 29 - Weekly PerthFurs Meet!</title>
-    <location>Elizabeth Quay Carousel (Near the Transperth ferry dock)</location>
-    <start>2017-03-21 18:30:00</start>
-  </event>
-  <event>
-    <id>146</id>
-    <url></url>
-    <title>Quay Furs 30 - Weekly PerthFurs Meet!</title>
-    <location>Elizabeth Quay Carousel (Near the Transperth ferry dock)</location>
-    <start>2017-03-28 18:30:00</start>
-  </event>
-  <event>
-    <id>4</id>
+    <id>1</id>
     <url>http://www.furoutwest.com/</url>
     <title>Fur Out West</title>
-    <location>Atrium Hotel Mandurah</location>
-    <start>2017-11-24 09:00:00</start>
-    <end>2017-11-26 23:59:00</end>
-  </event>
-  <event>
-    <id>5</id>
-    <url>http://www.confurgence.com/</url>
-    <title>Confurgence 2018</title>
-    <location>Amora Hotel Melbourne Riverwalk</location>
-    <start>2018-02-23 10:00:00</start>
-    <end>2018-02-25 23:30:00</end>
+    <location>Mandurah</location>
+    <start>2020-03-06 10:00:00</start>
+    <end>2020-03-08 23:59:00</end>
   </event>
 </events>

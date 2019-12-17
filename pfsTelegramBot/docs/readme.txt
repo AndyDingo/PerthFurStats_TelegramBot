@@ -4,7 +4,7 @@
 VERSION: 1.0.0.120
 FOR: WINDOWS 8/10+
 LAST UPDATED ON: 14/10/2017
-LAST UPDATED BY: AnwenEira
+LAST UPDATED BY: JessicaEira
 
 Please use "Word Wrap" if using notepad or wordpad to view this file.
 
