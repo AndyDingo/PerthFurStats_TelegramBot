@@ -1575,6 +1575,30 @@ namespace nwTelegramBot
 
                         break;
 
+                    case "!rjoke":
+                    case "/rjoke":
+
+                        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+
+                        if (nwCheckInReplyTimer(dt) != false)
+                        {
+
+                            dynamic djoke = JObject.Parse(httpClient.DownloadString("https://api.reddit.com/r/jokes/top?t=day&limit=5").Result);
+                            var rjoke = new Random(DateTime.Now.Millisecond);
+                            var ijokemax = Enumerable.Count(djoke.data.children);
+                            if (ijokemax > 4)
+                            {
+                                ijokemax = 4;
+                            }
+                            var ijoke = rjoke.Next(0, ijokemax);
+                            replyText = djoke.data.children[ijoke].data.title.ToString() + " " + djoke.data.children[ijoke].data.selftext.ToString();
+
+                        }
+                        else
+                            Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
+
+                        break;
+
                     case "!link":
 
                         await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
@@ -3045,8 +3069,8 @@ namespace nwTelegramBot
         /// <summary>
         /// Grab an image from a given url and return a string to post to the channel.
         /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
+        /// <param name="url">the url of the image</param>
+        /// <returns>An image</returns>
         private static string nwGrabImage(string url)
         {
             string s_returnedImage = null;
@@ -3255,7 +3279,10 @@ namespace nwTelegramBot
             return chosen;
         }
 
-
+        /// <summary>
+        /// Generate a random joke line.
+        /// </summary>
+        /// <returns></returns>
         private static string nwRandomJokeLine()
         {
             string chosen = null;
@@ -3315,6 +3342,13 @@ namespace nwTelegramBot
 
         }
 
+        /// <summary>
+        /// Roll a dice
+        /// </summary>
+        /// <param name="s_username">The username. Deprecated</param>
+        /// <param name="dt">The date</param>
+        /// <param name="body"></param>
+        /// <returns></returns>
         private static string nwRollDice(string s_username, DateTime dt, string body)
         {
             string tst1 = "";
@@ -3566,6 +3600,35 @@ namespace nwTelegramBot
 
             return data;
 
+        }
+
+        /// <summary>
+        /// Calculate the Real Feel.
+        /// </summary>
+        /// <param name="W">Wind.</param>
+        /// <param name="A"></param>
+        /// <param name="T"></param>
+        /// <param name="D"></param>
+        /// <param name="UVIndex">UV Index.</param>
+        /// <param name="P2"></param>
+        /// <returns></returns>
+        public static double RealFeel(double W, double A, double T, double D, int UVIndex, int P2)
+        {
+            // Adjust Wind
+            double WA = (W < 4) ? (W / 2 + 2) : (W < 56) ? W : 56;
+
+            double WSP1 = Math.Sqrt(W) * ((Math.Sqrt(A / 10.0)) / 10.0);
+            double WSP2 = (80.0 - T) * (0.566 + 0.25 * Math.Sqrt(WA) - 0.0166 * WA) * ((Math.Sqrt(A / 10.0)) / 10.0);
+
+            double SI2 = (double)UVIndex;// UV index is already in hectoJoules/m^2 (0-16)
+
+            double DA = (D >= (55 + Math.Sqrt(W))) ? D : 55.0 + Math.Sqrt(W);
+            double H2 = (DA - 55.0 - Math.Sqrt(W)) * 2.0 / 30.0;
+
+            double MFT = (T >= 65) ? 80.0 - WSP2 + SI2 + H2 - P2
+            : T - WSP1 + SI2 + H2 - P2;
+            return MFT;
+            //print realfeel(5,1013,70,6,50,0) = 75.51231765840727
         }
 
         private static List<string> GetUrls(string html)
