@@ -2505,9 +2505,33 @@ namespace nwTelegramBot
 
         private static void BotOnReceiveError(object sender, ReceiveErrorEventArgs e)
         {
-            Console.WriteLine("Received error: {0} — {1}",
+            DateTime curTime = DateTime.Now; // current time
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("-----------------------------------------------------------------------------");
+            Console.WriteLine("* System: Received error: {0} — {1}",
                 e.ApiRequestException.ErrorCode,
                 e.ApiRequestException.Message);
+            Console.WriteLine("-----------------------------------------------------------------------------");
+            Console.ForegroundColor = ConsoleColor.Green;
+
+            using (ehoh.StreamWriter sw = new ehoh.StreamWriter(ehoh.Directory.GetCurrentDirectory() + @"\telegrambot.log", true))
+            {
+                sw.WriteLine("-----------------------------------------------------------------------------");
+                sw.WriteLine("* System: Error has occurred at " + curTime.ToLongTimeString());
+                sw.WriteLine("* System: Error has occurred: " + e.ApiRequestException.HResult + " " + e.ApiRequestException.Message + Environment.NewLine +
+                   "* System: Stack Trace: " + e.ApiRequestException.StackTrace + Environment.NewLine +
+                   "* System: Inner Exception: " + e.ApiRequestException.InnerException + Environment.NewLine +
+                   "* System: Inner Exception: " + e.ApiRequestException.InnerException.Data.ToString() + Environment.NewLine +
+                   "* System: Inner Exception: " + e.ApiRequestException.InnerException.Message + Environment.NewLine +
+                   "* System: Inner Exception: " + e.ApiRequestException.InnerException.Source + Environment.NewLine +
+                   "* System: Inner Exception: " + e.ApiRequestException.InnerException.StackTrace + Environment.NewLine +
+                   "* System: Inner Exception: " + e.ApiRequestException.InnerException.TargetSite + Environment.NewLine +
+                   "* System: Source: " + e.ApiRequestException.Source + Environment.NewLine +
+                  "* System: Target Site: " + e.ApiRequestException.TargetSite + Environment.NewLine +
+                  "* System: Help Link: " + e.ApiRequestException.HelpLink);
+            }
+
         }
 
 
@@ -3792,7 +3816,7 @@ namespace nwTelegramBot
             Console.WriteLine("* System: Error details: " + ex.HResult + " " + ex.Message + Environment.NewLine + "* System: " + ex.StackTrace);
             Console.ForegroundColor = ConsoleColor.Green;
 
-            using (ehoh.StreamWriter sw = new ehoh.StreamWriter(ehoh.Directory.GetCurrentDirectory() + @"\pfsTelegramBot.log", true))
+            using (ehoh.StreamWriter sw = new ehoh.StreamWriter(ehoh.Directory.GetCurrentDirectory() + @"\telegrambot.log", true))
             {
                  sw.WriteLine("-----------------------------------------------------------------------------");
                  sw.WriteLine("* System: Error has occurred at " + curTime.ToLongTimeString());

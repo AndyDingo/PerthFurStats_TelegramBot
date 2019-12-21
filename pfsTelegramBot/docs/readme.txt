@@ -1,9 +1,9 @@
-﻿NW's TELEGRAM BOT -Readme-
+﻿TELEGRAM BOT -Readme-
 ============================================================================================
 
-VERSION: 1.0.0.120
+VERSION: 1.0.0.203
 FOR: WINDOWS 8/10+
-LAST UPDATED ON: 14/10/2017
+LAST UPDATED ON: 14/12/2019
 LAST UPDATED BY: JessicaEira
 
 Please use "Word Wrap" if using notepad or wordpad to view this file.
@@ -51,9 +51,9 @@ This program and it's associated source files may be distributed freely in accor
 5. LEGAL INFORMATION
 +==================================+
 
-© COPYRIGHT 2016 NYTEWOLF CREATIONS, ALL RIGHTS RESERVED.
+© COPYRIGHT 2016-2019 SNOW MEW CREATIONS, ALL RIGHTS RESERVED.
 
-All original content is © 2016 AndyDingo and contributors.
+All original content is © 2016-2019 AndyDingo and contributors.
 
 This program is licensed in accordance with the GPL. a copy of the GPL is included with this distribution and may be viewed in the 'docs' directory. Please view gpl.txt for more information.
 
