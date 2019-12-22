@@ -15,7 +15,7 @@ using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 using System.IO;
 
-namespace nwTelegramBot
+namespace TelegramBot1
 {
     /// <summary>
     /// Zip Backup class. Designed to do what the name might suggest.

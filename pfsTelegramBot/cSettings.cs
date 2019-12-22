@@ -14,7 +14,7 @@
 using System;
 using System.Xml;
 
-namespace nwTelegramBot
+namespace TelegramBot1
 {
     /// <summary>
     /// Settings class.

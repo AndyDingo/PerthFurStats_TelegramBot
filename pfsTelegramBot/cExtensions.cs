@@ -16,7 +16,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
-namespace nwTelegramBot
+namespace TelegramBot1
 {
     /// <summary>
     /// Extensions class, for a few things.
@@ -73,6 +73,20 @@ namespace nwTelegramBot
 
                 return FileVersionInfo.GetVersionInfo(file);
             }
+        }
+
+        /// <summary>
+        /// Convert from Degrees Fahrenheit to Degrees Celcius.
+        /// </summary>
+        /// <param name="fahrenheit">The tempurature in Fahrenheit.</param>
+        /// <returns>The temp in Degrees Celcius.</returns>
+        public static double ConvertToCelcius(double fahrenheit)
+        {
+
+            double celsius = (fahrenheit - 32) * 5 / 9;
+
+            return celsius;
+
         }
 
         /// <summary>

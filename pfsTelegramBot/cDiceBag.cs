@@ -14,7 +14,7 @@
 using System;
 using System.Text;
 
-namespace nwTelegramBot
+namespace TelegramBot1
 {
     /// <summary>
     /// My not quite so famous dice bag class.

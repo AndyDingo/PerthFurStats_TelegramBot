@@ -6,7 +6,7 @@
  * -- CREATOR INFORMATION --
  * Created by   : Microsoft Visual Studio 2015.
  * User         : AndyDingoWolf
- * Last Updated : 13/10/2017 by AndyDingo
+ * Last Updated : 22/12/2019 by JessicaEira
  * -- VERSION --
  * Version      : 1.0.0.203
  */
@@ -31,7 +31,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 using ehoh = System.IO;
 using File = System.IO.File;
 
-namespace nwTelegramBot
+namespace TelegramBot1
 {
 #pragma warning disable 4014 // Allow for bot.SendChatAction to not be awaited
     // ReSharper disable FunctionNeverReturns
@@ -567,6 +567,7 @@ namespace nwTelegramBot
             var replyImageCaption = string.Empty;
             var replyText = string.Empty;
             var replyTextEvent = string.Empty;
+            var replyHtml = string.Empty;
             var replyVideo = string.Empty;
             var replyVideoCaption = string.Empty;
 
@@ -793,7 +794,7 @@ namespace nwTelegramBot
 
                             s_replyToUser = "Goodbye.";
 
-                            await Task.Delay(1000);
+                            await Task.Delay(10000);
 
                             Environment.Exit(0);
                         }
@@ -2208,7 +2209,7 @@ namespace nwTelegramBot
 
                             XmlDocument dok = new XmlDocument();
 
-                            string apistring = "http://api.weatherapi.com/v1/forecast.xml?key=" + nwGrabString("weatherapi") + "&q=Perth&days=7";
+                            string apistring = "http://api.weatherapi.com/v1/forecast.xml?key=" + nwGrabString("weatherapi") + "&q=Perth&days=4";
 
                             dok.Load(apistring);
 
@@ -2228,11 +2229,46 @@ namespace nwTelegramBot
                             {
                                 dta1 = Convert.ToDateTime(wnodes.Item(i1for).SelectSingleNode("date").InnerText);
 
-                                wString.AppendLine(dta1.ToString("ddd d/MM/yyy") + " > Temps : " + wnodes.Item(i1for).SelectSingleNode("day/mintemp_c").InnerText + " - " + wnodes.Item(i1for).SelectSingleNode("day/maxtemp_c").InnerText + "°C"); // + " [" + pfn_events.url.ToString() + "]");
+                                wString.AppendLine(dta1.ToString("ddd d/MM/yyy") + " > \r\nTemps : " + wnodes.Item(i1for).SelectSingleNode("day/mintemp_c").InnerText + " - " + wnodes.Item(i1for).SelectSingleNode("day/maxtemp_c").InnerText + "°C");
                             }
 
                             replyText = wString.ToString();
                         }
+
+
+                        //if (nwCheckInReplyTimer(dt) != false)
+                        //{
+                        //    XmlDocument dok = new XmlDocument();
+                        //    XmlDocument dok2 = new XmlDocument();
+                        //    dok.Load("ftp://ftp.bom.gov.au/anon/gen/fwo/IDW12400.xml");
+                        //    dok2.Load("ftp://ftp.bom.gov.au/anon/gen/fwo/IDW12300.xml");
+                        //    DateTime dta1 = new DateTime(2016, 4, 1);
+                        //    dta1 = DateTime.Now;
+
+                        //    // Get our nodes
+                        //    XmlNodeList wnodes;
+                        //    wnodes = dok.GetElementsByTagName("forecast-period");
+
+                        //    // Get our nodes
+                        //    XmlNodeList wnodes2;
+                        //    wnodes2 = dok2.GetElementsByTagName("forecast-period");
+
+
+                        //    // Create a new string builder
+                        //    StringBuilder wString = new StringBuilder();
+                        //    wString.AppendLine("Forecast for:");
+
+                        //    // Iterate through available days
+                        //    for (var i1for = 0; i1for < wnodes.Count; i1for++)
+                        //    {
+                        //        dta1 = Convert.ToDateTime(wnodes.Item(i1for).Attributes["start-time-local"].Value);
+
+                        //        wString.AppendLine(dta1.ToString("ddd d/MM/yyy") + ": " + wnodes.Item(i1for).SelectSingleNode("text").InnerText); // + " [" + pfn_events.url.ToString() + "]");
+                        //    }
+
+                        //    replyText = wString.ToString();
+                        //}
+
 
                         break;
 
