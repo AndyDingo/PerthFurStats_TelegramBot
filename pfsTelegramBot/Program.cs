@@ -30,6 +30,7 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using ehoh = System.IO;
 using File = System.IO.File;
+using happy = HtmlAgilityPack;
 
 namespace TelegramBot1
 {
@@ -1964,6 +1965,21 @@ namespace TelegramBot1
                             //Console.WriteLine("{0} --> Unix Seconds: {1}", dto, dto.ToUnixTimeSeconds());
 
                             //nwCheckInCooldown(dt, message.Chat.Id, message.From);
+
+
+                            string mewe =GetHtmlCode("tiger", false, false);
+
+                            XmlDocument mewetest = new XmlDocument();
+                            happy.HtmlDocument coc123 = new happy.HtmlDocument();
+                            coc123.LoadHtml(mewe);
+                            
+                            //happy.
+                            //mewetest.XmlResolver = null;
+                            //mewetest.LoadXml(mewe);
+
+                            //XmlNodeList mewenl = mewetest.SelectNodes("/html/body/div[2]/c - wiz/div[3]");
+
+                         
 
                         }
                         else
