@@ -30,8 +30,6 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using ehoh = System.IO;
 using File = System.IO.File;
-using happy = HtmlAgilityPack;
-using Gfycat;
 
 namespace TelegramBot1
 {
@@ -1995,19 +1993,9 @@ namespace TelegramBot1
                             //nwCheckInCooldown(dt, message.Chat.Id, message.From);
 
 
-                            string mewe = GetHtmlCode("tiger", false, false);
+                            //string mewe = GetHtmlCode("tiger", false, false);
 
-                            XmlDocument mewetest = new XmlDocument();
-                            happy.HtmlDocument coc123 = new happy.HtmlDocument();
-                            coc123.LoadHtml(mewe);
-
-                            var htmlNodes = coc123.DocumentNode.SelectNodes(@"html/body/div[2]/c-wiz/div[3]");
-
-                            foreach (var node in htmlNodes)
-                            {
-                                Console.WriteLine(node.InnerText);
-                            }
-
+                           
                             //happy.
                             //mewetest.XmlResolver = null;
                             //mewetest.LoadXml(mewe);
