@@ -31,6 +31,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 using ehoh = System.IO;
 using File = System.IO.File;
 using happy = HtmlAgilityPack;
+using Gfycat;
 
 namespace TelegramBot1
 {
@@ -1300,20 +1301,46 @@ namespace TelegramBot1
 
                             await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
 
-                            retryme:
+                        retryme:
 
-                            // list of urls.
-                            string html = null;
+                            //GfycatClient client = new GfycatClient("2_cggidt", "tP-MFQOQLgMbJviB7nObCbuEVhafimmJX5sG30x1_t_jLvWpbV0IulP-YAJl4DiY");
+                            //await client.AuthenticateAsync();
 
-                            // Checks to see if the channel we are posting to has nsfw, or 18+ in title.
-                            html = GetHtmlCode(body, true, false);
+                            //var gifs= client.GetTrendingGfysAsync(body);
 
-                            List<string> urls = GetUrls(html);
+                            //gifs.Result.ToString();
+
+                            //Console.WriteLine(gifs.Result);
+
+
+                            dynamic d_gif = JObject.Parse(httpClient.DownloadString("https://api.gfycat.com/v1/gfycats/search?search_text=" + body).Result);
+
+                            //.max5mbgif.ToString()
+                            //Console.WriteLine(d_gif.gfycats[0].max5mbGif);
+                            //// list of urls.
+                            //string html = null;
+
+                            //// Checks to see if the channel we are posting to has nsfw, or 18+ in title.
+                            //html = GetHtmlCode(body, true, false);
+
+                            //List<string> urls = GetUrls(html);
+
+                            List<string> urls = new List<string>(5) { "", "", "", "", "" };
+                            for (int i = 0; i < 5; i++)
+                            {
+                                urls[i]= d_gif.gfycats[i].max5mbGif;
+                            }
+
+                            Console.WriteLine("MEOW");
+
+
                             var rnd = new Random();
 
                             int randomUrl = rnd.Next(0, urls.Count - 1);
 
                             string luckyUrl = urls[randomUrl];
+
+                            //string luckyUrl = d_gif.gfycats[0].max5mbGif;
 
                             // Check if the file is valid, or throws an unwanted status code.
                             if (!string.IsNullOrEmpty(luckyUrl))
@@ -1329,6 +1356,7 @@ namespace TelegramBot1
                                 catch (WebException we)
                                 {
                                     response = (HttpWebResponse)we.Response;
+                                    Console.WriteLine("MEOWCIFER");
                                 }
 
                                 if (response.StatusCode == HttpStatusCode.NotFound)
@@ -1967,19 +1995,27 @@ namespace TelegramBot1
                             //nwCheckInCooldown(dt, message.Chat.Id, message.From);
 
 
-                            string mewe =GetHtmlCode("tiger", false, false);
+                            string mewe = GetHtmlCode("tiger", false, false);
 
                             XmlDocument mewetest = new XmlDocument();
                             happy.HtmlDocument coc123 = new happy.HtmlDocument();
                             coc123.LoadHtml(mewe);
-                            
+
+                            var htmlNodes = coc123.DocumentNode.SelectNodes(@"html/body/div[2]/c-wiz/div[3]");
+
+                            foreach (var node in htmlNodes)
+                            {
+                                Console.WriteLine(node.InnerText);
+                            }
+
                             //happy.
                             //mewetest.XmlResolver = null;
                             //mewetest.LoadXml(mewe);
 
                             //XmlNodeList mewenl = mewetest.SelectNodes("/html/body/div[2]/c - wiz/div[3]");
+                            //*[@id="yDmH0d"]/div[2]/c-wiz/div[3]
+                            //html/body
 
-                         
 
                         }
                         else
