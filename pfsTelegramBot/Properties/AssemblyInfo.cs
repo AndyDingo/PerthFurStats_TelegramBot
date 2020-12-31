@@ -1,5 +1,5 @@
 ﻿/* 
- * All contents copyright 2016-2019, Andy Dingo and Contributors
+ * All contents copyright 2016 - 2020, Andy Dingo and Contributors
  * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
  * Please read docs/gpl.txt for licensing information.
  * ---------------------------------------------------------------
@@ -24,7 +24,7 @@ using System.Resources;
 [assembly: AssemblyConfiguration("Debug")]
 [assembly: AssemblyCompany("Snow Mew Creations")]
 [assembly: AssemblyProduct("Jessica's Chat Command Bot")]
-[assembly: AssemblyCopyright("Copyright © 2016 - 2019 Snow Mew Creations")]
+[assembly: AssemblyCopyright("Copyright © 2016 - 2020 Snow Mew Creations")]
 [assembly: AssemblyTrademark("Telegram is a cloud-based mobile and desktop messaging app with a focus on security and speed.")]
 [assembly: AssemblyCulture("")]
 
