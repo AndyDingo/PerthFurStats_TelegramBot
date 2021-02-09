@@ -1,4 +1,4 @@
-﻿/* 
+﻿/*
  * All contents copyright 2016 - 2020, Andy Dingo and Contributors
  * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
  * Please read docs/gpl.txt for licensing information.
@@ -23,7 +23,6 @@ namespace TelegramBot1
     /// </summary>
     public class ProHttpClient : HttpClient
     {
-
         /// <summary>
         /// http client constructor
         /// </summary>
@@ -58,7 +57,7 @@ namespace TelegramBot1
             return response;
         }
 
-        void BuildHeaders()
+        private void BuildHeaders()
         {
             DefaultRequestHeaders.Referrer = new Uri(ReferrerUri);
             if (AuthorizationHeader != string.Empty)
@@ -67,7 +66,7 @@ namespace TelegramBot1
             }
         }
 
-        void CleanHeaders()
+        private void CleanHeaders()
         {
             ReferrerUri = "https://duckduckgo.com";
             AuthorizationHeader = string.Empty;

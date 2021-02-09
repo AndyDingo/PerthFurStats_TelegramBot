@@ -1,4 +1,4 @@
-﻿/* 
+﻿/*
  * All contents copyright 2016 - 2020, Andy Dingo and Contributors
  * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
  * Please read docs/gpl.txt for licensing information.
@@ -43,17 +43,13 @@ namespace TelegramBot1
 
             if (doc.SelectSingleNode("config/" + user_key) != null)
             {
-
                 n_user = Convert.ToInt32(doc.SelectSingleNode("config/" + user_key).InnerText);
                 maxarray.SetValue(n_user, 0);
-
             }
             if (doc.SelectSingleNode("config/" + global_key) != null)
             {
-
                 n_global = Convert.ToInt32(doc.SelectSingleNode("config/" + global_key).InnerText);
                 maxarray.SetValue(global_key, 1);
-
             }
             return maxarray;
         }
@@ -74,10 +70,8 @@ namespace TelegramBot1
 
             if (doc.SelectSingleNode("config/" + key) != null)
             {
-
                 s = Convert.ToInt32(doc.SelectSingleNode("config/" + key).InnerText);
                 return s;
-
             }
             else { return -1; }
         }
@@ -90,26 +84,20 @@ namespace TelegramBot1
         /// <param name="value"></param>
         public static void nwSetUserString(string filename, string key, string value)
         {
-
             XmlDocument doc = new XmlDocument();
             doc.Load(filename);
 
             if (doc.SelectSingleNode("config/" + key) != null)
             {
-
                 doc.SelectSingleNode("config/" + key).InnerText = value;
-
             }
             else
             {
-
                 doc.CreateElement(key);
                 doc.SelectSingleNode("config/" + key).InnerText = value;
-
             }
 
             doc.Save(filename);
-
         }
 
         /// <summary>
@@ -120,26 +108,20 @@ namespace TelegramBot1
         /// <param name="value"></param>
         public static void nwSetGlobalString(string filename, string key, string value)
         {
-
             XmlDocument doc = new XmlDocument();
             doc.Load(filename);
 
             if (doc.SelectSingleNode("config/" + key) != null)
             {
-
                 doc.SelectSingleNode("config/" + key).InnerText = value;
-
             }
             else
             {
-
                 doc.CreateElement(key);
                 doc.SelectSingleNode("config/" + key).InnerText = value;
-
             }
 
             doc.Save(filename);
-
         }
     }
 }

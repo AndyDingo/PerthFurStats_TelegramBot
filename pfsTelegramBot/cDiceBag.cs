@@ -1,4 +1,4 @@
-﻿/* 
+﻿/*
  * All contents copyright 2016 - 2020, Andy Dingo and Contributors
  * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
  * Please read docs/gpl.txt for licensing information.
@@ -78,7 +78,6 @@ namespace TelegramBot1
         /// <returns>A string containing the result of the roll.</returns>
         public string Roll(Int32 numberOfDice, Int32 numberOfSides)
         {
-
             // don't allow a Number of Dice less than or equal to zero
             if (numberOfDice <= 0)
             {
@@ -95,7 +94,7 @@ namespace TelegramBot1
             // See: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfSystemRandomClassTopic.asp
             Random rnd = new Random((Int32)DateTime.Now.Ticks);
 
-            // Create the string builder class used to build the string 
+            // Create the string builder class used to build the string
             // we return with the result of the die rolls.
             // See: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemtextstringbuilderclasstopic.asp
             StringBuilder result = new StringBuilder();
@@ -106,7 +105,6 @@ namespace TelegramBot1
             // repeat once for each number of dice
             for (Int32 i = 0; i < numberOfDice; i++)
             {
-
                 // Get a pseudo-random result for this roll
                 Int32 roll = rnd.Next(1, numberOfSides);
 
@@ -115,7 +113,6 @@ namespace TelegramBot1
 
                 // Add the result of this roll to the string builder
                 result.AppendFormat("Dice {0:00}:\t{1}\n", i + 1, roll);
-
             }
 
             // Add a line to the result to seperate the rolls from the total

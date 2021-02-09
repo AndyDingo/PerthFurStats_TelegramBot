@@ -1,4 +1,4 @@
-﻿/* 
+﻿/*
  * All contents copyright 2016 - 2020, Andy Dingo and Contributors
  * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
  * Please read docs/gpl.txt for licensing information.
@@ -82,11 +82,9 @@ namespace TelegramBot1
         /// <returns>The temp in Degrees Celcius.</returns>
         public static double ConvertToCelcius(double fahrenheit)
         {
-
             double celsius = (fahrenheit - 32) * 5 / 9;
 
             return celsius;
-
         }
 
         /// <summary>
@@ -97,7 +95,7 @@ namespace TelegramBot1
         public static string nwStringCensor(string input)
         {
             string exceptions;
-            using (StreamReader sr = new StreamReader(Environment.CurrentDirectory+@"\data\censorlist.txt"))
+            using (StreamReader sr = new StreamReader(Environment.CurrentDirectory + @"\data\censorlist.txt"))
             {
                 exceptions = sr.ReadToEnd();
             }
@@ -116,7 +114,7 @@ namespace TelegramBot1
     /// <summary>
     /// The type of the permission
     /// </summary>
-    enum PermissionType : int
+    internal enum PermissionType : int
     {
         Admin,
         Developer,

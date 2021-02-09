@@ -1,4 +1,4 @@
-﻿/* 
+﻿/*
  * All contents copyright 2016 - 2020, Andy Dingo and Contributors
  * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
  * Please read docs/gpl.txt for licensing information.
@@ -36,25 +36,28 @@ namespace TelegramBot1
 #pragma warning disable 4014 // Allow for bot.SendChatAction to not be awaited
     // ReSharper disable FunctionNeverReturns
 #pragma warning disable RECS0022 // A catch clause that catches System.Exception and has an empty body
+
     // ReSharper disable CatchAllClause
-    class Program
+    internal class Program
     {
         #region -= VARIABLES =-
+
         //public static string s_logfile = Environment.CurrentDirectory + @"\pfsTelegramBot.log"; // error log
         public static string s_cfgfile = Environment.CurrentDirectory + @"\pfsTelegramBot.cfg"; // Main config
+
         public static string s_ucfgfile = Environment.CurrentDirectory + @"\pfsPermConfig.cfg"; // User perm config
         public static string s_botdb = Environment.CurrentDirectory + @"\data\botdata.s3db"; // Main config
         public static string s_commandcfg = Environment.CurrentDirectory + @"\data\commandlist.xml"; // User config
         private static readonly TelegramBotClient Bot = new TelegramBotClient(nwGrabString("botapitoken")); // Don't hard-code this.
-        #endregion
+
+        #endregion -= VARIABLES =-
 
         /// <summary>
         /// This is the main method, if you will.
         /// </summary>
         /// <param name="args"></param>
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-
             var me = Bot.GetMeAsync().Result;
             Console.Title = "Jessica's Telegram Group Command Bot";
 
@@ -88,7 +91,6 @@ namespace TelegramBot1
             Console.ForegroundColor = ConsoleColor.White;
             Console.ReadLine();
             Bot.StopReceiving();
-
         }
 
         #region -= Initial routines =-
@@ -193,7 +195,6 @@ namespace TelegramBot1
             else if (n_newver > n_oldver)
             {
                 Console.WriteLine("[" + dt.ToString(nwParseFormat(false)) + "] * System: There are updates available. Your Version [" + n_oldver.ToString() + "] Version on web [" + n_newver.ToString() + "]");
-
             }
             else if (n_newver < n_oldver)
             {
@@ -205,7 +206,7 @@ namespace TelegramBot1
             }
         }
 
-        #endregion
+        #endregion -= Initial routines =-
 
         #region -= Settings file IO routines =-
 
@@ -222,7 +223,6 @@ namespace TelegramBot1
             return childElement;
         }
 
-
         /// <summary>
         /// Settings file grabber
         /// </summary>
@@ -238,17 +238,13 @@ namespace TelegramBot1
 
             if (doc.SelectSingleNode("config/" + key) != null)
             {
-
                 s = doc.SelectSingleNode("config/" + key).InnerText;
                 return s;
-
             }
             else
             {
-
                 //Console.WriteLine("Error!");
                 return "Error";
-
             }
         }
 
@@ -268,10 +264,8 @@ namespace TelegramBot1
 
             if (doc.SelectSingleNode("config/" + key) != null)
             {
-
                 s = Convert.ToInt32(doc.SelectSingleNode("config/" + key).InnerText);
                 return s;
-
             }
             else { return -1; }
         }
@@ -328,7 +322,6 @@ namespace TelegramBot1
         //    }
         //}
 
-
         /// <summary>
         /// Set a string within settings.
         /// </summary>
@@ -342,7 +335,7 @@ namespace TelegramBot1
             doc.SelectSingleNode("config/" + key).InnerText = value;
             doc.Save(s_cfgfile);
         }
-        
+
         /// <summary>
         /// Grab the per-user maximum for a given command
         /// </summary>
@@ -357,14 +350,12 @@ namespace TelegramBot1
 
             if (doc.SelectSingleNode("commands/cmd_max_peruser/" + key) != null)
             {
-
                 s = Convert.ToInt32(doc.SelectSingleNode("commands/cmd_max_peruser/" + key).InnerText);
                 return s;
-
             }
             else { return -1; }
         }
-        
+
         /// <summary>
         /// Grab the amount of times a user has used a given command.
         /// </summary>
@@ -386,7 +377,6 @@ namespace TelegramBot1
 
             if (doc.SelectSingleNode("commands/" + s_username + "/" + key) != null)
             {
-                
                 s = Convert.ToInt32(doc.SelectSingleNode("commands/" + s_username + "/" + key).InnerText);
                 return s;
             }
@@ -408,10 +398,8 @@ namespace TelegramBot1
 
             if (doc.SelectSingleNode("commands/cmd_max_global/" + key) != null)
             {
-
                 s = Convert.ToInt32(doc.SelectSingleNode("commands/cmd_max_global/" + key).InnerText);
                 return s;
-
             }
             else { return -1; }
         }
@@ -431,17 +419,14 @@ namespace TelegramBot1
 
             if (doc.SelectSingleNode("commands/cmd_usage/" + key) != null)
             {
-
                 s = Convert.ToInt32(doc.SelectSingleNode("commands/cmd_usage/" + key).InnerText);
 
                 Console.WriteLine("This command has been used " + s + " times.");
 
                 return s;
-
             }
             else { return -1; }
         }
-
 
         /// <summary>
         /// Returns a string to be used as part of a date time format.
@@ -460,7 +445,7 @@ namespace TelegramBot1
                 return t;
         }
 
-        #endregion
+        #endregion -= Settings file IO routines =-
 
         private static void BotOnChosenInlineResultReceived(object sender, ChosenInlineResultEventArgs e)
         {
@@ -481,7 +466,6 @@ namespace TelegramBot1
 
             if (callbackQuery.Data == "Yes" && nwCheckInReplyTimer(dt) != false)
             {
-
                 nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + callbackQuery.Message.Chat.Id + " > " + "Well, here you go! *gives you a jelly baby*");
 
                 await Bot.AnswerCallbackQueryAsync(callbackQuery.Id, "Well, here you go! *gives you a jelly baby*");
@@ -492,12 +476,10 @@ namespace TelegramBot1
                 {
                     await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "]  <A.I.D.A> " + "Well, here you go! *gives you a jelly baby*");
                 }
-
             }
 
             if (callbackQuery.Data == "No" && nwCheckInReplyTimer(dt) != false)
             {
-
                 nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + callbackQuery.Message.Chat.Id + " > " + "No? A shame.");
 
                 await Bot.AnswerCallbackQueryAsync(callbackQuery.Id, "No? A shame.");
@@ -508,7 +490,6 @@ namespace TelegramBot1
                 {
                     await sw.WriteLineAsync("[" + dt.ToString(nwParseFormat(true)) + "]  <A.I.D.A> " + "No? A shame.");
                 }
-
             }
         }
 
@@ -587,7 +568,6 @@ namespace TelegramBot1
                         nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted an audio message.");
                     await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted an audio message.");
                 }
-
             }
 
             if (message.Type == MessageType.Voice)
@@ -602,7 +582,6 @@ namespace TelegramBot1
                         nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a voice message.");
                     await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a voice message.");
                 }
-
             }
 
             if (message.Type == MessageType.Contact)
@@ -617,7 +596,6 @@ namespace TelegramBot1
                         Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + message.Contact.FirstName);
                     await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared the contact information of " + message.Contact.FirstName);
                 }
-
             }
 
             if (message.Type == MessageType.Document)
@@ -632,7 +610,6 @@ namespace TelegramBot1
                         Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + message.Document.MimeType);
                     await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has shared a document of type: " + message.Document.MimeType);
                 }
-
             }
 
             if (message.Type == MessageType.ChatMembersAdded)
@@ -664,14 +641,11 @@ namespace TelegramBot1
                         Console.WriteLine("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
 
                     await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] * " + s_mffn + " has posted a sticker that represents the " + s + " emoticon.");
-
                 }
-
             }
 
             if (message.Type == MessageType.Video)
             {
-
                 m = message.Date.ToLocalTime();
 
                 using (ehoh.StreamWriter sw = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + n_chanid + "." + m.ToString(nwGrabString("dateformat")) + ".log", true))
@@ -682,7 +656,6 @@ namespace TelegramBot1
                         nwPrintSystemMessage("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a video message.");
                     await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* " + s_mffn + " has posted a video message.");
                 }
-
             }
 
             if (message.Type == MessageType.Venue) return;
@@ -708,17 +681,13 @@ namespace TelegramBot1
 
                 if (text.StartsWith("/s/", StringComparison.Ordinal))
                 {
-
                     command = "/s"; // special case for sed
                     body = text.Substring(2);
-
                 }
                 else
                 {
-
                     command = text.Split(' ')[0];
                     body = text.Replace(command, "").Trim();
-
                 }
 
                 // Put the command in lowercase. So !Cat becomes !cat
@@ -749,7 +718,6 @@ namespace TelegramBot1
                                 s_replyToUser = "Usage: !8ball [question to ask, followed by a question mark]" + Environment.NewLine + "Type '!8ball help' to see this message again.";
 
                                 break;
-
                             }
 
                             await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
@@ -829,7 +797,6 @@ namespace TelegramBot1
                             {
                                 nwSetString("debugMode", "true");
                                 nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: DEBUG MODE ENABLED!");
-
                             }
                             else
                             {
@@ -865,16 +832,13 @@ namespace TelegramBot1
                             s_replyToUser = "Usage: !dingo" + Environment.NewLine + "Type '!dingo help' to see this message again.";
 
                             break;
-
                         }
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
 
                             replyImage = nwShowSpeciesImage("dingo");
-
                         }
                         else
                         {
@@ -914,7 +878,6 @@ namespace TelegramBot1
                                 Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
 
                             break;
-
                         }
 
                         break;
@@ -925,21 +888,17 @@ namespace TelegramBot1
 
                         foreach (ChatMember x in cm_admine)
                         {
-
                             if (x.User.Username.Contains(s_mfun) != true || s_mfun != "JessicaSnowMew")
                             {
-
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "You have insufficient permissions to access this command.";
 
                                 break;
-
                             }
                         }
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             if (body == string.Empty || body == " " || body == "@" || body == null)
                             {
                                 await Bot.EditMessageTextAsync(message.Chat.Id, message.MessageId, body);
@@ -952,7 +911,7 @@ namespace TelegramBot1
                         }
 
                         break;
-                        
+
                     case "!addevent": // TODO: Create events
                     case "/addevent": // TODO: Create events
 
@@ -969,13 +928,11 @@ namespace TelegramBot1
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             if (body == string.Empty || body == " " || body == "@" || body == null)
                             {
                                 await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
 
                                 replyText = "I can't let you do that Dave.";
-
                             }
                             else if (body == "help")
                             {
@@ -984,40 +941,34 @@ namespace TelegramBot1
                                 s_replyToUser = "Usage: !addevent [url],['Event Title'],[Date],[Host name]" + Environment.NewLine + "The optional parameter number can be omitted, in which it just returns events for last 15 days by default." + Environment.NewLine + "Type '!event help' to see this message again.";
 
                                 break;
-
                             }
                             else
                             {
-
-                                string[] mysplit = new string[] { "1", "1", "1" ,"1","1"};
+                                string[] mysplit = new string[] { "1", "1", "1", "1", "1" };
                                 mysplit = body.Split(',');
 
-                                var fname=ehoh.Directory.GetCurrentDirectory() + @"/data/events.xml";
+                                var fname = ehoh.Directory.GetCurrentDirectory() + @"/data/events.xml";
 
-                                var event1 = new XElement("event", new XElement("id", dt.Ticks), 
-                                    new XElement("url", mysplit[0]), 
-                                    new XElement("title", mysplit[1]), 
+                                var event1 = new XElement("event", new XElement("id", dt.Ticks),
+                                    new XElement("url", mysplit[0]),
+                                    new XElement("title", mysplit[1]),
                                     new XElement("location", mysplit[3]),
                                     new XElement("start", mysplit[2]),
                                     new XElement("end", "TBD"),
                                     new XElement("authorid", message.From.Id),
                                     new XElement("host", mysplit[4]),
                                     new XElement("created", dt.ToString("yyyy-MM-dd HH:mm")));
-                                
+
                                 var doc = new XDocument();
 
                                 if (ehoh.File.Exists(fname))
                                 {
-                                    
                                     doc = XDocument.Load(fname);
                                     doc.Element("events").Add(event1);
-
                                 }
 
                                 doc.Save(fname);
-
                             }
-
                         }
                         else
                         {
@@ -1035,7 +986,6 @@ namespace TelegramBot1
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             if (body == string.Empty || body == " " || body == "@" || body == null)
                             {
                                 await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
@@ -1053,7 +1003,6 @@ namespace TelegramBot1
                                 s_replyToUser = "Usage: !event [number]" + Environment.NewLine + "The optional parameter number can be omitted, in which it just returns events for last 15 days by default." + Environment.NewLine + "Type '!event help' to see this message again.";
 
                                 break;
-
                             }
                             else
                             {
@@ -1062,7 +1011,6 @@ namespace TelegramBot1
                                 else
                                     replyText = "I can't let you do that Dave.";
                             }
-
                         }
                         else
                         {
@@ -1109,7 +1057,6 @@ namespace TelegramBot1
                             }
 
                             replyTextEvent = eventString.ToString();
-
                         }
                         else
                         {
@@ -1137,16 +1084,13 @@ namespace TelegramBot1
                             s_replyToUser = "Usage: !dog" + Environment.NewLine + "Type '!dog help' to see this message again.";
 
                             break;
-
                         }
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
 
                             replyImage = nwShowSpeciesImage("dog");
-
                         }
                         else
                         {
@@ -1172,16 +1116,13 @@ namespace TelegramBot1
                             s_replyToUser = "Usage: !corgi" + Environment.NewLine + "Type '!corgi help' to see this message again.";
 
                             break;
-
                         }
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
 
                             replyImage = nwShowSpeciesImage("corgi");
-
                         }
                         else
                         {
@@ -1207,16 +1148,13 @@ namespace TelegramBot1
                             s_replyToUser = "Usage: !dino" + Environment.NewLine + "Type '!dino help' to see this message again.";
 
                             break;
-
                         }
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
 
                             replyImage = nwShowSpeciesImage("dinosaur");
-
                         }
                         else
                         {
@@ -1242,16 +1180,13 @@ namespace TelegramBot1
                             s_replyToUser = "Usage: !ferret" + Environment.NewLine + "Type '!ferret help' to see this message again.";
 
                             break;
-
                         }
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
 
                             replyImage = nwShowSpeciesImage("ferret");
-
                         }
                         else
                         {
@@ -1259,7 +1194,6 @@ namespace TelegramBot1
                         }
 
                         break;
-
 
                     case "!greet":
                     case "!greeting":
@@ -1291,12 +1225,10 @@ namespace TelegramBot1
                             s_replyToUser = "Usage: !gif [Image to look for]" + Environment.NewLine + "Type '!gif help' to see this message again.";
 
                             break;
-
                         }
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
 
                         retryme:
@@ -1309,7 +1241,6 @@ namespace TelegramBot1
                             //gifs.Result.ToString();
 
                             //Console.WriteLine(gifs.Result);
-
 
                             dynamic d_gif = JObject.Parse(httpClient.DownloadString("https://api.gfycat.com/v1/gfycats/search?search_text=" + body).Result);
 
@@ -1326,11 +1257,10 @@ namespace TelegramBot1
                             List<string> urls = new List<string>(5) { "", "", "", "", "" };
                             for (int i = 0; i < 5; i++)
                             {
-                                urls[i]= d_gif.gfycats[i].max5mbGif;
+                                urls[i] = d_gif.gfycats[i].max5mbGif;
                             }
 
                             Console.WriteLine("MEOW");
-
 
                             var rnd = new Random();
 
@@ -1389,7 +1319,6 @@ namespace TelegramBot1
                             replyAnimation = luckyUrl;
 
                             break;
-
                         }
                         else
                         {
@@ -1429,15 +1358,13 @@ namespace TelegramBot1
                             s_replyToUser = "Usage: !image [Image to look for]" + Environment.NewLine + "Type '!image help' to see this message again.";
 
                             break;
-
                         }
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
 
-                            retryme:
+                        retryme:
 
                             // list of urls.
                             string html = null;
@@ -1493,7 +1420,6 @@ namespace TelegramBot1
                                     Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
                                                                response.StatusCode.ToString()));
                                 }
-
                             }
 
                             if (luckyUrl.Contains(" ") == true)
@@ -1505,7 +1431,6 @@ namespace TelegramBot1
                             //nwSetUserUsage(s_username, "img", n_img_uuse++); // set this users usage incrementally
 
                             break;
-
                         }
                         else
                         {
@@ -1518,17 +1443,14 @@ namespace TelegramBot1
 
                         if (ct == ChatType.Private)
                         {
-
                             if (nwCheckInReplyTimer(dt) != false)
                             {
-
                                 await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
 
                                 await Task.Delay(500); // simulate longer running task
 
                                 var inlineKeyboard = new InlineKeyboardMarkup(new[]
                                 {
-
                                     new [] // first row
                                     {
                                         InlineKeyboardButton.WithCallbackData("Yes"),
@@ -1549,12 +1471,10 @@ namespace TelegramBot1
                         }
                         else
                         {
-
                             if (nwCheckInReplyTimer(dt) != false)
                                 s_replyToUser = "This command can only be used in private messages.";
 
                             break;
-
                         }
                         break;
 
@@ -1610,7 +1530,6 @@ namespace TelegramBot1
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             dynamic djoke = JObject.Parse(httpClient.DownloadString("https://api.reddit.com/r/jokes/top?t=day&limit=5").Result);
                             var rjoke = new Random(DateTime.Now.Millisecond);
                             var ijokemax = Enumerable.Count(djoke.data.children);
@@ -1620,7 +1539,6 @@ namespace TelegramBot1
                             }
                             var ijoke = rjoke.Next(0, ijokemax);
                             replyText = djoke.data.children[ijoke].data.title.ToString() + " " + djoke.data.children[ijoke].data.selftext.ToString();
-
                         }
                         else
                             Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
@@ -1659,18 +1577,15 @@ namespace TelegramBot1
 
                         foreach (ChatMember x in cm_admind)
                         {
-
                             if (x.User.Username.Contains(s_mfun) != true || s_mfun != "JessicaSnowMew")
                             {
-
                                 if (nwCheckInReplyTimer(dt) != false)
                                     replyText = "You have insufficient permissions to access this command.";
 
                                 break;
-
                             }
                         }
-                        
+
                         if (body == string.Empty || body == " " || body == "@" || body == null)
                         {
                             await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
@@ -1736,38 +1651,28 @@ namespace TelegramBot1
 
                             foreach (ChatMember x in cm_admin)
                             {
-
                                 if (x.User.Username.Contains(s_mfun) != true)
                                 {
-
                                     if (nwCheckInReplyTimer(dt) != false)
                                         replyText = "You have insufficient permissions to access this command.";
                                     break;
-
                                 }
                                 else
                                 {
-
                                     if (nwCheckInReplyTimer(dt) != false)
                                     {
-
                                         int meow;
                                         meow = await Bot.GetChatMembersCountAsync(message.Chat.Id);
                                         s_replyToUser = "There are currently " + meow + " people in chat.";
-
                                     }
                                     else
                                     {
-
                                         Console.WriteLine(" The " + command + " failed as it took too long to process.");
-
                                     }
 
                                     break;
                                 }
-
                             }
-
                         }
 
                         break;
@@ -1810,7 +1715,6 @@ namespace TelegramBot1
 
                         if (ct == ChatType.Private)
                         {
-
                             if (nwCheckInReplyTimer(dt) != false)
                             {
                                 var idsetting = nwGrabString("chatid");
@@ -1819,18 +1723,15 @@ namespace TelegramBot1
                             }
                             else
                                 Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
-
                         }
                         else
                         {
-
                             if (nwCheckInReplyTimer(dt) != false)
                                 s_replyToUser = "This command can only be used in private messages.";
                             else
                                 Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
 
                             break;
-
                         }
                         break;
 
@@ -1843,23 +1744,19 @@ namespace TelegramBot1
 
                         if (ct == ChatType.Private)
                         {
-
                             if (nwCheckInReplyTimer(dt) != false)
                                 await Bot.SendTextMessageAsync(Convert.ToInt64(nwGrabString("chatid")), body, ParseMode.Html);
                             else
                                 Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
-
                         }
                         else
                         {
-
                             if (nwCheckInReplyTimer(dt) != false)
                                 s_replyToUser = "This command can only be used in private messages.";
                             else
                                 Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
 
                             break;
-
                         }
                         break;
 
@@ -1868,7 +1765,6 @@ namespace TelegramBot1
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             string s = "";
 
                             await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
@@ -1876,13 +1772,10 @@ namespace TelegramBot1
                             // Roll our dice.
                             s = nwRollDice(s_mfun, dt, body);
                             replyText = s;
-
                         }
                         else
                         {
-
                             Console.WriteLine("[Debug] * System: The " + command + " failed as it took too long to process.");
-
                         }
 
                         break;
@@ -1904,7 +1797,6 @@ namespace TelegramBot1
                             s_replyToUser = "Usage: !me [Action to perform]" + Environment.NewLine + "Type '!me help' to see this message again.";
 
                             break;
-
                         }
 
                         replyText = "*" + message.From.Username + " " + body + "*";
@@ -1932,18 +1824,15 @@ namespace TelegramBot1
                             s_replyToUser = "Usage: !snep" + Environment.NewLine + "Type '!snep help' to see this message again.";
 
                             break;
-
                         }
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
 
                             replyImage = nwShowSpeciesImage("snow leopard");
 
                             break;
-
                         }
                         else
                         {
@@ -1970,7 +1859,6 @@ namespace TelegramBot1
 
                         if (ct == ChatType.Private)
                         {
-
                             await Bot.SendTextMessageAsync(
                                 message.Chat.Id,
                                 "Test Successful.");
@@ -1992,10 +1880,8 @@ namespace TelegramBot1
 
                             //nwCheckInCooldown(dt, message.Chat.Id, message.From);
 
-
                             //string mewe = GetHtmlCode("tiger", false, false);
 
-                           
                             //happy.
                             //mewetest.XmlResolver = null;
                             //mewetest.LoadXml(mewe);
@@ -2003,17 +1889,13 @@ namespace TelegramBot1
                             //XmlNodeList mewenl = mewetest.SelectNodes("/html/body/div[2]/c - wiz/div[3]");
                             //*[@id="yDmH0d"]/div[2]/c-wiz/div[3]
                             //html/body
-
-
                         }
                         else
                         {
-
                             if (nwCheckInReplyTimer(dt) != false)
                                 s_replyToUser = "This command can only be used in private messages.";
 
                             break;
-
                         }
                         break;
 
@@ -2046,7 +1928,6 @@ namespace TelegramBot1
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             StringBuilder sb = new StringBuilder();
 
                             ChatMember[] mew = await Bot.GetChatAdministratorsAsync(message.Chat.Id);
@@ -2066,7 +1947,6 @@ namespace TelegramBot1
                         }
 
                         break;
-
 
                     case "!wrists":
 
@@ -2095,7 +1975,6 @@ namespace TelegramBot1
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             if (body == string.Empty || body == " " || body == "@" || body == null)
                             {
                                 await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
@@ -2124,12 +2003,10 @@ namespace TelegramBot1
                                 s_replyToUser = "Usage: !list [page number]" + Environment.NewLine + "Type '!list help' to see this message again.";
 
                                 break;
-
                             }
 
                             if (body == "1")
                             {
-
                                 await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
 
                                 StringBuilder clist = new StringBuilder();
@@ -2146,12 +2023,10 @@ namespace TelegramBot1
                                 replyTextEvent = clist.ToString();
 
                                 break;
-
                             }
 
                             if (body == "2")
                             {
-
                                 await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
 
                                 StringBuilder clist = new StringBuilder();
@@ -2168,12 +2043,10 @@ namespace TelegramBot1
                                 replyTextEvent = clist.ToString();
 
                                 break;
-
                             }
 
                             if (body == "3")
                             {
-
                                 await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
 
                                 StringBuilder clist = new StringBuilder();
@@ -2188,12 +2061,10 @@ namespace TelegramBot1
                                 replyTextEvent = clist.ToString();
 
                                 break;
-
                             }
 
                             if (body == "4")
                             {
-
                                 await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
 
                                 StringBuilder clist = new StringBuilder();
@@ -2213,12 +2084,10 @@ namespace TelegramBot1
                                 replyTextEvent = clist.ToString();
 
                                 break;
-
                             }
 
                             if (body == "5")
                             {
-
                                 await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
 
                                 StringBuilder clist = new StringBuilder();
@@ -2233,7 +2102,6 @@ namespace TelegramBot1
                                 replyTextEvent = clist.ToString();
 
                                 break;
-
                             }
                         }
 
@@ -2246,7 +2114,6 @@ namespace TelegramBot1
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             XmlDocument dok = new XmlDocument();
 
                             string apistring = "http://api.weatherapi.com/v1/forecast.xml?key=" + nwGrabString("weatherapi") + "&q=Perth&days=4";
@@ -2275,7 +2142,6 @@ namespace TelegramBot1
                             replyText = wString.ToString();
                         }
 
-
                         //if (nwCheckInReplyTimer(dt) != false)
                         //{
                         //    XmlDocument dok = new XmlDocument();
@@ -2293,7 +2159,6 @@ namespace TelegramBot1
                         //    XmlNodeList wnodes2;
                         //    wnodes2 = dok2.GetElementsByTagName("forecast-period");
 
-
                         //    // Create a new string builder
                         //    StringBuilder wString = new StringBuilder();
                         //    wString.AppendLine("Forecast for:");
@@ -2309,7 +2174,6 @@ namespace TelegramBot1
                         //    replyText = wString.ToString();
                         //}
 
-
                         break;
 
                     case "!weather": // TODO - change to BOM api
@@ -2318,7 +2182,6 @@ namespace TelegramBot1
 
                         if (nwCheckInReplyTimer(dt) != false)
                         {
-
                             ////dynamic dfor = JObject.Parse(httpClient.DownloadString("http://api.wunderground.com/api/" + wundergroundKey + "/forecast/q/" + body + ".json").Result);
                             dynamic d_weather = JObject.Parse(httpClient.DownloadString("http://www.bom.gov.au/fwo/IDW60801/IDW60801.94608.json").Result);
 
@@ -2340,7 +2203,6 @@ namespace TelegramBot1
                             weatherString.AppendLine("This data is refreshed every 10 mins.");
 
                             replyText = weatherString.ToString();
-
                         }
                         else
                         {
@@ -2368,16 +2230,13 @@ namespace TelegramBot1
                         }
 
                         break;
-
                 }
-
 
                 // Output
                 replyText += stringBuilder.ToString();
 
                 if (!string.IsNullOrEmpty(replyText))
                 {
-
                     if (nwGrabString("debugmode") == "true")
                         Console.WriteLine("[" + message.Chat.Id + "] [" + message.MessageId + "] [" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + replyText);
                     else
@@ -2401,7 +2260,6 @@ namespace TelegramBot1
 
                 if (!string.IsNullOrEmpty(s_replyToUser))
                 {
-
                     if (nwGrabString("debugmode") == "true")
                         Console.WriteLine("[" + message.Chat.Id + "] [" + message.MessageId + "] [" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + s_replyToUser);
                     else
@@ -2419,7 +2277,6 @@ namespace TelegramBot1
 
                     if (nwGrabString("logformat") == "csv" || nwGrabString("debugmode") == "true")
                     {
-
                         using (ehoh.StreamWriter sw1 = new ehoh.StreamWriter(Environment.CurrentDirectory + @"\logs\" + n_chanid + ".csv", true))
                         {
                             await sw1.WriteLineAsync(message.MessageId + "," + m.ToString("dd/MM/yyyy,HH:mm") + "," + message.From.Id + "," + s_replyToUser);
@@ -2429,7 +2286,6 @@ namespace TelegramBot1
 
                 if (!string.IsNullOrEmpty(replyTextEvent))
                 {
-
                     if (nwGrabString("debugmode") == "true")
                         Console.WriteLine("[" + message.Chat.Id + "] [" + message.MessageId + "] [" + dt.ToString(nwParseFormat(true)) + "] <A.I.D.A> " + replyTextEvent);
                     else
@@ -2462,7 +2318,6 @@ namespace TelegramBot1
 
                     try
                     {
-
                         var stream = httpClient.DownloadData(replyImage).Result;
 
                         var extension = ".jpg";
@@ -2513,7 +2368,6 @@ namespace TelegramBot1
                         nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: " + replyImage + " Threw: " + ex.Message);
                         await Bot.SendTextMessageAsync(message.Chat.Id, "Unable to download the requested image due to an error.");
                     }
-
                 }
 
                 if (!string.IsNullOrEmpty(replyAnimation) && replyAnimation.Length > 5)
@@ -2527,12 +2381,10 @@ namespace TelegramBot1
 
                     try
                     {
-
                         var stream = httpClient.DownloadData(replyAnimation).Result;
 
                         //await Bot.SendDocumentAsync(message.Chat.Id, stream, replyImageCaption == string.Empty ? replyImage : replyImageCaption, parseMode: ParseMode.Html);
                         await Bot.SendVideoAsync(message.Chat.Id, stream, caption: replyImageCaption == string.Empty ? replyAnimation : replyImageCaption, parseMode: ParseMode.Html);
-
                     }
                     catch (System.Net.Http.HttpRequestException ex)
                     {
@@ -2554,9 +2406,7 @@ namespace TelegramBot1
                         nwPrintSystemMessage("[" + dt.ToString(nwParseFormat(true)) + "] * System: " + replyAnimation + " Threw: " + ex.Message);
                         await Bot.SendTextMessageAsync(message.Chat.Id, "Unable to download the requested image due to an error.");
                     }
-
                 }
-
             }
 
             // Unknown Messages
@@ -2574,9 +2424,7 @@ namespace TelegramBot1
 
                     await sw.WriteLineAsync("[" + m.ToString(nwParseFormat(true)) + "] " + "* System: Unknown, please report");
                 }
-
             }
-
         }
 
         private static void BotOnReceiveError(object sender, ReceiveErrorEventArgs e)
@@ -2607,9 +2455,7 @@ namespace TelegramBot1
                   "* System: Target Site: " + e.ApiRequestException.TargetSite + Environment.NewLine +
                   "* System: Help Link: " + e.ApiRequestException.HelpLink);
             }
-
         }
-
 
         /// <summary>
         /// Set animal noise counter
@@ -2655,31 +2501,24 @@ namespace TelegramBot1
                 conn.Open();
 
                 string s_cmd = "SELECT * FROM user_noises WHERE userid=" + userid;
-                int output=0;
+                int output = 0;
 
                 using (SQLiteCommand command = new SQLiteCommand(s_cmd, conn))
                 {
-
                     using (SQLiteDataReader rdr = command.ExecuteReader())
                     {
-
-                        while(rdr.HasRows)
+                        while (rdr.HasRows)
                         {
                             rdr.Read();
 
-                            output= rdr.StepCount;
-
+                            output = rdr.StepCount;
                         }
                         return output;
-
                     }
-
                 }
 
                 conn.Close();
-
             }
-
         }
 
         private static string nwGenRandomPhrase2()
@@ -2689,12 +2528,16 @@ namespace TelegramBot1
             {
                 case 1:
                     return "The man!";
+
                 case 2:
                     return "The myth!";
+
                 case 3:
                     return "The legend!";
+
                 case 4:
                     return "The Amazing!";
+
                 default:
                     return @" \o/ ";
             }
@@ -2707,12 +2550,16 @@ namespace TelegramBot1
             {
                 case 1:
                     return "I miss him :C";
+
                 case 2:
                     return "<insert body part> out for Harambe!";
+
                 case 3:
                     return "http://knowyourmeme.com/memes/harambe-the-gorilla";
+
                 case 4:
                     return "Justice for Harambe!";
+
                 default:
                     return @" \o/ ";
             }
@@ -2725,12 +2572,16 @@ namespace TelegramBot1
             {
                 case 1:
                     return ".";
+
                 case 2:
                     return "!";
+
                 case 3:
                     return "?";
+
                 case 4:
                     return "!?!";
+
                 default:
                     return @" \o/ ";
             }
@@ -2742,7 +2593,6 @@ namespace TelegramBot1
         /// <param name="lastuser">The username to alter data for.</param>
         //private static int nwCountTotalCommands(string lastuser)
         //{
-
         //    string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
         //    MySqlConnection conn = new MySqlConnection(connStr);
 
@@ -2815,7 +2665,6 @@ namespace TelegramBot1
         //    conn.Close();
         //}
 
-
         /// <summary>
         /// Set total command usage.
         /// </summary>
@@ -2857,7 +2706,7 @@ namespace TelegramBot1
         //    conn.Close();
         //}
 
-        #endregion
+        #endregion -=COMMAND TOTALS=-
 
         /// <summary>
         /// Show an image for a species based on inputs
@@ -2866,7 +2715,7 @@ namespace TelegramBot1
         /// <returns>returns a url, from which an image is extracted.</returns>
         private static string nwShowSpeciesImage(string s_name /*Update update, ChatType ct*/)
         {
-            retryme:
+        retryme:
 
             // list of urls.
             string html = null;
@@ -2915,7 +2764,6 @@ namespace TelegramBot1
                     Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
                                                response.StatusCode.ToString()));
                 }
-
             }
 
             if (luckyUrl.Contains(" ") == true)
@@ -2933,7 +2781,7 @@ namespace TelegramBot1
         /// <returns>returns a url, from which an image is extracted.</returns>
         private static string nwShowSpeciesImage(string s_name, Update update, ChatType ct)
         {
-            retryme:
+        retryme:
 
             // list of urls.
             string html = null;
@@ -2977,7 +2825,6 @@ namespace TelegramBot1
                     Console.WriteLine(string.Format("URL might be ok. Status: {0}.",
                                                response.StatusCode.ToString()));
                 }
-
             }
 
             if (luckyUrl.Contains(" ") == true)
@@ -2988,7 +2835,7 @@ namespace TelegramBot1
 
         #region -= Bio command functions =-
 
-        private static void nwSetBio(string username,string bio)
+        private static void nwSetBio(string username, string bio)
         {
             //string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
             //MySqlConnection conn = new MySqlConnection(connStr);
@@ -3037,7 +2884,6 @@ namespace TelegramBot1
             //    MySqlCommand cmd = new MySqlCommand(sql, conn);
             //    cmd.ExecuteNonQuery();
 
-
             //}
             //catch (Exception ex)
             //{
@@ -3050,13 +2896,11 @@ namespace TelegramBot1
 
         private static void nwInsertBio(string username, string bio)
         {
-
             //string connStr = "server=localhost;user=root;database=pfs;port=3306;password=KewlDude647;";
             //MySqlConnection conn = new MySqlConnection(connStr);
 
             //try
             //{
-
             //    nwPrintSystemMessage("System: Connecting to MySQL...");
             //    conn.Open();
 
@@ -3067,14 +2911,12 @@ namespace TelegramBot1
             //}
             //catch (Exception ex)
             //{
-
             //    Console.WriteLine(ex.ToString());
 
             //}
 
             //conn.Close();
             Console.WriteLine("Done.");
-
         }
 
         //private static string nwShowBio(string username)
@@ -3113,10 +2955,10 @@ namespace TelegramBot1
         //    //msc.Close();
 
         //    //Console.WriteLine("Done.");
-            
+
         //}
 
-        #endregion
+        #endregion -= Bio command functions =-
 
         /// <summary>
         /// Returns event information from the events xml document.
@@ -3126,7 +2968,6 @@ namespace TelegramBot1
         /// <returns>A string with the information requested.</returns>
         private static string nwReturnEventInfo(DateTime dt, int days = 15)
         {
-
             // Current date / time
             DateTime dta = DateTime.Now;
 
@@ -3137,7 +2978,6 @@ namespace TelegramBot1
                 return "";
             else
             {
-
                 //Run query
                 var lv1s = from item in xdoc.Descendants("event")
                            where (Convert.ToDateTime(item.Element("start").Value) - dta).TotalDays < days
@@ -3161,9 +3001,7 @@ namespace TelegramBot1
                 }
 
                 return result.ToString();
-
             }
-
         }
 
         /// <summary>
@@ -3177,7 +3015,7 @@ namespace TelegramBot1
             string s_furl = null;
             string s_randxml;
 
-            meow:
+        meow:
 
             // Check if the file is valid, or throws an unwanted status code.
             if (!string.IsNullOrEmpty(url))
@@ -3188,7 +3026,7 @@ namespace TelegramBot1
                 request.KeepAlive = true;
                 request.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:44.0) Gecko/20100101 Firefox/44.0 WolingoPaws/1.0";
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                
+
                 if (response.StatusCode == HttpStatusCode.BadRequest)
                     goto meow;
                 if (response.StatusCode == HttpStatusCode.NotFound)
@@ -3213,9 +3051,8 @@ namespace TelegramBot1
 
                     if (doc1.SelectSingleNode("posts/post/file_url") != null)
                     {
-
                         XmlNodeList xnl_test2 = doc1.SelectNodes("posts/post");
-                        
+
                         s_randxml = xnl_test2[new Random().Next(0, xnl_test2.Count)].OuterXml;
 
                         xdoc.LoadXml(s_randxml);
@@ -3238,7 +3075,6 @@ namespace TelegramBot1
                         //   "{8}", filename, xdoc.SelectSingleNode("post/file_url").InnerText, xdoc.SelectSingleNode("post/artist/artist").InnerText, xdoc.SelectSingleNode("post/source").InnerText, xdoc.SelectSingleNode("post/score").InnerText, xdoc.SelectSingleNode("post/fav_count").InnerText, xdoc.SelectSingleNode("post/rating").InnerText, xdoc.SelectSingleNode("post/id").InnerText, s_sample);
 
                         Console.WriteLine("System: The following image was selected: " + s_sample);
-
                     }
                     else
                     {
@@ -3255,10 +3091,13 @@ namespace TelegramBot1
             {
                 case "e":
                     return "Explicit";
+
                 case "q":
                     return "Questionable";
+
                 case "s":
                     return "Safe";
+
                 default:
                     return innerText;
             }
@@ -3304,12 +3143,16 @@ namespace TelegramBot1
             {
                 case 1:
                     return "said";
+
                 case 2:
                     return "quipped";
+
                 case 3:
                     return "typed";
+
                 case 4:
                     return "posted";
+
                 default:
                     return "wrote";
             }
@@ -3350,7 +3193,6 @@ namespace TelegramBot1
 
             string bot = log.Count(c => c == ",Andy,").ToString();
 
-
             var lineCount = 0;
             using (var reader = File.OpenText(s_filename))
             {
@@ -3360,9 +3202,6 @@ namespace TelegramBot1
                 }
             }
             Console.WriteLine("Line count: " + lineCount.ToString());
-
-
-
         }
 
         /// <summary>
@@ -3401,7 +3240,6 @@ namespace TelegramBot1
                 }
             }
             return chosen;
-
         }
 
         /// <summary>
@@ -3415,17 +3253,13 @@ namespace TelegramBot1
         {
             if (body == string.Empty || body == " ")
             {
-
                 if (nwCheckInReplyTimer(dt) != false)
                     boto.SendTextMessageAsync(n_chatid, "Usage: !edit [messageid] [the text to change]");
-
             }
             else
             {
-
                 if (nwCheckInReplyTimer(dt) != false)
                 {
-
                     string[] mysplit = new string[] { "", "", "" };
                     mysplit = body.Split('~');
 
@@ -3435,11 +3269,8 @@ namespace TelegramBot1
                     int msg = Convert.ToInt32(ms1);
 
                     boto.EditMessageTextAsync(n_chatid, msg, ms2);
-
                 }
-
             }
-
         }
 
         /// <summary>
@@ -3461,11 +3292,11 @@ namespace TelegramBot1
 
             if (Regex.IsMatch(body, @"^\d+$"))
             {
-                return "There's a problem with the input:"+Environment.NewLine+"Usage: !roll [number of sides] [amount of dice]";
+                return "There's a problem with the input:" + Environment.NewLine + "Usage: !roll [number of sides] [amount of dice]";
             }
 
             string[] mysplit = new string[] { "1", "1", "1" };
-             mysplit = body.Split(' ');
+            mysplit = body.Split(' ');
 
             string ms1 = mysplit[0];
             string ms2 = mysplit[1];
@@ -3527,7 +3358,6 @@ namespace TelegramBot1
             doc.Save(s_commandcfg);
         }
 
-
         /// <summary>
         /// Set a string within settings.
         /// </summary>
@@ -3563,44 +3393,64 @@ namespace TelegramBot1
             {
                 case 1:
                     return "Outcome is as likely as my not caring about it.";
+
                 case 2:
                     return "Chances are good.... if you're a betting person.";
+
                 case 3:
                     return "Pfft, You wish.";
+
                 case 4:
                     return "You've got to be kidding.";
+
                 case 5:
                     return "Ask me if I care.";
+
                 case 6:
                     return "Dear god no.";
+
                 case 7:
                     return "Not in a million years. Maybe in fewer.";
+
                 case 8:
                     return "Can't decide.";
+
                 case 9:
                     return "Maybe, In a few weeks, if you're lucky.";
+
                 case 10:
                     return "If your mommy says it is OK.";
+
                 case 11:
                     return "Have you considered going to a psychologist?";
+
                 case 12:
                     return "If you accentuate the positive.";
+
                 case 13:
                     return "Between a rock and a hard place.";
+
                 case 14:
                     return "Don't bet on it.";
+
                 case 15:
                     return "Listen to your heart. If it's beating you're alive.";
+
                 case 16:
                     return "One is the loneliest number that you will ever do.";
+
                 case 17:
                     return "It smells like it.";
+
                 case 18:
                     return "Consult me later, experiencing a Guru Meditation error.";
+
                 case 19:
                     return "All signs point to no.";
+
                 case 20:
                     return "If you grease a few palms.";
+
                 default:
                     return "Yes, now give the screen a little kiss.";
             }
@@ -3639,8 +3489,7 @@ namespace TelegramBot1
         /// <returns></returns>
         private static string GetHtmlCode(string s_topic, bool isgif, bool isnsfw)
         {
-
-            meow:
+        meow:
 
             string url = "https://www.google.com/search?q=" + s_topic + "&safe=active&tbm=isch";
 
@@ -3699,7 +3548,6 @@ namespace TelegramBot1
             }
 
             return data;
-
         }
 
         /// <summary>
@@ -3765,7 +3613,6 @@ namespace TelegramBot1
                     return bytes;
                 }
             }
-            
         }
 
         /// <summary>
@@ -3780,7 +3627,7 @@ namespace TelegramBot1
             XmlNodeList xnl1 = xdoc.GetElementsByTagName("owners");
             XmlNodeList xnl2 = xdoc.GetElementsByTagName("admins");
             XmlNodeList xnl3 = xdoc.GetElementsByTagName("developers");
-            
+
             StringBuilder sb = new StringBuilder();
 
             for (var io = 0; io > xnl1.Count; io++) { sb.AppendLine(xnl1.Item(io).SelectSingleNode("admins").InnerText); }
@@ -3814,24 +3661,31 @@ namespace TelegramBot1
             {
                 case 1:
                     return "Hi";
+
                 case 2:
                     return "Greetings";
+
                 case 3:
                     return "Howdy";
+
                 case 4:
                     return "Ciao";
+
                 case 5:
                     return "Hello";
+
                 case 6:
                     return "Good day";
+
                 case 7:
                     return "Hi-ya";
+
                 case 8:
                     return "Shalom";
+
                 default:
                     return "Hallo";
             }
-
         }
 
         /// <summary>
@@ -3894,21 +3748,20 @@ namespace TelegramBot1
 
             using (ehoh.StreamWriter sw = new ehoh.StreamWriter(ehoh.Directory.GetCurrentDirectory() + @"\telegrambot.log", true))
             {
-                 sw.WriteLine("-----------------------------------------------------------------------------");
-                 sw.WriteLine("* System: Error has occurred at " + curTime.ToLongTimeString());
-                 sw.WriteLine("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine +
-                    "* System: Stack Trace: " + ex.StackTrace + Environment.NewLine +
-                    "* System: Inner Exception: " + ex.InnerException + Environment.NewLine +
-                    "* System: Inner Exception: " + ex.InnerException.Data.ToString() + Environment.NewLine +
-                    "* System: Inner Exception: " + ex.InnerException.Message + Environment.NewLine +
-                    "* System: Inner Exception: " + ex.InnerException.Source + Environment.NewLine +
-                    "* System: Inner Exception: " + ex.InnerException.StackTrace + Environment.NewLine +
-                    "* System: Inner Exception: " + ex.InnerException.TargetSite + Environment.NewLine +
-                    "* System: Source: " + ex.Source + Environment.NewLine +
-                   "* System: Target Site: " + ex.TargetSite + Environment.NewLine +
-                   "* System: Help Link: " + ex.HelpLink);
+                sw.WriteLine("-----------------------------------------------------------------------------");
+                sw.WriteLine("* System: Error has occurred at " + curTime.ToLongTimeString());
+                sw.WriteLine("* System: Error has occurred: " + ex.HResult + " " + ex.Message + Environment.NewLine +
+                   "* System: Stack Trace: " + ex.StackTrace + Environment.NewLine +
+                   "* System: Inner Exception: " + ex.InnerException + Environment.NewLine +
+                   "* System: Inner Exception: " + ex.InnerException.Data.ToString() + Environment.NewLine +
+                   "* System: Inner Exception: " + ex.InnerException.Message + Environment.NewLine +
+                   "* System: Inner Exception: " + ex.InnerException.Source + Environment.NewLine +
+                   "* System: Inner Exception: " + ex.InnerException.StackTrace + Environment.NewLine +
+                   "* System: Inner Exception: " + ex.InnerException.TargetSite + Environment.NewLine +
+                   "* System: Source: " + ex.Source + Environment.NewLine +
+                  "* System: Target Site: " + ex.TargetSite + Environment.NewLine +
+                  "* System: Help Link: " + ex.HelpLink);
             }
-
         }
 
         /// <summary>
@@ -3972,6 +3825,4 @@ namespace TelegramBot1
         sfw,
         nsfw,
     }
-
 }
-

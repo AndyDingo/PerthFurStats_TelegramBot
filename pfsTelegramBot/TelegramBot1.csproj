@@ -284,6 +284,7 @@
     </Content>
     <None Include="pfsTelegramBot.cfg">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Content Include="docs\gpl.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

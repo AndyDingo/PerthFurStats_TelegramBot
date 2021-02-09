@@ -1,4 +1,4 @@
-﻿/* 
+﻿/*
  * All contents copyright 2016 - 2020, Andy Dingo and Contributors
  * All rights reserved.  YOU MAY NOT REMOVE THIS NOTICE.
  * Please read docs/gpl.txt for licensing information.
@@ -31,7 +31,6 @@ namespace TelegramBot1
         //
         public void CreateSample(string outPathname, string password, string folderName)
         {
-
             FileStream fsOut = File.Create(outPathname);
             ZipOutputStream zipStream = new ZipOutputStream(fsOut);
 
@@ -58,12 +57,10 @@ namespace TelegramBot1
         /// <param name="folderOffset"></param>
         private void CompressFolder(string path, ZipOutputStream zipStream, int folderOffset)
         {
-
             string[] files = Directory.GetFiles(path);
 
             foreach (string filename in files)
             {
-
                 FileInfo fi = new FileInfo(filename);
 
                 string entryName = filename.Substring(folderOffset); // Makes the name in zip based on the folder
